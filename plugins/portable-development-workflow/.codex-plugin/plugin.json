@@ -1,0 +1,39 @@
+{
+  "name": "portable-development-workflow",
+  "version": "0.1.0",
+  "description": "Project-neutral development workflow skills for coding agents.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "homepage": "https://github.com/ITECS-Dallas/agent-skills/tree/main/plugins/portable-development-workflow",
+  "repository": "https://github.com/ITECS-Dallas/agent-skills",
+  "keywords": [
+    "codex",
+    "claude",
+    "agents",
+    "skills",
+    "development",
+    "workflow"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Portable Development Workflow",
+    "shortDescription": "Reusable coding-agent workflow skills",
+    "longDescription": "Project-neutral frontend, backend, boundary-testing, delivery, documentation, and PR workflow skills for coding agents.",
+    "developerName": "ITECS-Dallas",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/ITECS-Dallas/agent-skills",
+    "defaultPrompt": [
+      "Implement a scoped feature using repo-local patterns and the portable development workflow.",
+      "Fix a frontend-to-backend contract bug and add focused boundary tests.",
+      "Review whether a code change is minimal, well-tested, and ready to hand off."
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "agent-skills",
+  "description": "Portable, project-neutral development workflow skills for coding agents.",
+  "source_repo": "git@github.com:ITECS-Dallas/agent-skills.git",
+  "plugin_path": "plugins/portable-development-workflow",
+  "generated_on": "2026-05-05",
+  "skills": [
+    "backend-api-dev",
+    "backend-boundary-testing",
+    "branch-and-pr-discipline",
+    "codex-prompting-style",
+    "dependency-reuse",
+    "docs-parity",
+    "frontend-app-dev",
+    "is-it-good-enough",
+    "no-fallbacks",
+    "pragmatic-delivery",
+    "project-development-workflow",
+    "repo-boundaries",
+    "testing-gates-and-harnesses"
+  ],
+  "install": {
+    "codex_default": "$HOME/.codex/skills",
+    "agents_default": "$HOME/.agents/skills",
+    "script": "scripts/install.sh"
+  },
+  "validation": {
+    "script": "scripts/validate.mjs"
+  }
+}
