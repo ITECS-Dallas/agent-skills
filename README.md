@@ -87,6 +87,135 @@ node scripts/validate.mjs
 
 For project-pinned installs, update the submodule or subtree first, then rerun the install command from the pinned checkout.
 
+## New Project Setup
+
+Use this flow after the new project already has a GitHub repo and a local checkout.
+
+1. Clone or enter the project repo.
+
+```bash
+cd ~/Github
+git clone git@github.com:ORG/NEW-REPO.git
+cd NEW-REPO
+```
+
+2. Refresh the shared skills source repo.
+
+```bash
+cd ~/Github/agent-skills
+git pull --ff-only
+node scripts/validate.mjs
+```
+
+3. Install or refresh the shared skills locally.
+
+```bash
+./scripts/install.sh --target both --mode symlink --force
+```
+
+Use `--mode copy` instead of `--mode symlink` only when the target runtime or host cannot follow symlinks.
+
+4. Add a project-local pointer file. For Codex, prefer `AGENTS.md`; for Claude, prefer `CLAUDE.md`. It is fine to keep both if the project uses both tools.
+
+```md
+# Shared Agent Skills
+
+Shared agent skills source of truth:
+git@github.com:ITECS-Dallas/agent-skills.git
+
+Use the globally installed shared skills for reusable engineering workflow.
+Project-local instructions in this file override shared skills when they conflict.
+
+Project-specific rules belong here:
+- repo roots and app boundaries
+- local commands
+- deployment boundaries
+- environment names
+- approval gates
+- testing requirements
+```
+
+5. Commit the project-local pointer.
+
+```bash
+git add AGENTS.md
+git commit -m "docs: add shared agent skills guidance"
+git push
+```
+
+6. Start a new Codex or Claude session in the project checkout.
+
+New sessions should pick up the globally installed skills. If the app was already open, restart the app or start a new thread so the skill registry refreshes.
+
+## Pinned Per-Project Setup
+
+Use this mode when a project must pin an exact version of the shared skills instead of always tracking the workstation-global checkout.
+
+```bash
+cd ~/Github/NEW-REPO
+git submodule add git@github.com:ITECS-Dallas/agent-skills.git .agents/vendor/agent-skills
+git commit -m "chore: pin shared agent skills"
+```
+
+Install from the pinned copy:
+
+```bash
+cd .agents/vendor/agent-skills
+node scripts/validate.mjs
+./scripts/install.sh --target both --mode symlink --force
+```
+
+Update a pinned project later:
+
+```bash
+cd ~/Github/NEW-REPO/.agents/vendor/agent-skills
+git pull --ff-only
+node scripts/validate.mjs
+cd ~/Github/NEW-REPO
+git add .agents/vendor/agent-skills
+git commit -m "chore: update shared agent skills"
+git push
+```
+
+## Install As A Codex Plugin
+
+The symlink install above makes the individual skills available. The plugin install registers the bundle as a Codex plugin marketplace so Codex can discover the grouped `portable-development-workflow` plugin.
+
+Add this repo as a local marketplace:
+
+```bash
+codex plugin marketplace add ~/Github/agent-skills
+```
+
+Or add it from GitHub:
+
+```bash
+codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git
+```
+
+Then restart Codex Desktop. If Codex shows a plugin UI, enable or install `Portable Development Workflow`.
+
+If the plugin does not appear as enabled after adding the marketplace, confirm the marketplace was added and then add this block to the active Codex config file:
+
+```toml
+[plugins."portable-development-workflow@itecs-agent-skills"]
+enabled = true
+```
+
+Restart Codex Desktop after editing config.
+
+To upgrade the marketplace later:
+
+```bash
+codex plugin marketplace upgrade itecs-agent-skills
+```
+
+To remove it:
+
+```bash
+codex plugin marketplace remove itecs-agent-skills
+```
+
 ## Rules For Contributors
 
 - Keep skills project-neutral.
