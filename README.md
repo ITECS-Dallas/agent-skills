@@ -17,6 +17,7 @@ This repo is the source of truth for reusable agent guidance. It is intentionall
 | Skill | Use |
 | --- | --- |
 | `project-development-workflow` | Orchestrates frontend, backend, boundary, docs, and quality skills for normal feature work. |
+| `seo-audit` | Audits and improves technical SEO, metadata, schema, local search, content, public crawlability, and AI visibility. |
 | `frontend-app-dev` | Frontend app work with typed contracts, server-only secret handling, route handlers, rendering, and performance guardrails. |
 | `backend-api-dev` | Backend API work with contract-first routing, schema/data changes, auth, service boundaries, and generation checks. |
 | `backend-boundary-testing` | Focused seam tests for frontend-to-backend, auth, proxy, parser, and HTTP contract changes. |

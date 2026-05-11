@@ -1,0 +1,4 @@
+interface:
+  display_name: "SEO Audit"
+  short_description: "Audit and improve technical SEO, content, schema, local search, and AI visibility."
+  default_prompt: "Audit this website or page for SEO, crawlability, metadata, schema, internal links, mobile rendering, and AI-search visibility. Prioritize findings with evidence and validation steps."

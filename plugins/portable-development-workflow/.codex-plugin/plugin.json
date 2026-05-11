@@ -13,7 +13,9 @@
     "agents",
     "skills",
     "development",
-    "workflow"
+    "workflow",
+    "seo",
+    "audit"
   ],
   "skills": "./skills/",
   "interface": {
@@ -31,7 +33,8 @@
     "defaultPrompt": [
       "Implement a scoped feature using repo-local patterns and the portable development workflow.",
       "Fix a frontend-to-backend contract bug and add focused boundary tests.",
-      "Review whether a code change is minimal, well-tested, and ready to hand off."
+      "Review whether a code change is minimal, well-tested, and ready to hand off.",
+      "Audit a public website for crawlability, metadata, schema, internal links, mobile rendering, and AI visibility."
     ],
     "brandColor": "#2563EB",
     "screenshots": []
