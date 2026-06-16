@@ -5,6 +5,7 @@ import path from 'node:path';
 const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const pluginRoot = path.join(repoRoot, 'plugins', 'portable-development-workflow');
 const skillsRoot = path.join(pluginRoot, 'skills');
+const marketplacePath = path.join(repoRoot, '.agents', 'plugins', 'marketplace.json');
 const errors = [];
 
 function readJson(file) {
@@ -49,6 +50,7 @@ function parseFrontmatter(file) {
 
 const plugin = readJson(path.join(pluginRoot, '.codex-plugin', 'plugin.json'));
 const manifest = readJson(path.join(repoRoot, 'EXPORT-MANIFEST.json'));
+const marketplace = readJson(marketplacePath);
 
 if (plugin) {
   if (plugin.name !== 'portable-development-workflow') {
@@ -56,6 +58,107 @@ if (plugin) {
   }
   if (plugin.skills !== './skills/') {
     errors.push('plugin skills path must be ./skills/');
+  }
+}
+
+if (marketplace) {
+  if (marketplace.name !== 'itecs-agent-skills') {
+    errors.push('marketplace name must be itecs-agent-skills');
+  }
+
+  const entries = Array.isArray(marketplace.plugins) ? marketplace.plugins : [];
+  const pluginNames = new Set(entries.map((entry) => entry.name));
+  for (const requiredPlugin of ['portable-development-workflow', 'itecs-halopsa']) {
+    if (!pluginNames.has(requiredPlugin)) {
+      errors.push(`marketplace missing plugin: ${requiredPlugin}`);
+    }
+  }
+
+  for (const entry of entries) {
+    if (!entry.name) {
+      errors.push('marketplace plugin entry missing name');
+      continue;
+    }
+    if (entry.source?.source !== 'local') {
+      errors.push(`${entry.name}: marketplace source must be local`);
+    }
+    if (!entry.source?.path?.startsWith('./plugins/')) {
+      errors.push(`${entry.name}: marketplace source path must start with ./plugins/`);
+      continue;
+    }
+
+    const entryRoot = path.join(repoRoot, entry.source.path);
+    const entryManifest = readJson(path.join(entryRoot, '.codex-plugin', 'plugin.json'));
+    if (!entryManifest) continue;
+
+    if (entryManifest.name !== entry.name) {
+      errors.push(`${entry.name}: plugin manifest name must match marketplace entry`);
+    }
+    if (!entry.policy?.installation) {
+      errors.push(`${entry.name}: marketplace entry missing policy.installation`);
+    }
+    if (!entry.policy?.authentication) {
+      errors.push(`${entry.name}: marketplace entry missing policy.authentication`);
+    }
+    if (!entry.category) {
+      errors.push(`${entry.name}: marketplace entry missing category`);
+    }
+  }
+}
+
+const halopsaPluginRoot = path.join(repoRoot, 'plugins', 'itecs-halopsa');
+const halopsaPlugin = readJson(path.join(halopsaPluginRoot, '.codex-plugin', 'plugin.json'));
+if (halopsaPlugin) {
+  if (halopsaPlugin.name !== 'itecs-halopsa') {
+    errors.push('itecs-halopsa: plugin name must be itecs-halopsa');
+  }
+  if (halopsaPlugin.skills !== './skills/') {
+    errors.push('itecs-halopsa: skills path must be ./skills/');
+  }
+  if (halopsaPlugin.mcpServers !== './.mcp.json') {
+    errors.push('itecs-halopsa: mcpServers path must be ./.mcp.json');
+  }
+}
+
+const halopsaMcp = readJson(path.join(halopsaPluginRoot, '.mcp.json'));
+if (halopsaMcp) {
+  const server = halopsaMcp.mcpServers?.halopsa;
+  if (!server) {
+    errors.push('itecs-halopsa: .mcp.json missing mcpServers.halopsa');
+  } else {
+    if (server.command !== './scripts/run-halopsa-mcp') {
+      errors.push('itecs-halopsa: halopsa server command must be ./scripts/run-halopsa-mcp');
+    }
+    if (server.cwd !== '.') {
+      errors.push('itecs-halopsa: halopsa server cwd must be .');
+    }
+  }
+}
+
+const halopsaRequiredFiles = [
+  'README.md',
+  'skills/halopsa-mcp/SKILL.md',
+  'scripts/run-halopsa-mcp',
+  'bin/halopsa-mcp-darwin-arm64',
+  'bin/halopsa-mcp-darwin-amd64'
+];
+for (const relativeFile of halopsaRequiredFiles) {
+  const file = path.join(halopsaPluginRoot, relativeFile);
+  if (!fs.existsSync(file)) {
+    errors.push(`itecs-halopsa missing required file: ${relativeFile}`);
+  }
+}
+
+for (const relativeExecutable of [
+  'scripts/run-halopsa-mcp',
+  'bin/halopsa-mcp-darwin-arm64',
+  'bin/halopsa-mcp-darwin-amd64'
+]) {
+  const file = path.join(halopsaPluginRoot, relativeExecutable);
+  if (!fs.existsSync(file)) continue;
+  const executable = (fs.statSync(file).mode & 0o111) !== 0;
+  if (!executable) {
+    errors.push(`itecs-halopsa file must be executable: ${relativeExecutable}`);
   }
 }
 

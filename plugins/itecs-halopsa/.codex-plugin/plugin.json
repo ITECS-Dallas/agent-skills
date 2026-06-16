@@ -1,0 +1,40 @@
+{
+  "name": "itecs-halopsa",
+  "version": "0.1.0",
+  "description": "Read-only HaloPSA MCP connector for ITECS finance, billing, and operations workflows.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "homepage": "https://github.com/ITECS-Dallas/agent-skills/tree/main/plugins/itecs-halopsa",
+  "repository": "https://github.com/ITECS-Dallas/agent-skills",
+  "keywords": [
+    "codex",
+    "mcp",
+    "halopsa",
+    "purchase-orders",
+    "billing",
+    "finance",
+    "itecs"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "ITECS HaloPSA",
+    "shortDescription": "Read-only HaloPSA lookup tools",
+    "longDescription": "Provides a bundled read-only HaloPSA MCP server for ITECS finance, billing, purchase-order, client, invoice, recurring-invoice, and contract lookup workflows. Credentials and runtime configuration stay outside the plugin.",
+    "developerName": "ITECS-Dallas",
+    "category": "Business",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://github.com/ITECS-Dallas/agent-skills",
+    "defaultPrompt": [
+      "List HaloPSA purchase orders that need CFO review.",
+      "Look up a HaloPSA client, invoice, contract, or PO.",
+      "Use HaloPSA read-only tools for billing evidence."
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
+}

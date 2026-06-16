@@ -7,4 +7,5 @@ __pycache__/
 .work/
 tmp/
 dist/
+.serena/
 *.log

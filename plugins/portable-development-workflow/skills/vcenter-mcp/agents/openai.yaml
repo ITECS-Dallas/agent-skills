@@ -1,0 +1,4 @@
+interface:
+  display_name: "vCenter MCP"
+  short_description: "Operate the GO-MCP vCenter read-only inventory and billable VM audit workflow."
+  default_prompt: "Use the vCenter GO-MCP connector safely for billable VM inventory, client tags, resource allocation reports, and vCenter-to-HaloPSA reconciliation. Verify config without exposing secrets, keep operations read-only, and report generated paths plus aggregate counts."

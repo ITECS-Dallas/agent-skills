@@ -1,8 +1,12 @@
 {
   "name": "agent-skills",
-  "description": "Portable, project-neutral development workflow skills for coding agents.",
+  "description": "ITECS agent skills for reusable development workflow and GO-MCP billing connectors.",
   "source_repo": "git@github.com:ITECS-Dallas/agent-skills.git",
   "plugin_path": "plugins/portable-development-workflow",
+  "plugins": [
+    "portable-development-workflow",
+    "itecs-halopsa"
+  ],
   "generated_on": "2026-05-05",
   "skills": [
     "backend-api-dev",
@@ -12,13 +16,17 @@
     "dependency-reuse",
     "docs-parity",
     "frontend-app-dev",
+    "grill-me",
+    "halopsa-mcp",
     "is-it-good-enough",
     "no-fallbacks",
+    "pax8-mcp",
     "pragmatic-delivery",
     "project-development-workflow",
     "repo-boundaries",
     "seo-audit",
-    "testing-gates-and-harnesses"
+    "testing-gates-and-harnesses",
+    "vcenter-mcp"
   ],
   "install": {
     "codex_default": "$HOME/.codex/skills",

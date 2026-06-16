@@ -1,0 +1,12 @@
+interface:
+  display_name: "ITECS HaloPSA MCP"
+  short_description: "Use read-only HaloPSA tools for clients, invoices, recurring invoices, contracts, and purchase orders."
+  brand_color: "#2563EB"
+  default_prompt: "Use the ITECS HaloPSA read-only MCP tools to look up purchase orders and related billing evidence."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "halopsa"
+      description: "Bundled ITECS HaloPSA read-only MCP server"
+      transport: "stdio"
