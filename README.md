@@ -1,16 +1,24 @@
 # Agent Skills
 
-Portable development workflow skills for Codex, Claude, and other coding agents.
+ITECS agent skills for Codex, Claude, and other coding agents.
 
-This repo is the source of truth for reusable agent guidance. It is intentionally project-neutral: no skill assumes a company, product, filesystem path, repository name, cloud account, or local machine layout. Project-specific rules should stay in each project's `AGENTS.md`, `CLAUDE.md`, `.cursor/rules`, or equivalent local instruction file.
+This repo is the source of truth for reusable agent guidance. Most skills are project-neutral. ITECS-specific connector skills are included here when they should appear in the ITECS Agent Skills plugin rather than only as repo-local runbooks. Project-specific rules should stay in each project's `AGENTS.md`, `CLAUDE.md`, `.cursor/rules`, or equivalent local instruction file.
 
 ## What Is Included
 
-- `plugins/portable-development-workflow/` - Codex plugin-ready bundle.
-- `plugins/portable-development-workflow/skills/` - the reusable skill catalog.
+- `plugins/portable-development-workflow/` - Codex plugin-ready bundle for the ITECS Agent Skills marketplace.
+- `plugins/portable-development-workflow/skills/` - reusable workflow skills plus ITECS GO-MCP connector skills.
+- `plugins/itecs-halopsa/` - Codex plugin that bundles the read-only HaloPSA MCP runtime.
 - `scripts/install.sh` - copies or symlinks skills into local agent skill directories.
 - `scripts/validate.mjs` - validates skill frontmatter, plugin metadata, and portability.
 - `templates/project-skill-source-of-truth.md` - drop-in project docs for linking this repo from another project.
+
+## Codex Plugins
+
+| Plugin | Purpose |
+| --- | --- |
+| `portable-development-workflow` | Reusable workflow and connector-operation skills for coding agents. |
+| `itecs-halopsa` | Bundled read-only HaloPSA MCP server exposing client, invoice, recurring-invoice, contract, purchase-order, and server-list lookup tools. |
 
 ## Skill Catalog
 
@@ -19,6 +27,8 @@ This repo is the source of truth for reusable agent guidance. It is intentionall
 | `project-development-workflow` | Orchestrates frontend, backend, boundary, docs, and quality skills for normal feature work. |
 | `seo-audit` | Audits and improves technical SEO, metadata, schema, local search, content, public crawlability, and AI visibility. |
 | `frontend-app-dev` | Frontend app work with typed contracts, server-only secret handling, route handlers, rendering, and performance guardrails. |
+| `grill-me` | Decision-tree interview flow for ambiguous plans, remediation paths, workflow changes, and implementation scope. |
+| `halopsa-mcp` | Operate the GO-MCP HaloPSA read-only billing connector and recurring-invoice audit workflow. |
 | `backend-api-dev` | Backend API work with contract-first routing, schema/data changes, auth, service boundaries, and generation checks. |
 | `backend-boundary-testing` | Focused seam tests for frontend-to-backend, auth, proxy, parser, and HTTP contract changes. |
 | `branch-and-pr-discipline` | Branch, commit, push, and PR hygiene. |
@@ -27,9 +37,11 @@ This repo is the source of truth for reusable agent guidance. It is intentionall
 | `docs-parity` | Keep canonical docs aligned with shipped behavior. |
 | `is-it-good-enough` | Final adversarial quality gate before handoff. |
 | `no-fallbacks` | Prevent silent fallbacks, compatibility layers, and permanent temporary paths. |
+| `pax8-mcp` | Operate the GO-MCP Pax8 read-only billing source connector and Pax8-to-HaloPSA audit workflow. |
 | `pragmatic-delivery` | Keep scope small, direct, and releasable. |
 | `repo-boundaries` | Respect ownership boundaries in single-repo and multi-repo systems. |
 | `testing-gates-and-harnesses` | Select verification gates based on touched risk. |
+| `vcenter-mcp` | Operate the GO-MCP vCenter read-only inventory and billable VM audit workflow. |
 
 ## Install Locally
 
@@ -178,9 +190,9 @@ git commit -m "chore: update shared agent skills"
 git push
 ```
 
-## Install As A Codex Plugin
+## Install As Codex Plugins
 
-The symlink install above makes the individual skills available. The plugin install registers the bundle as a Codex plugin marketplace so Codex can discover the grouped `portable-development-workflow` plugin.
+The symlink install above makes the individual skills available. The plugin install registers this repo as a Codex plugin marketplace so Codex can discover the grouped `portable-development-workflow` plugin and the runtime `itecs-halopsa` MCP plugin.
 
 Add this repo as a local marketplace:
 
@@ -191,21 +203,38 @@ codex plugin marketplace add ~/Github/agent-skills
 Or add it from GitHub:
 
 ```bash
-codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git
+codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git --ref main
 ```
 
-Then restart Codex Desktop. If Codex shows a plugin UI, enable or install `Portable Development Workflow`.
+Then install one or both plugins:
+
+```bash
+codex plugin add portable-development-workflow@itecs-agent-skills
+codex plugin add itecs-halopsa@itecs-agent-skills
+```
+
+Then restart Codex Desktop or start a new thread. If Codex shows a plugin UI, enable or install `ITECS Agent Skills` for the skills bundle and `ITECS HaloPSA` for live HaloPSA MCP tools.
 
 If the plugin does not appear as enabled after adding the marketplace, confirm the marketplace was added and then add this block to the active Codex config file:
 
 ```toml
 [plugins."portable-development-workflow@itecs-agent-skills"]
 enabled = true
+
+[plugins."itecs-halopsa@itecs-agent-skills"]
+enabled = true
 ```
 
 Restart Codex Desktop after editing config.
 
-To upgrade the marketplace later:
+To refresh a local marketplace install after this repo changes:
+
+```bash
+codex plugin add portable-development-workflow@itecs-agent-skills
+codex plugin add itecs-halopsa@itecs-agent-skills
+```
+
+For a Git-backed marketplace source, upgrade the marketplace snapshot first:
 
 ```bash
 codex plugin marketplace upgrade itecs-agent-skills

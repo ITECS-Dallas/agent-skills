@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+CONFIG="${HALOPSA_MCP_CONFIG:-$HOME/.codex/halopsa-mcp/config.json}"
+
+if [[ ! -f "$CONFIG" ]]; then
+  printf 'HaloPSA MCP config not found at %s\n' "$CONFIG" >&2
+  printf 'Create ~/.codex/halopsa-mcp/config.json or set HALOPSA_MCP_CONFIG.\n' >&2
+  exit 2
+fi
+
+case "$(uname -s)-$(uname -m)" in
+  Darwin-arm64)
+    BIN="$ROOT/bin/halopsa-mcp-darwin-arm64"
+    ;;
+  Darwin-x86_64)
+    BIN="$ROOT/bin/halopsa-mcp-darwin-amd64"
+    ;;
+  *)
+    printf 'Unsupported platform for bundled HaloPSA MCP binary: %s-%s\n' "$(uname -s)" "$(uname -m)" >&2
+    exit 2
+    ;;
+esac
+
+if [[ ! -x "$BIN" ]]; then
+  printf 'HaloPSA MCP binary is missing or not executable: %s\n' "$BIN" >&2
+  exit 2
+fi
+
+exec "$BIN" -config "$CONFIG" "$@"

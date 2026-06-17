@@ -1,7 +1,7 @@
 {
   "name": "portable-development-workflow",
   "version": "0.1.0",
-  "description": "Project-neutral development workflow skills for coding agents.",
+  "description": "ITECS agent skills for reusable development workflow and GO-MCP billing connectors.",
   "author": {
     "name": "ITECS-Dallas"
   },
@@ -15,13 +15,18 @@
     "development",
     "workflow",
     "seo",
-    "audit"
+    "audit",
+    "go-mcp",
+    "billing",
+    "halopsa",
+    "vcenter",
+    "pax8"
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Portable Development Workflow",
-    "shortDescription": "Reusable coding-agent workflow skills",
-    "longDescription": "Project-neutral frontend, backend, boundary-testing, delivery, documentation, and PR workflow skills for coding agents.",
+    "displayName": "ITECS Agent Skills",
+    "shortDescription": "Reusable workflow and GO-MCP connector skills",
+    "longDescription": "Reusable frontend, backend, boundary-testing, delivery, documentation, PR workflow, and ITECS GO-MCP billing connector skills for coding agents.",
     "developerName": "ITECS-Dallas",
     "category": "Coding",
     "capabilities": [
@@ -34,7 +39,8 @@
       "Implement a scoped feature using repo-local patterns and the portable development workflow.",
       "Fix a frontend-to-backend contract bug and add focused boundary tests.",
       "Review whether a code change is minimal, well-tested, and ready to hand off.",
-      "Audit a public website for crawlability, metadata, schema, internal links, mobile rendering, and AI visibility."
+      "Audit a public website for crawlability, metadata, schema, internal links, mobile rendering, and AI visibility.",
+      "Use the GO-MCP HaloPSA, vCenter, or Pax8 connector skills for a read-only billing audit workflow."
     ],
     "brandColor": "#2563EB",
     "screenshots": []

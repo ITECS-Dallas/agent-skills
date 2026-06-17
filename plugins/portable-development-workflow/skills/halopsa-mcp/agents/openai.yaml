@@ -1,0 +1,4 @@
+interface:
+  display_name: "HaloPSA MCP"
+  short_description: "Operate the GO-MCP HaloPSA read-only billing connector and recurring-invoice audit workflow."
+  default_prompt: "Use the HaloPSA GO-MCP connector safely for client mapping, recurring invoices, invoice line items, and billing reconciliation. Verify local config exists without exposing secrets, keep operations read-only, and report only aggregate outputs unless detail is requested."

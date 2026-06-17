@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "halopsa": {
+      "command": "./scripts/run-halopsa-mcp",
+      "args": [],
+      "cwd": "."
+    }
+  }
+}
