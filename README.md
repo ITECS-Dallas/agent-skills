@@ -15,6 +15,8 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 - `plugins/portable-development-workflow/` - Codex plugin for reusable workflow skills and GO-MCP operating guidance.
 - `plugins/portable-development-workflow/skills/` - skill source folders installed into local agent runtimes.
 - `plugins/itecs-halopsa/` - Codex plugin that bundles the read-only HaloPSA MCP runtime and its HaloPSA skill.
+- `plugins/itecs-vcenter/` - Codex plugin that bundles the read-only vCenter MCP runtime and its vCenter skill.
+- `plugins/itecs-pax8/` - Codex plugin that bundles the read-only Pax8 MCP runtime and its Pax8 skill.
 - `scripts/install.sh` - copies or symlinks portable skills into `$CODEX_HOME/skills` and `$AGENTS_HOME/skills`.
 - `scripts/validate.mjs` - validates skill frontmatter, marketplace entries, plugin metadata, required files, and portability.
 - `templates/project-skill-source-of-truth.md` - drop-in project docs for linking this repo from another project.
@@ -25,6 +27,8 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | --- | --- | --- |
 | `portable-development-workflow@itecs-agent-skills` | ITECS Agent Skills | Reusable workflow and connector-operation skills for coding agents. |
 | `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled read-only HaloPSA MCP server exposing client, invoice, recurring-invoice, contract, purchase-order, and server-list lookup tools. |
+| `itecs-vcenter@itecs-agent-skills` | ITECS vCenter | Bundled read-only vCenter MCP server for VM inventory, tags, hosting allocation, and billing evidence. |
+| `itecs-pax8@itecs-agent-skills` | ITECS Pax8 | Bundled read-only Pax8 MCP server for companies, subscriptions, products, invoices, and billing evidence. |
 
 The Codex plugin surface is private and marketplace-backed from this repository. It is not a public marketplace publication path. Other Codex installations need access to this private repo or to an approved local clone.
 
@@ -206,6 +210,8 @@ The skill install above exposes individual skill folders. The plugin install reg
 
 - `portable-development-workflow@itecs-agent-skills` for the reusable ITECS skill bundle.
 - `itecs-halopsa@itecs-agent-skills` for live read-only HaloPSA MCP tools.
+- `itecs-vcenter@itecs-agent-skills` for live read-only vCenter MCP tools.
+- `itecs-pax8@itecs-agent-skills` for live read-only Pax8 MCP tools.
 
 Add this repo as a local filesystem marketplace when the machine already has a clone:
 
@@ -219,11 +225,13 @@ Or add it from GitHub on another Codex installation that has access to the priva
 codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git --ref main
 ```
 
-Then install one or both plugins:
+Then install the skills plugin and any runtime connector plugins needed on that machine:
 
 ```bash
 codex plugin add portable-development-workflow@itecs-agent-skills
 codex plugin add itecs-halopsa@itecs-agent-skills
+codex plugin add itecs-vcenter@itecs-agent-skills
+codex plugin add itecs-pax8@itecs-agent-skills
 ```
 
 Then restart Codex Desktop or start a new thread. Current threads do not automatically gain newly installed plugin MCP tools.
@@ -232,6 +240,8 @@ If Codex shows a plugin UI, enable or install:
 
 - `ITECS Agent Skills` for the reusable skills bundle.
 - `ITECS HaloPSA` for live HaloPSA MCP tools.
+- `ITECS vCenter` for live vCenter MCP tools.
+- `ITECS Pax8` for live Pax8 MCP tools.
 
 If the plugin does not appear as enabled after adding the marketplace, confirm the marketplace was added and then add this block to the active Codex config file:
 
@@ -241,18 +251,24 @@ enabled = true
 
 [plugins."itecs-halopsa@itecs-agent-skills"]
 enabled = true
+
+[plugins."itecs-vcenter@itecs-agent-skills"]
+enabled = true
+
+[plugins."itecs-pax8@itecs-agent-skills"]
+enabled = true
 ```
 
 Restart Codex Desktop after editing config.
 
 ### Windows 11 PowerShell Setup
 
-Use this path on a Windows 11 workstation when the goal is to install the ITECS skills plugin from the private marketplace without cloning the repo first.
+Use this path on a Windows 11 workstation when the goal is to install the ITECS skills plugin and read-only GO-MCP connector plugins from the private marketplace without cloning the repo first.
 
 Prerequisites:
 
 - Codex Desktop or Codex CLI installed.
-- Git for Windows installed.
+- Git for Windows installed, including Git Bash available as `bash` on `PATH`.
 - Access to the private `ITECS-Dallas/agent-skills` GitHub repo.
 - GitHub authentication already working for Git, either through SSH or GitHub CLI.
 
@@ -279,10 +295,13 @@ Or use SSH if the Windows machine has a working GitHub SSH key:
 codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git --ref main
 ```
 
-Install the ITECS skills plugin:
+Install the ITECS skills plugin and runtime connector plugins:
 
 ```powershell
 codex plugin add portable-development-workflow@itecs-agent-skills
+codex plugin add itecs-halopsa@itecs-agent-skills
+codex plugin add itecs-vcenter@itecs-agent-skills
+codex plugin add itecs-pax8@itecs-agent-skills
 ```
 
 Confirm it is installed:
@@ -298,15 +317,26 @@ If the plugin does not appear as enabled, add this block to the active Codex con
 ```toml
 [plugins."portable-development-workflow@itecs-agent-skills"]
 enabled = true
+
+[plugins."itecs-halopsa@itecs-agent-skills"]
+enabled = true
+
+[plugins."itecs-vcenter@itecs-agent-skills"]
+enabled = true
+
+[plugins."itecs-pax8@itecs-agent-skills"]
+enabled = true
 ```
 
-The `itecs-halopsa` MCP plugin currently packages macOS binaries and a shell launcher. Do not expect the HaloPSA MCP runtime to run natively on Windows until this repo includes a Windows build and Windows launcher for that plugin.
+Each runtime connector plugin launches through Bash and dispatches to the bundled macOS or Windows binary for the current machine.
 
 To refresh from a local filesystem marketplace after this repo changes:
 
 ```bash
 codex plugin add portable-development-workflow@itecs-agent-skills
 codex plugin add itecs-halopsa@itecs-agent-skills
+codex plugin add itecs-vcenter@itecs-agent-skills
+codex plugin add itecs-pax8@itecs-agent-skills
 ```
 
 For a Git-backed marketplace source, update the marketplace snapshot first, then reinstall the plugin entries:
@@ -315,6 +345,8 @@ For a Git-backed marketplace source, update the marketplace snapshot first, then
 codex plugin marketplace upgrade itecs-agent-skills
 codex plugin add portable-development-workflow@itecs-agent-skills
 codex plugin add itecs-halopsa@itecs-agent-skills
+codex plugin add itecs-vcenter@itecs-agent-skills
+codex plugin add itecs-pax8@itecs-agent-skills
 ```
 
 To remove it:
@@ -323,36 +355,46 @@ To remove it:
 codex plugin marketplace remove itecs-agent-skills
 ```
 
-## HaloPSA Runtime Boundary
+## GO-MCP Runtime Boundaries
 
-The `itecs-halopsa` plugin packages the MCP launcher, bundled macOS binaries, and HaloPSA skill instructions. Live credentials and runtime configuration stay outside this repo.
+The `itecs-halopsa`, `itecs-vcenter`, and `itecs-pax8` plugins package MCP launchers, bundled macOS and Windows binaries, and connector-specific skill instructions. Live credentials and runtime configuration stay outside this repo.
 
-Current bundled binaries target macOS only:
+Current bundled binaries target:
 
 - `darwin-arm64`
 - `darwin-amd64`
+- `windows-arm64.exe`
+- `windows-amd64.exe`
 
-Native Windows use requires a Windows HaloPSA MCP binary and launcher before installing or enabling the `itecs-halopsa` plugin on a Windows workstation.
+Windows 11 machines require Git Bash or another Bash runtime available as `bash` on `PATH` because Codex starts each connector through its plugin launcher script.
 
-Default local config path:
+Default local config paths:
 
 ```text
 ~/.codex/halopsa-mcp/config.json
+~/.codex/vcenter-mcp/config.json
+~/.codex/pax8-mcp/config.json
 ```
 
-Optional per-session override:
+Optional per-session overrides:
 
 ```bash
 export HALOPSA_MCP_CONFIG=/absolute/path/to/config.json
+export VCENTER_MCP_CONFIG=/absolute/path/to/config.json
+export PAX8_MCP_CONFIG=/absolute/path/to/config.json
 ```
 
-Do not commit or paste HaloPSA `.env` files, config JSON, API tokens, client secrets, raw HaloPSA exports, generated billing reports, or customer data. HaloPSA workflows in this repo are read-only unless a task explicitly authorizes mutation.
+Do not commit or paste connector `.env` files, config JSON, API tokens, client secrets, passwords, raw exports, generated billing reports, or customer data. GO-MCP workflows in this repo are read-only unless a task explicitly authorizes mutation.
 
-Smoke-test the installed plugin tool surface without printing secrets:
+Smoke-test installed plugin tool surfaces without printing secrets:
 
 ```bash
-go run github.com/modelcontextprotocol/go-sdk/examples/client/listfeatures \
-  ~/Github/agent-skills/plugins/itecs-halopsa/scripts/run-halopsa-mcp
+go run github.com/modelcontextprotocol/go-sdk/examples/client/listfeatures@latest \
+  bash ~/Github/agent-skills/plugins/itecs-halopsa/scripts/run-halopsa-mcp
+go run github.com/modelcontextprotocol/go-sdk/examples/client/listfeatures@latest \
+  bash ~/Github/agent-skills/plugins/itecs-vcenter/scripts/run-vcenter-mcp
+go run github.com/modelcontextprotocol/go-sdk/examples/client/listfeatures@latest \
+  bash ~/Github/agent-skills/plugins/itecs-pax8/scripts/run-pax8-mcp
 ```
 
 ## Rules For Contributors

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-CONFIG="${HALOPSA_MCP_CONFIG:-$HOME/.codex/halopsa-mcp/config.json}"
+CONFIG="${HALOPSA_MCP_CONFIG:-${HOME:?HOME is required}/.codex/halopsa-mcp/config.json}"
 
 if [[ ! -f "$CONFIG" ]]; then
   printf 'HaloPSA MCP config not found at %s\n' "$CONFIG" >&2
@@ -10,18 +10,31 @@ if [[ ! -f "$CONFIG" ]]; then
   exit 2
 fi
 
-case "$(uname -s)-$(uname -m)" in
-  Darwin-arm64)
-    BIN="$ROOT/bin/halopsa-mcp-darwin-arm64"
-    ;;
-  Darwin-x86_64)
-    BIN="$ROOT/bin/halopsa-mcp-darwin-amd64"
-    ;;
+OS_NAME="$(uname -s)"
+ARCH_NAME="$(uname -m)"
+
+case "$OS_NAME" in
+  Darwin*) OS="darwin" ;;
+  MINGW*|MSYS*|CYGWIN*) OS="windows" ;;
   *)
-    printf 'Unsupported platform for bundled HaloPSA MCP binary: %s-%s\n' "$(uname -s)" "$(uname -m)" >&2
+    printf 'Unsupported platform for bundled HaloPSA MCP binary: %s-%s\n' "$OS_NAME" "$ARCH_NAME" >&2
     exit 2
     ;;
 esac
+
+case "$ARCH_NAME" in
+  arm64|aarch64) ARCH="arm64" ;;
+  x86_64|amd64) ARCH="amd64" ;;
+  *)
+    printf 'Unsupported architecture for bundled HaloPSA MCP binary: %s-%s\n' "$OS_NAME" "$ARCH_NAME" >&2
+    exit 2
+    ;;
+esac
+
+BIN="$ROOT/bin/halopsa-mcp-$OS-$ARCH"
+if [[ "$OS" == "windows" ]]; then
+  BIN="$BIN.exe"
+fi
 
 if [[ ! -x "$BIN" ]]; then
   printf 'HaloPSA MCP binary is missing or not executable: %s\n' "$BIN" >&2

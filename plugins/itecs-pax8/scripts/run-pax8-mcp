@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+CONFIG="${PAX8_MCP_CONFIG:-${HOME:?HOME is required}/.codex/pax8-mcp/config.json}"
+
+if [[ ! -f "$CONFIG" ]]; then
+  printf 'Pax8 MCP config not found at %s\n' "$CONFIG" >&2
+  printf 'Create ~/.codex/pax8-mcp/config.json or set PAX8_MCP_CONFIG.\n' >&2
+  exit 2
+fi
+
+OS_NAME="$(uname -s)"
+ARCH_NAME="$(uname -m)"
+
+case "$OS_NAME" in
+  Darwin*) OS="darwin" ;;
+  MINGW*|MSYS*|CYGWIN*) OS="windows" ;;
+  *)
+    printf 'Unsupported platform for bundled Pax8 MCP binary: %s-%s\n' "$OS_NAME" "$ARCH_NAME" >&2
+    exit 2
+    ;;
+esac
+
+case "$ARCH_NAME" in
+  arm64|aarch64) ARCH="arm64" ;;
+  x86_64|amd64) ARCH="amd64" ;;
+  *)
+    printf 'Unsupported architecture for bundled Pax8 MCP binary: %s-%s\n' "$OS_NAME" "$ARCH_NAME" >&2
+    exit 2
+    ;;
+esac
+
+BIN="$ROOT/bin/pax8-mcp-$OS-$ARCH"
+if [[ "$OS" == "windows" ]]; then
+  BIN="$BIN.exe"
+fi
+
+if [[ ! -x "$BIN" ]]; then
+  printf 'Pax8 MCP binary is missing or not executable: %s\n' "$BIN" >&2
+  exit 2
+fi
+
+exec "$BIN" -config "$CONFIG" "$@"
