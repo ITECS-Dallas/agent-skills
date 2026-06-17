@@ -245,6 +245,63 @@ enabled = true
 
 Restart Codex Desktop after editing config.
 
+### Windows 11 PowerShell Setup
+
+Use this path on a Windows 11 workstation when the goal is to install the ITECS skills plugin from the private marketplace without cloning the repo first.
+
+Prerequisites:
+
+- Codex Desktop or Codex CLI installed.
+- Git for Windows installed.
+- Access to the private `ITECS-Dallas/agent-skills` GitHub repo.
+- GitHub authentication already working for Git, either through SSH or GitHub CLI.
+
+If using GitHub CLI for HTTPS authentication:
+
+```powershell
+winget install --id Git.Git -e
+winget install --id GitHub.cli -e
+gh auth login
+gh auth setup-git
+```
+
+Add the marketplace from PowerShell.
+
+Use HTTPS if GitHub CLI is handling Git credentials:
+
+```powershell
+codex plugin marketplace add https://github.com/ITECS-Dallas/agent-skills.git --ref main
+```
+
+Or use SSH if the Windows machine has a working GitHub SSH key:
+
+```powershell
+codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git --ref main
+```
+
+Install the ITECS skills plugin:
+
+```powershell
+codex plugin add portable-development-workflow@itecs-agent-skills
+```
+
+Confirm it is installed:
+
+```powershell
+codex plugin list
+```
+
+Then restart Codex Desktop or start a new thread. Current threads do not automatically gain newly installed plugin skills or MCP tools.
+
+If the plugin does not appear as enabled, add this block to the active Codex config file, normally `%USERPROFILE%\.codex\config.toml`:
+
+```toml
+[plugins."portable-development-workflow@itecs-agent-skills"]
+enabled = true
+```
+
+The `itecs-halopsa` MCP plugin currently packages macOS binaries and a shell launcher. Do not expect the HaloPSA MCP runtime to run natively on Windows until this repo includes a Windows build and Windows launcher for that plugin.
+
 To refresh from a local filesystem marketplace after this repo changes:
 
 ```bash
@@ -269,6 +326,13 @@ codex plugin marketplace remove itecs-agent-skills
 ## HaloPSA Runtime Boundary
 
 The `itecs-halopsa` plugin packages the MCP launcher, bundled macOS binaries, and HaloPSA skill instructions. Live credentials and runtime configuration stay outside this repo.
+
+Current bundled binaries target macOS only:
+
+- `darwin-arm64`
+- `darwin-amd64`
+
+Native Windows use requires a Windows HaloPSA MCP binary and launcher before installing or enabling the `itecs-halopsa` plugin on a Windows workstation.
 
 Default local config path:
 
