@@ -68,7 +68,7 @@ if (marketplace) {
 
   const entries = Array.isArray(marketplace.plugins) ? marketplace.plugins : [];
   const pluginNames = new Set(entries.map((entry) => entry.name));
-  for (const requiredPlugin of ['portable-development-workflow', 'itecs-halopsa']) {
+  for (const requiredPlugin of ['portable-development-workflow', 'itecs-halopsa', 'itecs-vcenter', 'itecs-pax8']) {
     if (!pluginNames.has(requiredPlugin)) {
       errors.push(`marketplace missing plugin: ${requiredPlugin}`);
     }
@@ -106,59 +106,90 @@ if (marketplace) {
   }
 }
 
-const halopsaPluginRoot = path.join(repoRoot, 'plugins', 'itecs-halopsa');
-const halopsaPlugin = readJson(path.join(halopsaPluginRoot, '.codex-plugin', 'plugin.json'));
-if (halopsaPlugin) {
-  if (halopsaPlugin.name !== 'itecs-halopsa') {
-    errors.push('itecs-halopsa: plugin name must be itecs-halopsa');
+const runtimePlugins = [
+  {
+    name: 'itecs-halopsa',
+    serverName: 'halopsa',
+    skillName: 'halopsa-mcp',
+    script: 'run-halopsa-mcp',
+    binaryPrefix: 'halopsa-mcp'
+  },
+  {
+    name: 'itecs-vcenter',
+    serverName: 'vcenter',
+    skillName: 'vcenter-mcp',
+    script: 'run-vcenter-mcp',
+    binaryPrefix: 'vcenter-mcp'
+  },
+  {
+    name: 'itecs-pax8',
+    serverName: 'pax8',
+    skillName: 'pax8-mcp',
+    script: 'run-pax8-mcp',
+    binaryPrefix: 'pax8-mcp'
   }
-  if (halopsaPlugin.skills !== './skills/') {
-    errors.push('itecs-halopsa: skills path must be ./skills/');
-  }
-  if (halopsaPlugin.mcpServers !== './.mcp.json') {
-    errors.push('itecs-halopsa: mcpServers path must be ./.mcp.json');
-  }
-}
-
-const halopsaMcp = readJson(path.join(halopsaPluginRoot, '.mcp.json'));
-if (halopsaMcp) {
-  const server = halopsaMcp.mcpServers?.halopsa;
-  if (!server) {
-    errors.push('itecs-halopsa: .mcp.json missing mcpServers.halopsa');
-  } else {
-    if (server.command !== './scripts/run-halopsa-mcp') {
-      errors.push('itecs-halopsa: halopsa server command must be ./scripts/run-halopsa-mcp');
-    }
-    if (server.cwd !== '.') {
-      errors.push('itecs-halopsa: halopsa server cwd must be .');
-    }
-  }
-}
-
-const halopsaRequiredFiles = [
-  'README.md',
-  'skills/halopsa-mcp/SKILL.md',
-  'scripts/run-halopsa-mcp',
-  'bin/halopsa-mcp-darwin-arm64',
-  'bin/halopsa-mcp-darwin-amd64'
 ];
-for (const relativeFile of halopsaRequiredFiles) {
-  const file = path.join(halopsaPluginRoot, relativeFile);
-  if (!fs.existsSync(file)) {
-    errors.push(`itecs-halopsa missing required file: ${relativeFile}`);
-  }
-}
 
-for (const relativeExecutable of [
-  'scripts/run-halopsa-mcp',
-  'bin/halopsa-mcp-darwin-arm64',
-  'bin/halopsa-mcp-darwin-amd64'
-]) {
-  const file = path.join(halopsaPluginRoot, relativeExecutable);
-  if (!fs.existsSync(file)) continue;
-  const executable = (fs.statSync(file).mode & 0o111) !== 0;
-  if (!executable) {
-    errors.push(`itecs-halopsa file must be executable: ${relativeExecutable}`);
+for (const runtimePlugin of runtimePlugins) {
+  const runtimePluginRoot = path.join(repoRoot, 'plugins', runtimePlugin.name);
+  const runtimeManifest = readJson(path.join(runtimePluginRoot, '.codex-plugin', 'plugin.json'));
+  if (runtimeManifest) {
+    if (runtimeManifest.name !== runtimePlugin.name) {
+      errors.push(`${runtimePlugin.name}: plugin name must be ${runtimePlugin.name}`);
+    }
+    if (runtimeManifest.skills !== './skills/') {
+      errors.push(`${runtimePlugin.name}: skills path must be ./skills/`);
+    }
+    if (runtimeManifest.mcpServers !== './.mcp.json') {
+      errors.push(`${runtimePlugin.name}: mcpServers path must be ./.mcp.json`);
+    }
+  }
+
+  const runtimeMcp = readJson(path.join(runtimePluginRoot, '.mcp.json'));
+  if (runtimeMcp) {
+    const server = runtimeMcp.mcpServers?.[runtimePlugin.serverName];
+    if (!server) {
+      errors.push(`${runtimePlugin.name}: .mcp.json missing mcpServers.${runtimePlugin.serverName}`);
+    } else {
+      if (server.command !== 'bash') {
+        errors.push(`${runtimePlugin.name}: ${runtimePlugin.serverName} server command must be bash`);
+      }
+      if (!Array.isArray(server.args) || server.args[0] !== `./scripts/${runtimePlugin.script}`) {
+        errors.push(`${runtimePlugin.name}: ${runtimePlugin.serverName} server args must start with ./scripts/${runtimePlugin.script}`);
+      }
+      if (server.cwd !== '.') {
+        errors.push(`${runtimePlugin.name}: ${runtimePlugin.serverName} server cwd must be .`);
+      }
+    }
+  }
+
+  const requiredFiles = [
+    'README.md',
+    `skills/${runtimePlugin.skillName}/SKILL.md`,
+    `scripts/${runtimePlugin.script}`,
+    `bin/${runtimePlugin.binaryPrefix}-darwin-arm64`,
+    `bin/${runtimePlugin.binaryPrefix}-darwin-amd64`,
+    `bin/${runtimePlugin.binaryPrefix}-windows-arm64.exe`,
+    `bin/${runtimePlugin.binaryPrefix}-windows-amd64.exe`
+  ];
+  for (const relativeFile of requiredFiles) {
+    const file = path.join(runtimePluginRoot, relativeFile);
+    if (!fs.existsSync(file)) {
+      errors.push(`${runtimePlugin.name} missing required file: ${relativeFile}`);
+    }
+  }
+
+  for (const relativeExecutable of [
+    `scripts/${runtimePlugin.script}`,
+    `bin/${runtimePlugin.binaryPrefix}-darwin-arm64`,
+    `bin/${runtimePlugin.binaryPrefix}-darwin-amd64`
+  ]) {
+    const file = path.join(runtimePluginRoot, relativeExecutable);
+    if (!fs.existsSync(file)) continue;
+    const executable = (fs.statSync(file).mode & 0o111) !== 0;
+    if (!executable) {
+      errors.push(`${runtimePlugin.name} file must be executable: ${relativeExecutable}`);
+    }
   }
 }
 

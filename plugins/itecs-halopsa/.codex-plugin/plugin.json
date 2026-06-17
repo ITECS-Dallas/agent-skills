@@ -1,7 +1,7 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.1.0",
-  "description": "Read-only HaloPSA MCP connector for ITECS finance, billing, and operations workflows.",
+  "version": "0.2.0",
+  "description": "Cross-platform read-only HaloPSA MCP connector for ITECS finance, billing, and operations workflows.",
   "author": {
     "name": "ITECS-Dallas"
   },

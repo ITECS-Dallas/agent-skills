@@ -27,6 +27,30 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Business"
+    },
+    {
+      "name": "itecs-vcenter",
+      "source": {
+        "source": "local",
+        "path": "./plugins/itecs-vcenter"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business"
+    },
+    {
+      "name": "itecs-pax8",
+      "source": {
+        "source": "local",
+        "path": "./plugins/itecs-pax8"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business"
     }
   ]
 }

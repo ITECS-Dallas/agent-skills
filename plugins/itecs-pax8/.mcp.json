@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "pax8": {
+      "command": "bash",
+      "args": [
+        "./scripts/run-pax8-mcp"
+      ],
+      "cwd": "."
+    }
+  }
+}

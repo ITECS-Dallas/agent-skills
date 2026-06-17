@@ -1,8 +1,10 @@
 {
   "mcpServers": {
     "halopsa": {
-      "command": "./scripts/run-halopsa-mcp",
-      "args": [],
+      "command": "bash",
+      "args": [
+        "./scripts/run-halopsa-mcp"
+      ],
       "cwd": "."
     }
   }

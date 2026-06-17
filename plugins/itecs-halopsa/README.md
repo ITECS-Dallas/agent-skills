@@ -41,6 +41,17 @@ export HALOPSA_MCP_CONFIG=/absolute/path/to/config.json
 
 Do not commit `.env`, local config JSON, API tokens, client secrets, raw HaloPSA exports, or generated billing reports.
 
+## Supported Platforms
+
+Bundled MCP binaries are included for:
+
+- macOS Apple Silicon: `darwin-arm64`
+- macOS Intel: `darwin-amd64`
+- Windows 11 x64: `windows-amd64.exe`
+- Windows 11 ARM64: `windows-arm64.exe`
+
+The plugin launcher is a Bash script. Windows 11 machines need Git for Windows or another Bash runtime available as `bash` on `PATH`.
+
 ## Install From The ITECS Marketplace
 
 For another Codex installation with access to this private repo:
@@ -57,18 +68,15 @@ Start a new Codex thread after installing so the plugin MCP tools are loaded.
 From this plugin directory:
 
 ```bash
-./scripts/run-halopsa-mcp -config ~/.codex/halopsa-mcp/config.json
+bash ./scripts/run-halopsa-mcp
 ```
 
 For feature discovery without printing secrets:
 
 ```bash
-go run github.com/modelcontextprotocol/go-sdk/examples/client/listfeatures \
-  ./bin/halopsa-mcp-darwin-arm64 \
-  -config ~/.codex/halopsa-mcp/config.json
+go run github.com/modelcontextprotocol/go-sdk/examples/client/listfeatures@latest \
+  bash ./scripts/run-halopsa-mcp
 ```
-
-Use `halopsa-mcp-darwin-amd64` on Intel macOS.
 
 ## Source Of Truth
 

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "vcenter": {
+      "command": "bash",
+      "args": [
+        "./scripts/run-vcenter-mcp"
+      ],
+      "cwd": "."
+    }
+  }
+}

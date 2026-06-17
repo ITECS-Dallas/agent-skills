@@ -1,0 +1,40 @@
+{
+  "name": "itecs-pax8",
+  "version": "0.2.0",
+  "description": "Cross-platform read-only Pax8 MCP connector for ITECS finance and billing workflows.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "homepage": "https://github.com/ITECS-Dallas/agent-skills/tree/main/plugins/itecs-pax8",
+  "repository": "https://github.com/ITECS-Dallas/agent-skills",
+  "keywords": [
+    "codex",
+    "mcp",
+    "pax8",
+    "subscriptions",
+    "billing",
+    "finance",
+    "itecs"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "ITECS Pax8",
+    "shortDescription": "Read-only Pax8 lookup tools",
+    "longDescription": "Provides a bundled read-only Pax8 MCP server for ITECS company, subscription, product, invoice, draft invoice item, and billing evidence workflows. Credentials and runtime configuration stay outside the plugin.",
+    "developerName": "ITECS-Dallas",
+    "category": "Business",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://github.com/ITECS-Dallas/agent-skills",
+    "defaultPrompt": [
+      "List Pax8 subscriptions that need billing review.",
+      "Look up Pax8 companies, products, invoices, or invoice items.",
+      "Use Pax8 read-only tools for billing evidence."
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
+}
