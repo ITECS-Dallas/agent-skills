@@ -1,24 +1,32 @@
 # Agent Skills
 
-ITECS agent skills for Codex, Claude, and other coding agents.
+Source-of-truth repository for ITECS reusable agent skills and Codex plugin packaging.
 
-This repo is the source of truth for reusable agent guidance. Most skills are project-neutral. ITECS-specific connector skills are included here when they should appear in the ITECS Agent Skills plugin rather than only as repo-local runbooks. Project-specific rules should stay in each project's `AGENTS.md`, `CLAUDE.md`, `.cursor/rules`, or equivalent local instruction file.
+This repo serves two related purposes:
 
-## What Is Included
+1. Maintain reusable engineering skills for Codex, Claude, and other local agent runtimes.
+2. Publish the private ITECS Codex plugin marketplace used to install grouped skills and MCP-backed business tools.
 
-- `plugins/portable-development-workflow/` - Codex plugin-ready bundle for the ITECS Agent Skills marketplace.
-- `plugins/portable-development-workflow/skills/` - reusable workflow skills plus ITECS GO-MCP connector skills.
-- `plugins/itecs-halopsa/` - Codex plugin that bundles the read-only HaloPSA MCP runtime.
-- `scripts/install.sh` - copies or symlinks skills into local agent skill directories.
-- `scripts/validate.mjs` - validates skill frontmatter, plugin metadata, and portability.
+Most skills should remain project-neutral. ITECS-specific connector skills belong here only when they are intended to appear in the shared ITECS plugin surface. Project-specific rules, commands, secrets, approval gates, and deployment boundaries should stay in each project's `AGENTS.md`, `CLAUDE.md`, `.cursor/rules`, or equivalent local instruction file.
+
+## Repository Contents
+
+- `.agents/plugins/marketplace.json` - private Codex marketplace definition named `itecs-agent-skills`.
+- `plugins/portable-development-workflow/` - Codex plugin for reusable workflow skills and GO-MCP operating guidance.
+- `plugins/portable-development-workflow/skills/` - skill source folders installed into local agent runtimes.
+- `plugins/itecs-halopsa/` - Codex plugin that bundles the read-only HaloPSA MCP runtime and its HaloPSA skill.
+- `scripts/install.sh` - copies or symlinks portable skills into `$CODEX_HOME/skills` and `$AGENTS_HOME/skills`.
+- `scripts/validate.mjs` - validates skill frontmatter, marketplace entries, plugin metadata, required files, and portability.
 - `templates/project-skill-source-of-truth.md` - drop-in project docs for linking this repo from another project.
 
 ## Codex Plugins
 
-| Plugin | Purpose |
-| --- | --- |
-| `portable-development-workflow` | Reusable workflow and connector-operation skills for coding agents. |
-| `itecs-halopsa` | Bundled read-only HaloPSA MCP server exposing client, invoice, recurring-invoice, contract, purchase-order, and server-list lookup tools. |
+| Install ID | Display Name | Purpose |
+| --- | --- | --- |
+| `portable-development-workflow@itecs-agent-skills` | ITECS Agent Skills | Reusable workflow and connector-operation skills for coding agents. |
+| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled read-only HaloPSA MCP server exposing client, invoice, recurring-invoice, contract, purchase-order, and server-list lookup tools. |
+
+The Codex plugin surface is private and marketplace-backed from this repository. It is not a public marketplace publication path. Other Codex installations need access to this private repo or to an approved local clone.
 
 ## Skill Catalog
 
@@ -43,7 +51,9 @@ This repo is the source of truth for reusable agent guidance. Most skills are pr
 | `testing-gates-and-harnesses` | Select verification gates based on touched risk. |
 | `vcenter-mcp` | Operate the GO-MCP vCenter read-only inventory and billable VM audit workflow. |
 
-## Install Locally
+## Install Skills Locally
+
+Use this when you want the raw skills copied or symlinked into local agent skill directories. This is separate from installing the Codex plugins below.
 
 Clone this repo once:
 
@@ -66,9 +76,9 @@ Install skills for Codex and agent runtimes:
 
 Use `--mode copy` if the target runtime cannot follow symlinks. Use `--force` to replace existing installed skill folders with the same names.
 
-## Attach To A Project
+## Attach Skills To A Project
 
-Agents generally do not read skills live from GitHub on every task. They read the skills that are available in their current local runtime, plugin cache, or repo-local instruction path. Treat this repo as the canonical source, then install or vendor it where the agent can actually load it.
+Agents generally do not read skills live from GitHub on every task. They read the skills that are available in their current local runtime, plugin cache, or repo-local instruction path. Treat this repo as the canonical source, then install skills, install plugins, or vendor the repo where the agent can actually load it.
 
 Recommended model:
 
@@ -192,15 +202,18 @@ git push
 
 ## Install As Codex Plugins
 
-The symlink install above makes the individual skills available. The plugin install registers this repo as a Codex plugin marketplace so Codex can discover the grouped `portable-development-workflow` plugin and the runtime `itecs-halopsa` MCP plugin.
+The skill install above exposes individual skill folders. The plugin install registers this repo as a Codex plugin marketplace so Codex can discover grouped plugins:
 
-Add this repo as a local marketplace:
+- `portable-development-workflow@itecs-agent-skills` for the reusable ITECS skill bundle.
+- `itecs-halopsa@itecs-agent-skills` for live read-only HaloPSA MCP tools.
+
+Add this repo as a local filesystem marketplace when the machine already has a clone:
 
 ```bash
 codex plugin marketplace add ~/Github/agent-skills
 ```
 
-Or add it from GitHub:
+Or add it from GitHub on another Codex installation that has access to the private repo:
 
 ```bash
 codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git --ref main
@@ -213,7 +226,12 @@ codex plugin add portable-development-workflow@itecs-agent-skills
 codex plugin add itecs-halopsa@itecs-agent-skills
 ```
 
-Then restart Codex Desktop or start a new thread. If Codex shows a plugin UI, enable or install `ITECS Agent Skills` for the skills bundle and `ITECS HaloPSA` for live HaloPSA MCP tools.
+Then restart Codex Desktop or start a new thread. Current threads do not automatically gain newly installed plugin MCP tools.
+
+If Codex shows a plugin UI, enable or install:
+
+- `ITECS Agent Skills` for the reusable skills bundle.
+- `ITECS HaloPSA` for live HaloPSA MCP tools.
 
 If the plugin does not appear as enabled after adding the marketplace, confirm the marketplace was added and then add this block to the active Codex config file:
 
@@ -227,17 +245,19 @@ enabled = true
 
 Restart Codex Desktop after editing config.
 
-To refresh a local marketplace install after this repo changes:
+To refresh from a local filesystem marketplace after this repo changes:
 
 ```bash
 codex plugin add portable-development-workflow@itecs-agent-skills
 codex plugin add itecs-halopsa@itecs-agent-skills
 ```
 
-For a Git-backed marketplace source, upgrade the marketplace snapshot first:
+For a Git-backed marketplace source, update the marketplace snapshot first, then reinstall the plugin entries:
 
 ```bash
 codex plugin marketplace upgrade itecs-agent-skills
+codex plugin add portable-development-workflow@itecs-agent-skills
+codex plugin add itecs-halopsa@itecs-agent-skills
 ```
 
 To remove it:
@@ -246,11 +266,38 @@ To remove it:
 codex plugin marketplace remove itecs-agent-skills
 ```
 
+## HaloPSA Runtime Boundary
+
+The `itecs-halopsa` plugin packages the MCP launcher, bundled macOS binaries, and HaloPSA skill instructions. Live credentials and runtime configuration stay outside this repo.
+
+Default local config path:
+
+```text
+~/.codex/halopsa-mcp/config.json
+```
+
+Optional per-session override:
+
+```bash
+export HALOPSA_MCP_CONFIG=/absolute/path/to/config.json
+```
+
+Do not commit or paste HaloPSA `.env` files, config JSON, API tokens, client secrets, raw HaloPSA exports, generated billing reports, or customer data. HaloPSA workflows in this repo are read-only unless a task explicitly authorizes mutation.
+
+Smoke-test the installed plugin tool surface without printing secrets:
+
+```bash
+go run github.com/modelcontextprotocol/go-sdk/examples/client/listfeatures \
+  ~/Github/agent-skills/plugins/itecs-halopsa/scripts/run-halopsa-mcp
+```
+
 ## Rules For Contributors
 
 - Keep skills project-neutral.
 - Do not commit secrets, live `.env` files, tokens, client data, or private machine paths.
 - Put project-specific rules in the target project's own docs.
 - Keep `SKILL.md` frontmatter concise and trigger-focused.
+- Keep plugin manifests, marketplace entries, README install steps, and validation rules in sync.
+- For MCP-backed plugins, keep credentials outside the plugin and document the read-only or write boundary clearly.
 - Prefer scripts for deterministic validation and repetitive installation steps.
 - Run `node scripts/validate.mjs` before committing.
