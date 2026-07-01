@@ -14,8 +14,9 @@ Read `docs/planning/pax8-connector-next-slice.md` before implementation.
 ## Required Boundaries
 
 - Standardize repo names and paths as `pax8`, even if the prompt says "PACS 8".
-- Do not print or commit Pax8 credentials, `.env` contents, local config JSON, tokens, or generated report contents.
+- Do not print or commit Pax8 credentials, local config JSON, tokens, or generated report contents.
 - Use local runtime config under `~/.codex/pax8-mcp/`.
+- Standard technician setup uses 1Password CLI command-backed secrets from item `GO-MCP Pax8 Read Only`; do not create or depend on local secret-bearing `.env` files.
 - Keep Pax8 actions read-only unless mutation is explicitly requested.
 - Keep MCP stdout reserved for protocol traffic; write diagnostics to stderr or external files.
 - Generated Pax8 workbooks and JSON sidecars belong in `reports/` and may be tracked only when the user explicitly approves sharing the audit snapshot through git.
@@ -24,7 +25,7 @@ Read `docs/planning/pax8-connector-next-slice.md` before implementation.
 
 1. Verify the current Pax8 API or MCP access pattern from source-backed documentation before coding.
 2. Reuse the repo-local Go MCP connector layout and official MCP Go SDK idioms.
-3. Confirm local config exists without displaying secrets before live use.
+3. Confirm local config exists without displaying secrets before live use and that any `op read` checks redirect output to `/dev/null`.
 4. Implement read-only tools first, with read-only annotations.
 5. Keep source extraction inside `connectors/pax8`.
 6. Write local Excel/JSON artifacts under `reports/`.
@@ -61,3 +62,7 @@ reports/pax8-subscriptions-YYYY-MM.json
 ```
 
 The JSON schema is `pax8-subscriptions-v3`. Draft invoice items are pre-final evidence only and live under `draft_invoice_items`; do not treat them as billing truth.
+
+## Windows Runtime Notes
+
+When validating packaged plugins on Windows, `bash` must resolve to Git Bash/MSYS/Cygwin, not WSL. If startup reports `/usr/bin/env: 'bash\r': No such file or directory`, treat it as a launcher line-ending or wrong-Bash-runtime issue before investigating Pax8 API auth.

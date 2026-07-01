@@ -1,6 +1,6 @@
 {
   "name": "itecs-pax8",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Cross-platform read-only Pax8 MCP connector for ITECS finance and billing workflows.",
   "author": {
     "name": "ITECS-Dallas"

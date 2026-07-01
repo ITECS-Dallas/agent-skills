@@ -1,6 +1,6 @@
 {
   "name": "itecs-vcenter",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Cross-platform read-only vCenter MCP connector for ITECS billing and operations workflows.",
   "author": {
     "name": "ITECS-Dallas"

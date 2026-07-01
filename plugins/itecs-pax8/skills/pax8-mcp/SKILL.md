@@ -1,63 +1,62 @@
 ---
 name: pax8-mcp
-description: Use when working on the GO-MCP Pax8 connector, Pax8 companies, subscriptions, licenses, vendor service billing facts, or Pax8-to-HaloPSA billing audit artifacts.
+description: Use when looking up live Pax8 companies, subscriptions, licenses, products, invoices, vendor-service billing facts, or Pax8-to-HaloPSA billing evidence through the ITECS read-only Pax8 MCP plugin.
 ---
 
 # Pax8 MCP
 
 ## Purpose
 
-Build and operate a read-only Pax8 source connector that exports Pax8 billing facts for reconciliation against HaloPSA recurring invoice line items.
-
-Read `docs/planning/pax8-connector-next-slice.md` before implementation.
+Use the bundled read-only Pax8 MCP server for live Pax8 lookup workflows in Codex. This plugin is appropriate for company lookup, subscription and license review, product lookup, invoice evidence, draft invoice item evidence, vendor-service billing facts, and Pax8-to-HaloPSA reconciliation support.
 
 ## Required Boundaries
 
 - Standardize repo names and paths as `pax8`, even if the prompt says "PACS 8".
-- Do not print or commit Pax8 credentials, `.env` contents, local config JSON, tokens, or generated report contents.
+- Do not print or commit Pax8 credentials, local config JSON, tokens, raw exports, generated report contents, or sensitive customer detail unless the user explicitly asks for the detail.
 - Use local runtime config under `~/.codex/pax8-mcp/`.
-- Keep Pax8 actions read-only unless mutation is explicitly requested.
-- Keep MCP stdout reserved for protocol traffic; write diagnostics to stderr or external files.
-- Generated Pax8 workbooks and JSON sidecars belong in `reports/` and may be tracked only when the user explicitly approves sharing the audit snapshot through git.
+- Standard technician setup uses 1Password CLI command-backed secrets from item `GO-MCP Pax8 Read Only`; do not create or depend on local secret-bearing `.env` files.
+- Keep Pax8 actions read-only.
+- Keep MCP stdout reserved for protocol traffic.
+- Summarize results by default; provide row-level details only when the user requests them.
 
-## Connector Workflow
+## Operating Pattern
 
-1. Verify the current Pax8 API or MCP access pattern from source-backed documentation before coding.
-2. Reuse the repo-local Go MCP connector layout and official MCP Go SDK idioms.
-3. Confirm local config exists without displaying secrets before live use.
-4. Implement read-only tools first, with read-only annotations.
-5. Keep source extraction inside `connectors/pax8`.
-6. Write local Excel/JSON artifacts under `reports/`.
-7. Leave cross-system variance detection in `workflows/billing-reconciliation`.
+1. Confirm the user's goal and the minimum Pax8 data needed.
+2. Use narrow filters before broad list calls.
+3. Start with company or subscription lookup before requesting invoice or invoice-item detail.
+4. Treat draft invoice items as pre-final evidence; do not use them as billing truth without explicit review context.
+5. Preserve evidence fields in the answer: Pax8 IDs, company/customer names, subscription/product identifiers, quantities, statuses, dates, and match rationale.
+6. Report uncertainty plainly when a lookup is inconclusive.
 
-## Expected Billing Artifact Direction
+## Local Setup
 
-Verified decision: the first report uses Pax8 REST companies, subscriptions, and products. It focuses on active or billable Pax8 subscriptions and includes enough fields to map back to HaloPSA:
-
-- Pax8 company/customer identifiers and names
-- subscription identifiers
-- product/SKU identifiers and names
-- quantity/license count
-- status
-- billing or term dates when available
-
-Pax8 approved invoices, approved invoice items, and separate draft invoice items are included as source evidence after the subscription snapshot. Reconciliation still uses active subscriptions for Pax8 deltas until approved invoice-item field shape and service-line mapping behavior are verified.
-
-## Run Command
-
-Run the subscription snapshot report from `connectors/pax8`:
-
-```bash
-go run ./cmd/billing-report -config ~/.codex/pax8-mcp/config.json -month YYYY-MM
-```
-
-By default the command reads `../../reports/halopsa-client-mapping.json` when present so the Pax8 `Client Mapping` sheet can prefill HaloPSA client names and IDs. Pass `-client-mapping ""` only when a standalone Pax8 snapshot is required.
-
-The command writes generated Pax8 workbook and JSON sidecar files under repo-root `reports/`:
+Each machine needs local config outside the plugin:
 
 ```text
-reports/pax8-subscriptions-YYYY-MM.xlsx
-reports/pax8-subscriptions-YYYY-MM.json
+~/.codex/pax8-mcp/config.json
 ```
 
-The JSON schema is `pax8-subscriptions-v3`. Draft invoice items are pre-final evidence only and live under `draft_invoice_items`; do not treat them as billing truth.
+The config should call `op read` for the approved 1Password item fields, normally:
+
+```text
+op://ITECS/GO-MCP Pax8 Read Only/PAX8_CLIENT_ID
+op://ITECS/GO-MCP Pax8 Read Only/PAX8_CLIENT_SECRET
+```
+
+The plugin launcher also honors:
+
+```bash
+PAX8_MCP_CONFIG=/absolute/path/to/config.json
+```
+
+Never store credentials in this plugin repository.
+
+## Windows Startup Troubleshooting
+
+If Pax8 tools are not callable, check startup layers before checking vendor auth:
+
+1. Confirm the plugin is installed and the Codex thread was started after install.
+2. On Windows, confirm `bash -lc 'uname -s'` returns `MINGW`, `MSYS`, or `CYGWIN`; WSL Bash is not supported.
+3. Treat `/usr/bin/env: 'bash\r': No such file or directory` as a launcher line-ending or wrong-Bash-runtime issue, not a Pax8 API issue.
+4. Treat `codex.exe` under `WindowsApps` returning `Access is denied` as a local Codex/PATH issue.
+5. Confirm `op --version`, `op account list`, and `op read ... >/dev/null` work without printing secret values.

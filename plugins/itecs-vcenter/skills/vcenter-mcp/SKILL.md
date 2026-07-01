@@ -11,7 +11,7 @@ Use the read-only vCenter MCP connector to audit client VM resource allocations 
 
 ## Required Boundaries
 
-- Do not print or commit vCenter credentials, `.env` contents, or local config values.
+- Do not print or commit vCenter credentials, local config values, or secret-bearing local files.
 - Use local runtime config under `~/.codex/vcenter-mcp/`.
 - Keep vCenter actions read-only.
 - Keep MCP stdout reserved for protocol traffic; write diagnostics to stderr or external files.
@@ -70,3 +70,12 @@ make billing-report MONTH=YYYY-MM
 ```
 
 Report only the generated file paths and aggregate counts. Do not paste the full VM inventory unless explicitly requested.
+
+## Windows Startup Troubleshooting
+
+If vCenter tools are not callable, check startup layers before checking API auth:
+
+1. Confirm the plugin is installed and the Codex thread was started after install.
+2. On Windows, confirm `bash -lc 'uname -s'` returns `MINGW`, `MSYS`, or `CYGWIN`; WSL Bash is not supported.
+3. Treat `/usr/bin/env: 'bash\r': No such file or directory` as a launcher line-ending or wrong-Bash-runtime issue, not a vCenter API issue.
+4. Treat `codex.exe` under `WindowsApps` returning `Access is denied` as a local Codex/PATH issue.

@@ -12,8 +12,9 @@ Use the bundled read-only HaloPSA MCP server for live HaloPSA lookup workflows i
 ## Required Boundaries
 
 - Keep all HaloPSA actions read-only.
-- Do not print or commit HaloPSA credentials, `.env` contents, local config JSON, OAuth tokens, client secrets, raw exports, generated billing reports, or sensitive customer detail unless the user explicitly asks for the detail.
+- Do not print or commit HaloPSA credentials, local config JSON, OAuth tokens, client secrets, raw exports, generated billing reports, or sensitive customer detail unless the user explicitly asks for the detail.
 - Use local runtime config under `~/.codex/halopsa-mcp/`.
+- Standard technician setup uses 1Password CLI command-backed secrets from item `GO-MCP HaloPSA Read Only`; do not create or depend on local secret-bearing `.env` files.
 - Keep MCP stdout reserved for protocol traffic.
 - Summarize results by default; provide row-level details only when the user requests them.
 
@@ -51,7 +52,13 @@ Each machine needs local config outside the plugin:
 
 ```text
 ~/.codex/halopsa-mcp/config.json
-~/.codex/halopsa-mcp/.env
+```
+
+The config should call `op read` for the approved 1Password item fields, normally:
+
+```text
+op://ITECS/GO-MCP HaloPSA Read Only/HALO_CLIENT_ID
+op://ITECS/GO-MCP HaloPSA Read Only/HALO_CLIENT_SECRET
 ```
 
 The plugin launcher also honors:
@@ -61,3 +68,13 @@ HALOPSA_MCP_CONFIG=/absolute/path/to/config.json
 ```
 
 Never store credentials in this plugin repository.
+
+## Windows Startup Troubleshooting
+
+If HaloPSA tools are not callable, check startup layers before checking vendor auth:
+
+1. Confirm the plugin is installed and the Codex thread was started after install.
+2. On Windows, confirm `bash -lc 'uname -s'` returns `MINGW`, `MSYS`, or `CYGWIN`; WSL Bash is not supported.
+3. Treat `/usr/bin/env: 'bash\r': No such file or directory` as a launcher line-ending or wrong-Bash-runtime issue, not a HaloPSA API issue.
+4. Treat `codex.exe` under `WindowsApps` returning `Access is denied` as a local Codex/PATH issue.
+5. Confirm `op --version`, `op account list`, and `op read ... >/dev/null` work without printing secret values.

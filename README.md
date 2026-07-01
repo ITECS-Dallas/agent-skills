@@ -5,13 +5,13 @@ Source-of-truth repository for ITECS reusable agent skills and Codex plugin pack
 This repo serves two related purposes:
 
 1. Maintain reusable engineering skills for Codex, Claude, and other local agent runtimes.
-2. Publish the private ITECS Codex plugin marketplace used to install grouped skills and MCP-backed business tools.
+2. Publish the ITECS Codex plugin marketplace used to install grouped skills and MCP-backed business tools.
 
 Most skills should remain project-neutral. ITECS-specific connector skills belong here only when they are intended to appear in the shared ITECS plugin surface. Project-specific rules, commands, secrets, approval gates, and deployment boundaries should stay in each project's `AGENTS.md`, `CLAUDE.md`, `.cursor/rules`, or equivalent local instruction file.
 
 ## Repository Contents
 
-- `.agents/plugins/marketplace.json` - private Codex marketplace definition named `itecs-agent-skills`.
+- `.agents/plugins/marketplace.json` - Codex marketplace definition named `itecs-agent-skills`.
 - `plugins/portable-development-workflow/` - Codex plugin for reusable workflow skills and GO-MCP operating guidance.
 - `plugins/portable-development-workflow/skills/` - skill source folders installed into local agent runtimes.
 - `plugins/itecs-halopsa/` - Codex plugin that bundles the read-only HaloPSA MCP runtime and its HaloPSA skill.
@@ -30,7 +30,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | `itecs-vcenter@itecs-agent-skills` | ITECS vCenter | Bundled read-only vCenter MCP server for VM inventory, tags, hosting allocation, and billing evidence. |
 | `itecs-pax8@itecs-agent-skills` | ITECS Pax8 | Bundled read-only Pax8 MCP server for companies, subscriptions, products, invoices, and billing evidence. |
 
-The Codex plugin surface is private and marketplace-backed from this repository. It is not a public marketplace publication path. Other Codex installations need access to this private repo or to an approved local clone.
+The Codex plugin surface is repo-backed from this repository. It is not a global public marketplace publication path. Other Codex installations can install from the public GitHub URL or from an approved local clone.
 
 ## Skill Catalog
 
@@ -219,7 +219,7 @@ Add this repo as a local filesystem marketplace when the machine already has a c
 codex plugin marketplace add ~/Github/agent-skills
 ```
 
-Or add it from GitHub on another Codex installation that has access to the private repo:
+Or add it from GitHub on another Codex installation:
 
 ```bash
 codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git --ref main
@@ -263,14 +263,23 @@ Restart Codex Desktop after editing config.
 
 ### Windows 11 PowerShell Setup
 
-Use this path on a Windows 11 workstation when the goal is to install the ITECS skills plugin and read-only GO-MCP connector plugins from the private marketplace without cloning the repo first.
+Use this path on a Windows 11 workstation when the goal is to install the ITECS skills plugin and read-only GO-MCP connector plugins from the repo-backed marketplace without cloning the repo first.
 
 Prerequisites:
 
 - Codex Desktop or Codex CLI installed.
 - Git for Windows installed, including Git Bash available as `bash` on `PATH`.
-- Access to the private `ITECS-Dallas/agent-skills` GitHub repo.
+- Network access to `https://github.com/ITECS-Dallas/agent-skills`.
 - GitHub authentication already working for Git, either through SSH or GitHub CLI.
+
+Confirm Windows resolves `bash` to Git Bash, not WSL:
+
+```powershell
+where.exe bash
+bash -lc 'case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) echo "Git Bash OK: $(uname -s)" ;; *) echo "Wrong bash for ITECS plugins: $(uname -s). Move Git Bash before WSL on PATH."; exit 1 ;; esac'
+```
+
+If the second command reports `Linux`, Codex is finding WSL Bash. Move the Git for Windows `bin` path ahead of WSL paths for the user account, then restart Codex Desktop and the terminal.
 
 If using GitHub CLI for HTTPS authentication:
 
@@ -366,7 +375,15 @@ Current bundled binaries target:
 - `windows-arm64.exe`
 - `windows-amd64.exe`
 
-Windows 11 machines require Git Bash or another Bash runtime available as `bash` on `PATH` because Codex starts each connector through its plugin launcher script.
+Windows 11 machines require Git Bash/MSYS/Cygwin Bash available as `bash` on `PATH` because Codex starts each connector through its plugin launcher script. WSL Bash is not supported for these launchers.
+
+Known Windows launcher failures:
+
+| Symptom | Likely Cause | Fix |
+| --- | --- | --- |
+| `bash` resolves to `Linux` or WSL | WSL Bash is ahead of Git Bash on `PATH` | Move Git for Windows Bash ahead of WSL paths, then restart Codex Desktop. |
+| `/usr/bin/env: 'bash\r': No such file or directory` | Launcher was checked out with CRLF line endings or run through the wrong Bash runtime | Refresh this plugin after the `.gitattributes` line-ending fix and verify Git Bash is the active `bash`. |
+| `codex.exe` under `WindowsApps` returns `Access is denied` | Windows app execution alias/shim is taking precedence over the user-local Codex binary | Use the Codex Desktop-supported binary path or correct the user `PATH`, then restart the terminal and Codex. |
 
 Default local config paths:
 
