@@ -1,0 +1,7 @@
+# Keep plugin launcher scripts usable on Windows. CRLF breaks shebangs when
+# Codex starts the Bash wrapper and can surface as `/usr/bin/env: 'bash\r'`.
+*.sh text eol=lf
+scripts/* text eol=lf
+plugins/*/scripts/* text eol=lf
+plugins/*/bin/* binary
+*.exe binary

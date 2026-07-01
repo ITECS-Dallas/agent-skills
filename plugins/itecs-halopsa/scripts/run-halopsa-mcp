@@ -4,14 +4,19 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 CONFIG="${HALOPSA_MCP_CONFIG:-${HOME:?HOME is required}/.codex/halopsa-mcp/config.json}"
 
+OS_NAME="$(uname -s)"
+ARCH_NAME="$(uname -m)"
+
+if [[ "$OS_NAME" == Linux* ]] && grep -qi microsoft /proc/version 2>/dev/null; then
+  printf 'WSL Bash is not supported for the bundled HaloPSA MCP launcher. Use Git Bash on Windows and make sure it appears before WSL on PATH.\n' >&2
+  exit 2
+fi
+
 if [[ ! -f "$CONFIG" ]]; then
   printf 'HaloPSA MCP config not found at %s\n' "$CONFIG" >&2
   printf 'Create ~/.codex/halopsa-mcp/config.json or set HALOPSA_MCP_CONFIG.\n' >&2
   exit 2
 fi
-
-OS_NAME="$(uname -s)"
-ARCH_NAME="$(uname -m)"
 
 case "$OS_NAME" in
   Darwin*) OS="darwin" ;;

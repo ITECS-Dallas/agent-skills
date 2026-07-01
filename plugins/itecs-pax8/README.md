@@ -12,7 +12,6 @@ Store live Pax8 config and credentials outside this repository:
 
 ```text
 ~/.codex/pax8-mcp/config.json
-~/.codex/pax8-mcp/.env
 ```
 
 The launcher uses this config path by default:
@@ -27,6 +26,8 @@ Override it per session with:
 export PAX8_MCP_CONFIG=/absolute/path/to/config.json
 ```
 
+The standard ITECS setup uses `op read` command-backed secrets in `config.json` against the `GO-MCP Pax8 Read Only` 1Password item. Do not create secret-bearing `.env` files for the standard technician workflow.
+
 Do not commit `.env`, local config JSON, API tokens, client secrets, raw Pax8 exports, or generated billing reports.
 
 ## Supported Platforms
@@ -38,11 +39,20 @@ Bundled MCP binaries are included for:
 - Windows 11 x64: `windows-amd64.exe`
 - Windows 11 ARM64: `windows-arm64.exe`
 
-The plugin launcher is a Bash script. Windows 11 machines need Git for Windows or another Bash runtime available as `bash` on `PATH`.
+The plugin launcher is a Bash script. Windows 11 machines need Git Bash/MSYS/Cygwin Bash available as `bash` on `PATH`. WSL Bash is not supported for this launcher.
+
+Windows preflight:
+
+```powershell
+where.exe bash
+bash -lc 'case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) echo "Git Bash OK: $(uname -s)" ;; *) echo "Wrong bash for ITECS plugins: $(uname -s). Move Git Bash before WSL on PATH."; exit 1 ;; esac'
+```
+
+If startup fails with `/usr/bin/env: 'bash\r': No such file or directory`, refresh the plugin after the launcher line-ending fix and verify Git Bash is the active `bash`. That error happens before Pax8 authentication and should not be treated as a vendor API permission issue.
 
 ## Install From The ITECS Marketplace
 
-For another Codex installation with access to this private repo:
+For another Codex installation:
 
 ```bash
 codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git --ref main

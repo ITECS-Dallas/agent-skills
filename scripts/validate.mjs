@@ -48,6 +48,14 @@ function parseFrontmatter(file) {
   return fields;
 }
 
+function assertLfOnly(file, label) {
+  if (!fs.existsSync(file)) return;
+  const content = fs.readFileSync(file, 'utf8');
+  if (content.includes('\r\n')) {
+    errors.push(`${label} must use LF line endings; CRLF breaks Bash shebangs on Windows`);
+  }
+}
+
 const plugin = readJson(path.join(pluginRoot, '.codex-plugin', 'plugin.json'));
 const manifest = readJson(path.join(repoRoot, 'EXPORT-MANIFEST.json'));
 const marketplace = readJson(marketplacePath);
@@ -103,6 +111,13 @@ if (marketplace) {
     if (!entry.category) {
       errors.push(`${entry.name}: marketplace entry missing category`);
     }
+  }
+}
+
+const expectedPluginNames = ['portable-development-workflow', 'itecs-halopsa', 'itecs-vcenter', 'itecs-pax8'];
+for (const expectedPluginName of expectedPluginNames) {
+  if (!manifest?.plugins?.includes(expectedPluginName)) {
+    errors.push(`manifest lists missing plugin: ${expectedPluginName}`);
   }
 }
 
@@ -191,6 +206,11 @@ for (const runtimePlugin of runtimePlugins) {
       errors.push(`${runtimePlugin.name} file must be executable: ${relativeExecutable}`);
     }
   }
+
+  assertLfOnly(
+    path.join(runtimePluginRoot, 'scripts', runtimePlugin.script),
+    `${runtimePlugin.name} launcher scripts/${runtimePlugin.script}`
+  );
 }
 
 const expectedSkills = manifest?.skills ?? [];

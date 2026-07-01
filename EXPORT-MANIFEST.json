@@ -5,7 +5,9 @@
   "plugin_path": "plugins/portable-development-workflow",
   "plugins": [
     "portable-development-workflow",
-    "itecs-halopsa"
+    "itecs-halopsa",
+    "itecs-vcenter",
+    "itecs-pax8"
   ],
   "generated_on": "2026-05-05",
   "skills": [

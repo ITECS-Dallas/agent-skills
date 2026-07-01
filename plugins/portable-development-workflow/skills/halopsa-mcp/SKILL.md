@@ -11,8 +11,9 @@ Use the read-only HaloPSA MCP connector to update the local HaloPSA client mappi
 
 ## Required Boundaries
 
-- Do not print or commit HaloPSA credentials, `.env` contents, local config JSON, tokens, client secrets, or generated report contents.
+- Do not print or commit HaloPSA credentials, local config JSON, tokens, client secrets, or generated report contents.
 - Use local runtime config under `~/.codex/halopsa-mcp/`.
+- Standard technician setup uses 1Password CLI command-backed secrets from item `GO-MCP HaloPSA Read Only`; do not create or depend on local secret-bearing `.env` files.
 - Keep HaloPSA actions read-only.
 - Keep MCP stdout reserved for protocol traffic; write diagnostics to stderr or external files.
 - Generated billing workbooks and JSON sidecars belong in `reports/` and may be tracked only when the user explicitly approves sharing the audit snapshot through git.
@@ -20,7 +21,7 @@ Use the read-only HaloPSA MCP connector to update the local HaloPSA client mappi
 ## Billing Workbook Workflow
 
 1. Rebuild and verify `connectors/halopsa` before live use.
-2. Confirm local config exists without displaying secrets.
+2. Confirm local config exists without displaying secrets and that any `op read` checks redirect output to `/dev/null`.
 3. Infer the current billing month from today's date, state the inferred month, and ask for confirmation before generating files.
 4. Run a read-only HaloPSA recurring-invoice scan through `connectors/halopsa/cmd/billing-report`.
 5. Request recurring invoices with line items included.
@@ -65,3 +66,7 @@ make billing-report MONTH=YYYY-MM
 ```
 
 Report only generated file paths and aggregate counts. Do not paste client lists, invoice rows, invoice line items, or mapping file contents unless explicitly requested.
+
+## Windows Runtime Notes
+
+When validating packaged plugins on Windows, `bash` must resolve to Git Bash/MSYS/Cygwin, not WSL. If startup reports `/usr/bin/env: 'bash\r': No such file or directory`, treat it as a launcher line-ending or wrong-Bash-runtime issue before investigating HaloPSA API auth.
