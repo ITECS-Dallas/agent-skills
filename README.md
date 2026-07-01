@@ -26,7 +26,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | Install ID | Display Name | Purpose |
 | --- | --- | --- |
 | `portable-development-workflow@itecs-agent-skills` | ITECS Agent Skills | Reusable workflow and connector-operation skills for coding agents. |
-| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled read-only HaloPSA MCP server exposing client, invoice, recurring-invoice, contract, purchase-order, and server-list lookup tools. |
+| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled read-only HaloPSA MCP server exposing client, invoice, recurring-invoice, contract, purchase-order, project, ticket, ticket-action, and server-list lookup tools. |
 | `itecs-vcenter@itecs-agent-skills` | ITECS vCenter | Bundled read-only vCenter MCP server for VM inventory, tags, hosting allocation, and billing evidence. |
 | `itecs-pax8@itecs-agent-skills` | ITECS Pax8 | Bundled read-only Pax8 MCP server for companies, subscriptions, products, invoices, and billing evidence. |
 

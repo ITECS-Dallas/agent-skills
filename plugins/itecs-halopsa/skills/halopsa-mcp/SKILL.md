@@ -1,13 +1,13 @@
 ---
 name: halopsa-mcp
-description: Use when looking up live HaloPSA clients, invoices, recurring invoices, contracts, purchase orders, or server configuration through the ITECS read-only HaloPSA MCP plugin.
+description: Use when looking up live HaloPSA clients, invoices, recurring invoices, contracts, purchase orders, projects, tickets, ticket actions, or server configuration through the ITECS read-only HaloPSA MCP plugin.
 ---
 
 # HaloPSA MCP
 
 ## Purpose
 
-Use the bundled read-only HaloPSA MCP server for live HaloPSA lookup workflows in Codex. This plugin is appropriate for CFOAGENT purchase-order review, billing evidence, client lookup, invoice lookup, recurring-invoice review, contract lookup, and connector availability checks.
+Use the bundled read-only HaloPSA MCP server for live HaloPSA lookup workflows in Codex. This plugin is appropriate for CFOAGENT purchase-order review, billing evidence, client lookup, invoice lookup, recurring-invoice review, contract lookup, project lookup, ticket lookup, ticket action review, and connector availability checks.
 
 ## Required Boundaries
 
@@ -30,14 +30,20 @@ Use the bundled read-only HaloPSA MCP server for live HaloPSA lookup workflows i
 - `halopsa.contracts.get` - get one client contract by ID.
 - `halopsa.purchase_orders.list` - list purchase orders with open/closed status, supplier, client, ticket, search, and pagination filters.
 - `halopsa.purchase_orders.get` - get one purchase order by ID.
+- `halopsa.projects.list` - list projects with client, site, agent, status, milestone, team, text, date, and pagination filters.
+- `halopsa.projects.get` - get one project by ID.
+- `halopsa.tickets.list` - list tickets with client, site, user, agent, status, priority, team, text, date, and pagination filters.
+- `halopsa.tickets.get` - get one ticket by ID, optionally including recent actions/notes.
+- `halopsa.ticket_actions.list` - list ticket actions/notes for a specific ticket.
 
 ## Operating Pattern
 
 1. Confirm the user's goal and the minimum HaloPSA data needed.
 2. Use narrow filters before broad list calls.
 3. For purchase-order review, start with `halopsa.purchase_orders.list`, then call `halopsa.purchase_orders.get` only for candidate matches that need line-level evidence.
-4. Preserve evidence fields in the answer: HaloPSA ID, reference, supplier/client, dates, status, total, and match rationale.
-5. Report uncertainty plainly when a lookup is inconclusive.
+4. For service desk or project review, start with the narrowest relevant `halopsa.tickets.list` or `halopsa.projects.list` filters, then call the corresponding `get` tool only for records that need detail.
+5. Preserve evidence fields in the answer: HaloPSA ID, reference, supplier/client, dates, status, total, and match rationale.
+6. Report uncertainty plainly when a lookup is inconclusive.
 
 ## Local Setup
 

@@ -1,6 +1,6 @@
 # ITECS HaloPSA Plugin
 
-`itecs-halopsa` packages the ITECS read-only HaloPSA MCP connector for Codex. It is intended for finance, billing, purchase-order, and operations workflows that need live HaloPSA evidence without copying connector source code into each project.
+`itecs-halopsa` packages the ITECS read-only HaloPSA MCP connector for Codex. It is intended for finance, billing, purchase-order, service desk, project, and operations workflows that need live HaloPSA evidence without copying connector source code into each project.
 
 ## Tool Surface
 
@@ -17,6 +17,11 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.contracts.get`
 - `halopsa.purchase_orders.list`
 - `halopsa.purchase_orders.get`
+- `halopsa.projects.list`
+- `halopsa.projects.get`
+- `halopsa.tickets.list`
+- `halopsa.tickets.get`
+- `halopsa.ticket_actions.list`
 
 ## Runtime Configuration
 
