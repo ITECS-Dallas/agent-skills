@@ -1,6 +1,6 @@
 # ITECS HaloPSA Plugin
 
-`itecs-halopsa` packages the ITECS read-only HaloPSA MCP connector for Codex. It is intended for finance, billing, purchase-order, service desk, project, and operations workflows that need live HaloPSA evidence without copying connector source code into each project.
+`itecs-halopsa` packages the ITECS HaloPSA MCP connector for Codex. It provides the existing read tools plus one guarded mutation that can add a public note to an exact ticket.
 
 ## Tool Surface
 
@@ -22,6 +22,9 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.tickets.list`
 - `halopsa.tickets.get`
 - `halopsa.ticket_actions.list`
+- `halopsa.ticket_actions.create_public_note`
+
+The public-note tool requires a positive ticket ID, a non-empty note, and `confirm_public: true`. It always uses public visibility, disables email, cannot change ticket status or other fields, and makes one POST attempt with no automatic retry. Independently read the ticket actions after every successful or ambiguous write.
 
 ## Runtime Configuration
 
@@ -43,7 +46,9 @@ Override it per session with:
 export HALOPSA_MCP_CONFIG=/absolute/path/to/config.json
 ```
 
-The standard ITECS setup uses `op read` command-backed secrets in `config.json` against the `GO-MCP HaloPSA Read Only` 1Password item. Do not create secret-bearing `.env` files for the standard technician workflow.
+The approved Brian Desmot setup uses `/opt/homebrew/bin/op-itecs read` command-backed values in `config.json` against Automation Vault item `GO-MCP HaloPSA Brian Desmot Read Write`. Resolve `HALO_CLIENT_ID`, `HALO_CLIENT_SECRET`, and `HALO_SCOPE` at runtime. Do not create secret-bearing `.env` files or fall back to plain `op`.
+
+The credential must retain the existing read permissions and include the ticket-edit permission required by `POST /Actions`. Do not perform a live write test without one exact designated HaloPSA test ticket and approval for the client-visible note.
 
 Do not commit `.env`, local config JSON, API tokens, client secrets, raw HaloPSA exports, or generated billing reports.
 

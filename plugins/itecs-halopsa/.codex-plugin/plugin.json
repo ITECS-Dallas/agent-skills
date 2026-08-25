@@ -1,7 +1,7 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.2.2",
-  "description": "Cross-platform read-only HaloPSA MCP connector for ITECS finance, billing, service desk, project, and operations workflows.",
+  "version": "0.3.0",
+  "description": "Cross-platform HaloPSA MCP connector for ITECS read workflows and guarded public ticket notes.",
   "author": {
     "name": "ITECS-Dallas"
   },
@@ -22,19 +22,20 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "ITECS HaloPSA",
-    "shortDescription": "Read-only HaloPSA lookup tools",
-    "longDescription": "Provides a bundled read-only HaloPSA MCP server for ITECS finance, billing, purchase-order, client, invoice, recurring-invoice, contract, project, ticket, and ticket-action lookup workflows. Credentials and runtime configuration stay outside the plugin.",
+    "shortDescription": "HaloPSA lookups and public notes",
+    "longDescription": "Provides bundled HaloPSA lookup tools plus one guarded, additive public-ticket-note tool. The write cannot email, change status, log time, add attachments, or create private notes. Credentials and runtime configuration stay outside the plugin.",
     "developerName": "ITECS-Dallas",
     "category": "Business",
     "capabilities": [
       "Interactive",
-      "Read"
+      "Read",
+      "Write"
     ],
     "websiteURL": "https://github.com/ITECS-Dallas/agent-skills",
     "defaultPrompt": [
       "List HaloPSA purchase orders that need CFO review.",
       "Look up a HaloPSA client, invoice, contract, PO, ticket, or project.",
-      "Use HaloPSA read-only tools for billing evidence."
+      "Add an approved client-visible note to an exact HaloPSA ticket."
     ],
     "brandColor": "#2563EB",
     "screenshots": []

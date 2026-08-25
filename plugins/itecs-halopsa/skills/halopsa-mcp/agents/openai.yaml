@@ -1,12 +1,12 @@
 interface:
   display_name: "ITECS HaloPSA MCP"
-  short_description: "Use read-only HaloPSA tools for clients, billing, purchase orders, projects, and tickets."
+  short_description: "Use HaloPSA lookups and guarded public ticket notes."
   brand_color: "#2563EB"
-  default_prompt: "Use the ITECS HaloPSA read-only MCP tools to look up purchase orders, projects, tickets, and related billing evidence."
+  default_prompt: "Use the ITECS HaloPSA MCP tools for live lookups or an explicitly approved public note on one exact ticket."
 
 dependencies:
   tools:
     - type: "mcp"
       value: "halopsa"
-      description: "Bundled ITECS HaloPSA read-only MCP server"
+      description: "Bundled ITECS HaloPSA read tools and guarded public-note write"
       transport: "stdio"
