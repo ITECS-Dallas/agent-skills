@@ -1,7 +1,7 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.3.0",
-  "description": "Cross-platform HaloPSA MCP connector for ITECS read workflows and guarded public ticket notes.",
+  "version": "0.4.0",
+  "description": "Cross-platform HaloPSA MCP connector for ITECS read workflows and guarded ticket writes.",
   "author": {
     "name": "ITECS-Dallas"
   },
@@ -22,8 +22,8 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "ITECS HaloPSA",
-    "shortDescription": "HaloPSA lookups and public notes",
-    "longDescription": "Provides bundled HaloPSA lookup tools plus one guarded, additive public-ticket-note tool. The write cannot email, change status, log time, add attachments, or create private notes. Credentials and runtime configuration stay outside the plugin.",
+    "shortDescription": "HaloPSA lookups and guarded writes",
+    "longDescription": "Provides bundled HaloPSA lookup tools plus approval-gated public-note, ticket-create, and ticket-status tools. Writes are exact-target, one-shot, and require independent read-back. Credentials and runtime configuration stay outside the plugin.",
     "developerName": "ITECS-Dallas",
     "category": "Business",
     "capabilities": [
@@ -35,7 +35,9 @@
     "defaultPrompt": [
       "List HaloPSA purchase orders that need CFO review.",
       "Look up a HaloPSA client, invoice, contract, PO, ticket, or project.",
-      "Add an approved client-visible note to an exact HaloPSA ticket."
+      "Add an approved client-visible note to an exact HaloPSA ticket.",
+      "Create an approved HaloPSA ticket after previewing every field.",
+      "Move an exact HaloPSA ticket to an approved status after revalidation."
     ],
     "brandColor": "#2563EB",
     "screenshots": []

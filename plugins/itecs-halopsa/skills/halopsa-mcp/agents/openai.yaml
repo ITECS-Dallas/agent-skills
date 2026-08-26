@@ -1,12 +1,12 @@
 interface:
   display_name: "ITECS HaloPSA MCP"
-  short_description: "Use HaloPSA lookups and guarded public ticket notes."
+  short_description: "Use HaloPSA lookups and guarded ticket writes."
   brand_color: "#2563EB"
-  default_prompt: "Use the ITECS HaloPSA MCP tools for live lookups or an explicitly approved public note on one exact ticket."
+  default_prompt: "Use the ITECS HaloPSA MCP tools for live lookups or an explicitly approved write on one exact ticket."
 
 dependencies:
   tools:
     - type: "mcp"
       value: "halopsa"
-      description: "Bundled ITECS HaloPSA read tools and guarded public-note write"
+      description: "Bundled ITECS HaloPSA read tools and guarded exact-ticket writes"
       transport: "stdio"
