@@ -2,8 +2,6 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-CONFIG="${HALOPSA_MCP_CONFIG:-${HOME:?HOME is required}/.codex/halopsa-mcp/config.json}"
-
 OS_NAME="$(uname -s)"
 ARCH_NAME="$(uname -m)"
 
@@ -12,20 +10,30 @@ if [[ "$OS_NAME" == Linux* ]] && grep -qi microsoft /proc/version 2>/dev/null; t
   exit 2
 fi
 
-if [[ ! -f "$CONFIG" ]]; then
-  printf 'HaloPSA MCP config not found at %s\n' "$CONFIG" >&2
-  printf 'Create ~/.codex/halopsa-mcp/config.json or set HALOPSA_MCP_CONFIG.\n' >&2
-  exit 2
-fi
-
 case "$OS_NAME" in
-  Darwin*) OS="darwin" ;;
-  MINGW*|MSYS*|CYGWIN*) OS="windows" ;;
+  Darwin*)
+    OS="darwin"
+    DEFAULT_CONFIG="${HOME:?HOME is required}/.codex/halopsa-mcp/config.json"
+    ;;
+  MINGW*|MSYS*|CYGWIN*)
+    OS="windows"
+    [[ -n "${USERPROFILE:-}" ]] || { printf 'USERPROFILE is required on Windows.\n' >&2; exit 2; }
+    command -v cygpath >/dev/null 2>&1 || { printf 'cygpath is required from Git Bash/MSYS/Cygwin.\n' >&2; exit 2; }
+    DEFAULT_CONFIG="$(cygpath -m "$USERPROFILE")/.codex/halopsa-mcp/config.json"
+    ;;
   *)
     printf 'Unsupported platform for bundled HaloPSA MCP binary: %s-%s\n' "$OS_NAME" "$ARCH_NAME" >&2
     exit 2
     ;;
 esac
+
+CONFIG="${HALOPSA_MCP_CONFIG:-$DEFAULT_CONFIG}"
+
+if [[ ! -f "$CONFIG" ]]; then
+  printf 'HaloPSA MCP config not found at %s\n' "$CONFIG" >&2
+  printf 'Create ~/.codex/halopsa-mcp/config.json or set HALOPSA_MCP_CONFIG.\n' >&2
+  exit 2
+fi
 
 case "$ARCH_NAME" in
   arm64|aarch64) ARCH="arm64" ;;

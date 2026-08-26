@@ -187,6 +187,14 @@ for (const runtimePlugin of runtimePlugins) {
     `bin/${runtimePlugin.binaryPrefix}-windows-arm64.exe`,
     `bin/${runtimePlugin.binaryPrefix}-windows-amd64.exe`
   ];
+  if (runtimePlugin.name === 'itecs-halopsa') {
+    requiredFiles.push(
+      'scripts/configure-halopsa-mcp-macos.sh',
+      'scripts/configure-halopsa-mcp-windows.ps1',
+      'scripts/test-configure-halopsa-mcp-macos.sh',
+      'scripts/test-run-halopsa-mcp.sh'
+    );
+  }
   for (const relativeFile of requiredFiles) {
     const file = path.join(runtimePluginRoot, relativeFile);
     if (!fs.existsSync(file)) {
@@ -204,6 +212,33 @@ for (const runtimePlugin of runtimePlugins) {
     const executable = (fs.statSync(file).mode & 0o111) !== 0;
     if (!executable) {
       errors.push(`${runtimePlugin.name} file must be executable: ${relativeExecutable}`);
+    }
+  }
+
+  if (runtimePlugin.name === 'itecs-halopsa') {
+    for (const relativeExecutable of [
+      'scripts/configure-halopsa-mcp-macos.sh',
+      'scripts/test-configure-halopsa-mcp-macos.sh',
+      'scripts/test-run-halopsa-mcp.sh'
+    ]) {
+      const file = path.join(runtimePluginRoot, relativeExecutable);
+      if (!fs.existsSync(file)) continue;
+      const executable = (fs.statSync(file).mode & 0o111) !== 0;
+      if (!executable) {
+        errors.push(`${runtimePlugin.name} file must be executable: ${relativeExecutable}`);
+      }
+    }
+
+    for (const relativeFile of [
+      'scripts/configure-halopsa-mcp-macos.sh',
+      'scripts/configure-halopsa-mcp-windows.ps1',
+      'scripts/test-configure-halopsa-mcp-macos.sh',
+      'scripts/test-run-halopsa-mcp.sh'
+    ]) {
+      assertLfOnly(
+        path.join(runtimePluginRoot, relativeFile),
+        `${runtimePlugin.name} setup script ${relativeFile}`
+      );
     }
   }
 
@@ -265,6 +300,7 @@ const textExtensions = new Set([
   '.json',
   '.md',
   '.mjs',
+  '.ps1',
   '.sh',
   '.ts',
   '.tsx',
