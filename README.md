@@ -14,7 +14,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 - `.agents/plugins/marketplace.json` - Codex marketplace definition named `itecs-agent-skills`.
 - `plugins/portable-development-workflow/` - Codex plugin for reusable workflow skills and GO-MCP operating guidance.
 - `plugins/portable-development-workflow/skills/` - skill source folders installed into local agent runtimes.
-- `plugins/itecs-halopsa/` - Codex plugin that bundles the read-only HaloPSA MCP runtime and its HaloPSA skill.
+- `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools and guarded ticket-write tools with its operating skill.
 - `plugins/itecs-vcenter/` - Codex plugin that bundles the read-only vCenter MCP runtime and its vCenter skill.
 - `plugins/itecs-pax8/` - Codex plugin that bundles the read-only Pax8 MCP runtime and its Pax8 skill.
 - `scripts/install.sh` - copies or symlinks portable skills into `$CODEX_HOME/skills` and `$AGENTS_HOME/skills`.
@@ -26,7 +26,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | Install ID | Display Name | Purpose |
 | --- | --- | --- |
 | `portable-development-workflow@itecs-agent-skills` | ITECS Agent Skills | Reusable workflow and connector-operation skills for coding agents. |
-| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled read-only HaloPSA MCP server exposing client, invoice, recurring-invoice, contract, purchase-order, project, ticket, ticket-action, and server-list lookup tools. |
+| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled HaloPSA MCP server exposing read workflows plus approval-gated public-note, ticket-create, and ticket-status tools. |
 | `itecs-vcenter@itecs-agent-skills` | ITECS vCenter | Bundled read-only vCenter MCP server for VM inventory, tags, hosting allocation, and billing evidence. |
 | `itecs-pax8@itecs-agent-skills` | ITECS Pax8 | Bundled read-only Pax8 MCP server for companies, subscriptions, products, invoices, and billing evidence. |
 
@@ -209,7 +209,7 @@ git push
 The skill install above exposes individual skill folders. The plugin install registers this repo as a Codex plugin marketplace so Codex can discover grouped plugins:
 
 - `portable-development-workflow@itecs-agent-skills` for the reusable ITECS skill bundle.
-- `itecs-halopsa@itecs-agent-skills` for live read-only HaloPSA MCP tools.
+- `itecs-halopsa@itecs-agent-skills` for live HaloPSA reads and guarded exact-ticket writes.
 - `itecs-vcenter@itecs-agent-skills` for live read-only vCenter MCP tools.
 - `itecs-pax8@itecs-agent-skills` for live read-only Pax8 MCP tools.
 

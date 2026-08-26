@@ -1,6 +1,6 @@
 # ITECS HaloPSA Plugin
 
-`itecs-halopsa` packages the ITECS HaloPSA MCP connector for Codex. It provides the existing read tools plus one guarded mutation that can add a public note to an exact ticket.
+`itecs-halopsa` packages the ITECS HaloPSA MCP connector for Codex. It provides the existing read tools plus guarded public-note, ticket-create, and ticket-status mutations.
 
 ## Tool Surface
 
@@ -21,10 +21,13 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.projects.get`
 - `halopsa.tickets.list`
 - `halopsa.tickets.get`
+- `halopsa.ticket_statuses.list`
 - `halopsa.ticket_actions.list`
 - `halopsa.ticket_actions.create_public_note`
+- `halopsa.tickets.create`
+- `halopsa.tickets.update_status`
 
-The public-note tool requires a positive ticket ID, a non-empty note, and `confirm_public: true`. It always uses public visibility, disables email, cannot change ticket status or other fields, and makes one POST attempt with no automatic retry. Independently read the ticket actions after every successful or ambiguous write.
+Every write requires an exact preview and approval. Public notes retain their existing `confirm_public` gate. Ticket creation requires `APPROVE HALOPSA TICKET CREATE`. Status changes require `APPROVE HALOPSA STATUS CHANGE <ticket-id> TO <new-status-id>` and revalidate the current status immediately before the POST. Every mutation makes one attempt with no automatic retry; independently read back after every successful or ambiguous result.
 
 ## Runtime Configuration
 
@@ -48,9 +51,23 @@ export HALOPSA_MCP_CONFIG=/absolute/path/to/config.json
 
 The approved Brian Desmot setup uses `/opt/homebrew/bin/op-itecs read` command-backed values in `config.json` against Automation Vault item `GO-MCP HaloPSA Brian Desmot Read Write`. Resolve `HALO_CLIENT_ID`, `HALO_CLIENT_SECRET`, and `HALO_SCOPE` at runtime. Do not create secret-bearing `.env` files or fall back to plain `op`.
 
-The credential must retain the existing read permissions and include the ticket-edit permission required by `POST /Actions`. Do not perform a live write test without one exact designated HaloPSA test ticket and approval for the client-visible note.
+Each technician must use that technician's own `GO-MCP HaloPSA <Technician> Read Write` identity so HaloPSA attribution remains individual. The credential must retain the required read permissions and `edit:tickets`. Do not perform a live write test without one exact designated test record, complete preview, and required approval phrase.
 
 Do not commit `.env`, local config JSON, API tokens, client secrets, raw HaloPSA exports, or generated billing reports.
+
+### Windows Read/Write Identity
+
+Each Windows technician's `~/.codex/halopsa-mcp/config.json` must use command-backed 1Password reads for that technician's exact `GO-MCP HaloPSA <Technician> Read Write` item:
+
+```json
+{
+  "client_id_command": ["op", "--account", "<ITECS-account>", "read", "op://Automation Vault/GO-MCP HaloPSA <Technician> Read Write/HALO_CLIENT_ID"],
+  "client_secret_command": ["op", "--account", "<ITECS-account>", "read", "op://Automation Vault/GO-MCP HaloPSA <Technician> Read Write/HALO_CLIENT_SECRET"],
+  "scope_command": ["op", "--account", "<ITECS-account>", "read", "op://Automation Vault/GO-MCP HaloPSA <Technician> Read Write/HALO_SCOPE"]
+}
+```
+
+These properties belong inside the configured server object alongside the existing base URL, token URL, timeout, retry, and page-size properties. Validate each `op read` with output redirected to null before restarting Codex. If the item is absent or inaccessible, stop for credential restoration or rotation; do not fall back to the shared identity or put a secret value in the config.
 
 ## Supported Platforms
 
