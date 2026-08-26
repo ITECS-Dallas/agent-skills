@@ -1,20 +1,22 @@
 ---
 name: halopsa-mcp
-description: Use when working on the GO-MCP HaloPSA connector, HaloPSA clients, recurring invoices, invoice line items, client mapping, billing reconciliation, or vCenter-to-HaloPSA audit workbooks.
+description: Use when developing the GO-MCP HaloPSA connector or running its read-only client-mapping, recurring-invoice, billing-reconciliation, or vCenter audit workflows. Do not use this development skill to govern live ticket operations exposed by the separately installed itecs-halopsa plugin.
 ---
 
 # HaloPSA MCP
 
 ## Purpose
 
-Use the read-only HaloPSA MCP connector to update the local HaloPSA client mapping source of truth and generate recurring-invoice billing artifacts for reconciliation against vCenter resource allocation reports.
+Use the GO-MCP HaloPSA connector in read-only billing and reporting workflows to update the local client-mapping source of truth and generate recurring-invoice artifacts for reconciliation against vCenter resource-allocation reports.
+
+This development skill does not define the operating policy for live ticket work. When a technician asks to read or write HaloPSA tickets through the separately installed `itecs-halopsa` plugin, use that plugin's `halopsa-mcp` skill. Its supported approval-gated writes are one public note, one ticket creation, or one exact ticket-status change.
 
 ## Required Boundaries
 
 - Do not print or commit HaloPSA credentials, local config JSON, tokens, client secrets, or generated report contents.
 - Use local runtime config under `~/.codex/halopsa-mcp/`.
 - Standard technician setup uses 1Password CLI command-backed secrets from item `GO-MCP HaloPSA Read Only`; do not create or depend on local secret-bearing `.env` files.
-- Keep HaloPSA actions read-only.
+- Keep this skill's billing, mapping, reconciliation, and report-generation actions read-only. Do not treat that boundary as a prohibition on the separately approved `itecs-halopsa` ticket-write tools.
 - Keep MCP stdout reserved for protocol traffic; write diagnostics to stderr or external files.
 - Generated billing workbooks and JSON sidecars belong in `reports/` and may be tracked only when the user explicitly approves sharing the audit snapshot through git.
 

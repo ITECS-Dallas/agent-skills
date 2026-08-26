@@ -1,6 +1,6 @@
 {
   "name": "portable-development-workflow",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ITECS agent skills for reusable development workflow and GO-MCP billing connectors.",
   "author": {
     "name": "ITECS-Dallas"
