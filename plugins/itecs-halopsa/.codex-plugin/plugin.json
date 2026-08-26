@@ -1,7 +1,7 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.4.0",
-  "description": "Cross-platform HaloPSA MCP connector for ITECS read workflows and guarded ticket writes.",
+  "version": "0.5.0",
+  "description": "Cross-platform HaloPSA MCP connector for ITECS reads and guarded ticket/project writes.",
   "author": {
     "name": "ITECS-Dallas"
   },
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "ITECS HaloPSA",
     "shortDescription": "HaloPSA lookups and guarded writes",
-    "longDescription": "Provides bundled HaloPSA lookup tools plus approval-gated public-note, ticket-create, and ticket-status tools. Writes are exact-target, one-shot, and require independent read-back. Credentials and runtime configuration stay outside the plugin.",
+    "longDescription": "Provides HaloPSA lookups plus approval-gated private/public notes, private time entries, and typed ticket/project create and update tools. Per-technician 1Password setup supports macOS and Windows. Email, replies, deletion, and raw passthrough are excluded.",
     "developerName": "ITECS-Dallas",
     "category": "Business",
     "capabilities": [
@@ -37,7 +37,9 @@
       "Look up a HaloPSA client, invoice, contract, PO, ticket, or project.",
       "Add an approved client-visible note to an exact HaloPSA ticket.",
       "Create an approved HaloPSA ticket after previewing every field.",
-      "Move an exact HaloPSA ticket to an approved status after revalidation."
+      "Move an exact HaloPSA ticket to an approved status after revalidation.",
+      "Add a private note or time entry to an exact HaloPSA ticket.",
+      "Create or update an approved HaloPSA project."
     ],
     "brandColor": "#2563EB",
     "screenshots": []

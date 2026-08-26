@@ -1,6 +1,6 @@
 # ITECS HaloPSA Plugin
 
-`itecs-halopsa` packages the ITECS HaloPSA MCP connector for Codex. It provides the existing read tools plus guarded public-note, ticket-create, and ticket-status mutations.
+`itecs-halopsa` packages the ITECS HaloPSA MCP connector for Codex. It provides read tools plus approval-gated ticket and project operations. Internal/private notes are the default. Public notes require an explicit client-visible request. No tool exposes email, reply-to-user, arbitrary action, attachment, deletion, or raw API passthrough.
 
 ## Tool Surface
 
@@ -19,15 +19,21 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.purchase_orders.get`
 - `halopsa.projects.list`
 - `halopsa.projects.get`
+- `halopsa.projects.create`
+- `halopsa.projects.update`
+- `halopsa.projects.update_status`
 - `halopsa.tickets.list`
 - `halopsa.tickets.get`
 - `halopsa.ticket_statuses.list`
 - `halopsa.ticket_actions.list`
 - `halopsa.ticket_actions.create_public_note`
+- `halopsa.ticket_actions.create_private_note`
+- `halopsa.ticket_actions.create_time_entry`
 - `halopsa.tickets.create`
+- `halopsa.tickets.update`
 - `halopsa.tickets.update_status`
 
-Every write requires an exact preview and approval. Public notes retain their existing `confirm_public` gate. Ticket creation requires `APPROVE HALOPSA TICKET CREATE`. Status changes require `APPROVE HALOPSA STATUS CHANGE <ticket-id> TO <new-status-id>` and revalidate the current status immediately before the POST. Every mutation makes one attempt with no automatic retry; independently read back after every successful or ambiguous result.
+Every write requires an exact preview and approval. Private notes use `APPROVE HALOPSA PRIVATE NOTE <ticket-id>`; time entries use `APPROVE HALOPSA TIME ENTRY <ticket-id>` and are always private/non-email. Public notes retain their explicit `confirm_public` gate. Ticket/project creation and update tools publish their exact approval phrase in the tool schema. Field updates require an immediately read `last_update`; status updates revalidate the current and allowed target statuses. Every mutation makes one POST attempt with no automatic retry; independently read back after every successful or ambiguous result.
 
 ## Runtime Configuration
 
@@ -49,25 +55,33 @@ Override it per session with:
 export HALOPSA_MCP_CONFIG=/absolute/path/to/config.json
 ```
 
-The approved Brian Desmot setup uses `/opt/homebrew/bin/op-itecs read` command-backed values in `config.json` against Automation Vault item `GO-MCP HaloPSA Brian Desmot Read Write`. Resolve `HALO_CLIENT_ID`, `HALO_CLIENT_SECRET`, and `HALO_SCOPE` at runtime. Do not create secret-bearing `.env` files or fall back to plain `op`.
+Each technician uses that technician's own Automation Vault item named `GO-MCP HaloPSA <Technician> Read Write`. The setup scripts validate all six expected fields, exact agent identity, approved URLs, least-privilege ticket scopes, and OAuth before writing a config. The generated file contains only command-backed references for `HALO_CLIENT_ID`, `HALO_CLIENT_SECRET`, and `HALO_SCOPE`; it never contains resolved credentials.
 
 Each technician must use that technician's own `GO-MCP HaloPSA <Technician> Read Write` identity so HaloPSA attribution remains individual. The credential must retain the required read permissions and `edit:tickets`. Do not perform a live write test without one exact designated test record, complete preview, and required approval phrase.
 
 Do not commit `.env`, local config JSON, API tokens, client secrets, raw HaloPSA exports, or generated billing reports.
 
-### Windows Read/Write Identity
+### macOS Setup
 
-Each Windows technician's `~/.codex/halopsa-mcp/config.json` must use command-backed 1Password reads for that technician's exact `GO-MCP HaloPSA <Technician> Read Write` item:
+Use the managed prompt-free ITECS wrapper. Do not fall back to plain `op`:
 
-```json
-{
-  "client_id_command": ["op", "--account", "<ITECS-account>", "read", "op://Automation Vault/GO-MCP HaloPSA <Technician> Read Write/HALO_CLIENT_ID"],
-  "client_secret_command": ["op", "--account", "<ITECS-account>", "read", "op://Automation Vault/GO-MCP HaloPSA <Technician> Read Write/HALO_CLIENT_SECRET"],
-  "scope_command": ["op", "--account", "<ITECS-account>", "read", "op://Automation Vault/GO-MCP HaloPSA <Technician> Read Write/HALO_SCOPE"]
-}
+```bash
+./scripts/configure-halopsa-mcp-macos.sh --technician "Exact Technician Name"
 ```
 
-These properties belong inside the configured server object alongside the existing base URL, token URL, timeout, retry, and page-size properties. Validate each `op read` with output redirected to null before restarting Codex. If the item is absent or inaccessible, stop for credential restoration or rotation; do not fall back to the shared identity or put a secret value in the config.
+Use `--force` only when intentionally replacing that technician's existing local config.
+
+### Windows 11 Setup
+
+Run in PowerShell from the installed plugin directory:
+
+```powershell
+.\scripts\configure-halopsa-mcp-windows.ps1 `
+  -TechnicianName "Exact Technician Name" `
+  -ItecsAccount "ITECS-1PASSWORD-ACCOUNT-SHORTHAND"
+```
+
+The Windows script resolves the installed `op.exe`, validates the exact per-technician Automation Vault item and live OAuth response, and writes `%USERPROFILE%\.codex\halopsa-mcp\config.json` with command references only. If the item is absent, inaccessible, mismatched, over-scoped, or rejected by OAuth, stop for credential restoration/rotation; do not use another technician's identity or a shared fallback.
 
 ## Supported Platforms
 
@@ -78,7 +92,7 @@ Bundled MCP binaries are included for:
 - Windows 11 x64: `windows-amd64.exe`
 - Windows 11 ARM64: `windows-arm64.exe`
 
-The plugin launcher is a Bash script. Windows 11 machines need Git Bash/MSYS/Cygwin Bash available as `bash` on `PATH`. WSL Bash is not supported for this launcher.
+The plugin launcher is a Bash script. Windows 11 machines need Git Bash/MSYS/Cygwin Bash available as `bash` on `PATH`; it resolves the default config from `%USERPROFILE%` so PowerShell setup and Git Bash startup use the same file. WSL Bash is not supported for this launcher.
 
 Windows preflight:
 
@@ -94,7 +108,7 @@ If startup fails with `/usr/bin/env: 'bash\r': No such file or directory`, refre
 For another Codex installation:
 
 ```bash
-codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git --ref main
+codex plugin marketplace add https://github.com/ITECS-Dallas/agent-skills.git --ref main
 codex plugin add itecs-halopsa@itecs-agent-skills
 ```
 

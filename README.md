@@ -14,7 +14,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 - `.agents/plugins/marketplace.json` - Codex marketplace definition named `itecs-agent-skills`.
 - `plugins/portable-development-workflow/` - Codex plugin for reusable workflow skills and GO-MCP operating guidance.
 - `plugins/portable-development-workflow/skills/` - skill source folders installed into local agent runtimes.
-- `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools and guarded ticket-write tools with its operating skill.
+- `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools, guarded ticket/project writes, and per-technician macOS/Windows 1Password setup.
 - `plugins/itecs-vcenter/` - Codex plugin that bundles the read-only vCenter MCP runtime and its vCenter skill.
 - `plugins/itecs-pax8/` - Codex plugin that bundles the read-only Pax8 MCP runtime and its Pax8 skill.
 - `scripts/install.sh` - copies or symlinks portable skills into `$CODEX_HOME/skills` and `$AGENTS_HOME/skills`.
@@ -26,7 +26,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | Install ID | Display Name | Purpose |
 | --- | --- | --- |
 | `portable-development-workflow@itecs-agent-skills` | ITECS Agent Skills | Reusable workflow and connector-operation skills for coding agents. |
-| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled HaloPSA MCP server exposing read workflows plus approval-gated public-note, ticket-create, and ticket-status tools. |
+| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled HaloPSA MCP server exposing reads plus approval-gated private/public notes, time entries, and typed ticket/project writes. |
 | `itecs-vcenter@itecs-agent-skills` | ITECS vCenter | Bundled read-only vCenter MCP server for VM inventory, tags, hosting allocation, and billing evidence. |
 | `itecs-pax8@itecs-agent-skills` | ITECS Pax8 | Bundled read-only Pax8 MCP server for companies, subscriptions, products, invoices, and billing evidence. |
 
@@ -209,7 +209,7 @@ git push
 The skill install above exposes individual skill folders. The plugin install registers this repo as a Codex plugin marketplace so Codex can discover grouped plugins:
 
 - `portable-development-workflow@itecs-agent-skills` for the reusable ITECS skill bundle.
-- `itecs-halopsa@itecs-agent-skills` for live HaloPSA reads and guarded exact-ticket writes.
+- `itecs-halopsa@itecs-agent-skills` for live HaloPSA reads and guarded exact-ticket/project writes.
 - `itecs-vcenter@itecs-agent-skills` for live read-only vCenter MCP tools.
 - `itecs-pax8@itecs-agent-skills` for live read-only Pax8 MCP tools.
 
@@ -270,7 +270,7 @@ Prerequisites:
 - Codex Desktop or Codex CLI installed.
 - Git for Windows installed, including Git Bash available as `bash` on `PATH`.
 - Network access to `https://github.com/ITECS-Dallas/agent-skills`.
-- GitHub authentication already working for Git, either through SSH or GitHub CLI.
+- GitHub HTTPS authentication already working for Git.
 
 Confirm Windows resolves `bash` to Git Bash, not WSL:
 
@@ -281,27 +281,10 @@ bash -lc 'case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) echo "Git Bash OK: $(uname
 
 If the second command reports `Linux`, Codex is finding WSL Bash. Move the Git for Windows `bin` path ahead of WSL paths for the user account, then restart Codex Desktop and the terminal.
 
-If using GitHub CLI for HTTPS authentication:
-
-```powershell
-winget install --id Git.Git -e
-winget install --id GitHub.cli -e
-gh auth login
-gh auth setup-git
-```
-
 Add the marketplace from PowerShell.
-
-Use HTTPS if GitHub CLI is handling Git credentials:
 
 ```powershell
 codex plugin marketplace add https://github.com/ITECS-Dallas/agent-skills.git --ref main
-```
-
-Or use SSH if the Windows machine has a working GitHub SSH key:
-
-```powershell
-codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git --ref main
 ```
 
 Install the ITECS skills plugin and runtime connector plugins:
@@ -376,6 +359,16 @@ Current bundled binaries target:
 - `windows-amd64.exe`
 
 Windows 11 machines require Git Bash/MSYS/Cygwin Bash available as `bash` on `PATH` because Codex starts each connector through its plugin launcher script. WSL Bash is not supported for these launchers.
+
+Configure the HaloPSA plugin from its installed directory. The setup validates the exact per-technician Automation Vault item, ticket scopes, agent identity, approved URLs, and live OAuth before writing command references only:
+
+```bash
+./scripts/configure-halopsa-mcp-macos.sh --technician "Exact Technician Name"
+```
+
+```powershell
+.\scripts\configure-halopsa-mcp-windows.ps1 -TechnicianName "Exact Technician Name" -ItecsAccount "ITECS-1PASSWORD-ACCOUNT-SHORTHAND"
+```
 
 Known Windows launcher failures:
 
