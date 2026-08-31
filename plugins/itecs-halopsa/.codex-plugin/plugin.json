@@ -1,6 +1,6 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Cross-platform HaloPSA MCP connector for ITECS reads and guarded ticket/project writes.",
   "author": {
     "name": "ITECS-Dallas"
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "ITECS HaloPSA",
     "shortDescription": "HaloPSA lookups and guarded writes",
-    "longDescription": "Provides HaloPSA lookups plus approval-gated private/public notes, private time entries, and typed ticket/project create and update tools. Per-technician 1Password setup supports macOS and Windows. Email, replies, deletion, and raw passthrough are excluded.",
+    "longDescription": "Provides HaloPSA lookups plus approval-gated private/public notes, private time entries, and typed ticket/project create and update tools. Ticket and project creation require explicit category, impact, and urgency values. Per-technician 1Password setup supports macOS and Windows. Email, replies, deletion, and raw passthrough are excluded.",
     "developerName": "ITECS-Dallas",
     "category": "Business",
     "capabilities": [

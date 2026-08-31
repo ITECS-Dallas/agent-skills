@@ -33,7 +33,7 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.tickets.update`
 - `halopsa.tickets.update_status`
 
-Every write requires an exact preview and approval. Private notes use `APPROVE HALOPSA PRIVATE NOTE <ticket-id>`; time entries use `APPROVE HALOPSA TIME ENTRY <ticket-id>` and are always private/non-email. Public notes retain their explicit `confirm_public` gate. Ticket/project creation and update tools publish their exact approval phrase in the tool schema. Field updates require an immediately read `last_update`; status updates revalidate the current and allowed target statuses. Every mutation makes one POST attempt with no automatic retry; independently read back after every successful or ambiguous result.
+Every write requires an exact preview and approval. Private notes use `APPROVE HALOPSA PRIVATE NOTE <ticket-id>`; time entries use `APPROVE HALOPSA TIME ENTRY <ticket-id>` and are always private/non-email. Public notes retain their explicit `confirm_public` gate. Ticket and project creation require at least one category ID plus positive HaloPSA impact and urgency values; all three classifications must be included in the preview. Ticket/project creation and update tools publish their exact approval phrase in the tool schema. Field updates require an immediately read `last_update`; status updates revalidate the current and allowed target statuses. Every mutation makes one POST attempt with no automatic retry; independently read back after every successful or ambiguous result.
 
 ## Runtime Configuration
 
@@ -113,6 +113,16 @@ codex plugin add itecs-halopsa@itecs-agent-skills
 ```
 
 Start a new Codex thread after installing so the plugin MCP tools are loaded.
+
+## Refresh An Existing Installation
+
+After this marketplace repository is updated, reinstall the plugin so Codex refreshes its cached runtime:
+
+```bash
+codex plugin add itecs-halopsa@itecs-agent-skills
+```
+
+Then restart Codex Desktop or start a new thread. Existing threads keep the tool schema that was loaded when the thread started.
 
 ## Local Smoke Test
 
