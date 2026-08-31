@@ -16,10 +16,11 @@ Use the bundled HaloPSA MCP server for live lookup workflows and tightly governe
 - Before a public note, re-read the exact ticket, verify its client and context, preview the complete note, identify it as public/client-visible, and obtain the workflow's exact approval phrase.
 - Use only `halopsa.ticket_actions.create_public_note` with the approved ticket ID and note body and `confirm_public: true`. Never substitute a direct HTTP request or browser write.
 - Before a time entry, re-read the exact ticket/project and preview the work note, total hours, nonbillable hours, charge-rate ID, and performed timestamp. Require `APPROVE HALOPSA TIME ENTRY <ticket-id>`. Time entries are private `Note` actions with email disabled.
-- Before ticket creation, verify the exact client, site/user when supplied, ticket type, priority/team/agent when supplied, at least one category ID, positive impact and urgency values, summary, and details. Warn that tenant rules or workflows may still send notifications. Preview every field, including category, impact, and urgency, and obtain the exact phrase `APPROVE HALOPSA TICKET CREATE`; then call `halopsa.tickets.create` once.
+- Accept ticket and project creation requests in ordinary conversational language. Resolve names to live HaloPSA IDs, infer only unambiguous values from verified context, and ask concise follow-up questions only for required values that remain missing. Technicians should not need to construct tool payloads.
+- Before ticket creation, verify the exact client, site/user when supplied, ticket type, priority/team/agent when supplied, at least one category ID, positive impact and urgency values, summary, and details. Call `halopsa.tickets.create` without `approval_phrase` to return the non-mutating exact preview. Warn that tenant rules or workflows may still send notifications, obtain the returned exact phrase `APPROVE HALOPSA TICKET CREATE`, then call once with the unchanged payload.
 - Before a ticket field update, re-read the exact ticket, record `last_update`, preview every changed field, and require `APPROVE HALOPSA TICKET UPDATE <ticket-id>`. Pass the snapshot as `expected_last_update`; use the separate status tool for status.
 - Before a status change or resolution, read the exact ticket and `halopsa.ticket_statuses.list`, preview the current and target status IDs and names, warn that tenant rules or workflows may activate, and obtain `APPROVE HALOPSA STATUS CHANGE <ticket-id> TO <new-status-id>`. Pass the immediately read current status as `expected_current_status_id` and call `halopsa.tickets.update_status` once.
-- Before project creation, verify and preview at least one category ID plus positive impact and urgency values. For a project create, field update, or status update, use the equivalent `halopsa.projects.*` tool. Follow its exact approval phrase, use `last_update` for field patches, and revalidate current/allowed statuses for status changes.
+- Before project creation, verify at least one category ID plus positive impact and urgency values. Call `halopsa.projects.create` without `confirm` for its non-mutating exact preview, obtain one plain confirmation, then call once with the unchanged payload and `confirm: true`. Project field updates use `last_update`; status changes revalidate current/allowed statuses.
 - After a successful or ambiguous call, independently read back the ticket or actions. Never automatically retry an ambiguous write.
 - Do not email, reply to a user, set recipients/subjects, choose an arbitrary action outcome, add attachments, delete records, or bypass the typed tools with direct API/browser writes. Those operations are not exposed.
 - Do not print or commit HaloPSA credentials, local config JSON, OAuth tokens, client secrets, raw exports, generated billing reports, or sensitive customer detail unless the user explicitly asks for the detail.
@@ -43,7 +44,7 @@ Use the bundled HaloPSA MCP server for live lookup workflows and tightly governe
 - `halopsa.purchase_orders.get` - get one purchase order by ID.
 - `halopsa.projects.list` - list projects with client, site, agent, status, milestone, team, text, date, and pagination filters.
 - `halopsa.projects.get` - get one project by ID.
-- `halopsa.projects.create` - create one approved project with typed routing, required category/impact/urgency, dates, milestone, and budget fields.
+- `halopsa.projects.create` - preview or create one project with typed routing, required category/impact/urgency, dates, milestone, and budget fields.
 - `halopsa.projects.update` - update supported project fields after `last_update` revalidation.
 - `halopsa.projects.update_status` - change one project's status after current/allowed-status revalidation.
 - `halopsa.tickets.list` - list tickets with client, site, user, agent, status, priority, team, text, date, and pagination filters.
@@ -53,7 +54,7 @@ Use the bundled HaloPSA MCP server for live lookup workflows and tightly governe
 - `halopsa.ticket_actions.create_public_note` - add one public/client-visible note to an exact ticket after explicit approval; no email, status, time, attachment, or private-note side effects.
 - `halopsa.ticket_actions.create_private_note` - add one internal/private, non-email note to an exact ticket or project; this is the default note path.
 - `halopsa.ticket_actions.create_time_entry` - log one private, non-email time entry against an exact ticket or project.
-- `halopsa.tickets.create` - create one approved ticket with explicit routing, required category/impact/urgency, and content fields; one attempt only.
+- `halopsa.tickets.create` - preview or create one ticket with explicit routing, required category/impact/urgency, and content fields; one attempt only.
 - `halopsa.tickets.update` - update supported ticket routing/content/category/parent fields after `last_update` revalidation.
 - `halopsa.tickets.update_status` - change one exact ticket's status only after current-status revalidation and exact approval; one attempt only.
 
@@ -65,7 +66,7 @@ Use the bundled HaloPSA MCP server for live lookup workflows and tightly governe
 4. For service desk or project review, start with the narrowest relevant `halopsa.tickets.list` or `halopsa.projects.list` filters, then call the corresponding `get` tool only for records that need detail.
 5. Preserve evidence fields in the answer: HaloPSA ID, reference, supplier/client, dates, status, total, and match rationale.
 6. Report uncertainty plainly when a lookup is inconclusive.
-7. For any supported write, verify the exact target and context, preview every changed field and possible visibility/notification effect, obtain the required exact approval phrase, write once, and independently read back before claiming completion.
+7. For any supported write, verify the exact target and context, preview every changed field and possible visibility/notification effect, obtain the connector-required confirmation, write once, and independently read back before claiming completion.
 
 ## Local Setup
 
