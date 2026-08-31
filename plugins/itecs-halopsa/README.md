@@ -33,7 +33,9 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.tickets.update`
 - `halopsa.tickets.update_status`
 
-Every write requires an exact preview and approval. Private notes use `APPROVE HALOPSA PRIVATE NOTE <ticket-id>`; time entries use `APPROVE HALOPSA TIME ENTRY <ticket-id>` and are always private/non-email. Public notes retain their explicit `confirm_public` gate. Ticket and project creation require at least one category ID plus positive HaloPSA impact and urgency values; all three classifications must be included in the preview. Ticket/project creation and update tools publish their exact approval phrase in the tool schema. Field updates require an immediately read `last_update`; status updates revalidate the current and allowed target statuses. Every mutation makes one POST attempt with no automatic retry; independently read back after every successful or ambiguous result.
+Technicians can request a ticket or project in ordinary chat. The agent resolves supplied names to HaloPSA IDs and asks concise follow-up questions only when required values remain missing; technicians do not compose tool payloads. Ticket and project creation require at least one category ID plus positive HaloPSA impact and urgency values.
+
+Every write requires one exact preview and the connector-required confirmation. Omit `approval_phrase` from `halopsa.tickets.create` to preview, then use the returned `APPROVE HALOPSA TICKET CREATE` phrase once. Omit `confirm` from `halopsa.projects.create` to preview, then use one plain confirmation passed as `confirm: true`. Private notes use `APPROVE HALOPSA PRIVATE NOTE <ticket-id>`; time entries use `APPROVE HALOPSA TIME ENTRY <ticket-id>` and are always private/non-email. Public notes retain their explicit `confirm_public` gate. Field updates require an immediately read `last_update`; status updates revalidate the current and allowed target statuses. Every mutation makes one POST attempt with no automatic retry; independently read back after every successful or ambiguous result.
 
 ## Runtime Configuration
 
