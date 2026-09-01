@@ -1,7 +1,7 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.7.0",
-  "description": "Cross-platform HaloPSA MCP connector for ITECS reads and guarded ticket/project writes.",
+  "version": "0.8.0",
+  "description": "Cross-platform HaloPSA MCP connector for ITECS reads and guarded ticket, action, project, and contract writes.",
   "author": {
     "name": "ITECS-Dallas"
   },
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "ITECS HaloPSA",
     "shortDescription": "HaloPSA lookups and guarded writes",
-    "longDescription": "Provides HaloPSA lookups plus approval-gated private/public notes, private time entries, and conversational ticket/project create and update tools. Agents resolve names, ask only for missing mandatory values, and preview exact create payloads before committing. Per-technician 1Password setup supports macOS and Windows. Email, replies, deletion, and raw passthrough are excluded.",
+    "longDescription": "Provides 32 typed HaloPSA tools for lookups plus approval-gated ticket actions, Start Work, email, notes, time entries, ticket/project create and update, and contract create and update. Every write previews the exact payload, commits once after the connector-required confirmation, and requires independent readback. Per-technician 1Password setup supports macOS and Windows. Deletion and raw passthrough are excluded.",
     "developerName": "ITECS-Dallas",
     "category": "Business",
     "capabilities": [
@@ -39,7 +39,9 @@
       "Create a HaloPSA ticket from my details and ask only for required information that is missing.",
       "Move an exact HaloPSA ticket to an approved status after revalidation.",
       "Add a private note or time entry to an exact HaloPSA ticket.",
-      "Create or update a HaloPSA project from a conversational request."
+      "Run the exact available Start Work action for a HaloPSA ticket.",
+      "Send an approved ticket email through a configured HaloPSA action outcome.",
+      "Create or update a HaloPSA project or client contract from a conversational request."
     ],
     "brandColor": "#2563EB",
     "screenshots": []

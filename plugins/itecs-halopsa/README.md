@@ -1,6 +1,6 @@
 # ITECS HaloPSA Plugin
 
-`itecs-halopsa` packages the ITECS HaloPSA MCP connector for Codex. It provides read tools plus approval-gated ticket and project operations. Internal/private notes are the default. Public notes require an explicit client-visible request. No tool exposes email, reply-to-user, arbitrary action, attachment, deletion, or raw API passthrough.
+`itecs-halopsa` packages the ITECS HaloPSA MCP connector for Codex. Version 0.8.0 provides 32 typed tools: 19 reads and 13 approval-gated writes for tickets, configured action outcomes, notes, time entries, projects, and client contracts. Internal/private notes are the default. Public notes and email require explicit client-visible approval. No tool exposes arbitrary actions, attachments, deletion, or raw API passthrough.
 
 ## Tool Surface
 
@@ -15,6 +15,8 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.recurring_invoices.get`
 - `halopsa.contracts.list`
 - `halopsa.contracts.get`
+- `halopsa.contracts.create`
+- `halopsa.contracts.update`
 - `halopsa.purchase_orders.list`
 - `halopsa.purchase_orders.get`
 - `halopsa.projects.list`
@@ -26,6 +28,10 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.tickets.get`
 - `halopsa.ticket_statuses.list`
 - `halopsa.ticket_actions.list`
+- `halopsa.ticket_outcomes.list`
+- `halopsa.ticket_outcomes.get`
+- `halopsa.ticket_actions.start_work`
+- `halopsa.ticket_actions.send_email`
 - `halopsa.ticket_actions.create_public_note`
 - `halopsa.ticket_actions.create_private_note`
 - `halopsa.ticket_actions.create_time_entry`
@@ -35,7 +41,11 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 
 Technicians can request a ticket or project in ordinary chat. The agent resolves supplied names to HaloPSA IDs and asks concise follow-up questions only when required values remain missing; technicians do not compose tool payloads. Ticket and project creation require at least one category ID plus positive HaloPSA impact and urgency values.
 
-Every write requires one exact preview and the connector-required confirmation. Omit `approval_phrase` from `halopsa.tickets.create` to preview, then use the returned `APPROVE HALOPSA TICKET CREATE` phrase once. Omit `confirm` from `halopsa.projects.create` to preview, then use one plain confirmation passed as `confirm: true`. Private notes use `APPROVE HALOPSA PRIVATE NOTE <ticket-id>`; time entries use `APPROVE HALOPSA TIME ENTRY <ticket-id>` and are always private/non-email. Public notes retain their explicit `confirm_public` gate. Field updates require an immediately read `last_update`; status updates revalidate the current and allowed target statuses. Every mutation makes one POST attempt with no automatic retry; independently read back after every successful or ambiguous result.
+Every write requires one exact preview and the connector-required confirmation. Exact phrases remain for client-visible public notes and email, ticket creation, and ticket/project status changes. Private notes, time entries, ticket/project field updates, project creation, contract create/update, and the exact tenant-configured `Start Work` outcome use one plain confirmation passed as `confirm: true`. Ticket/project field updates require an immediately read `last_update`; contract updates require `last_modified`; status tools revalidate current and allowed target statuses. Every mutation makes one POST attempt with no automatic retry; independently read back after every successful or ambiguous result.
+
+`Start Work` resolves exactly one currently available tenant outcome named `Start Work` and posts that outcome through `/Actions`; it never substitutes a generic status update. Outcome metadata can disclose configured status, assignment, workflow, email, billing, and timer effects. Halo's continuously running browser timer is UI state, so the connector does not claim that it remains open. Explicit time logging is supported through `halopsa.ticket_actions.create_time_entry`.
+
+Ticket email uses one exact email-capable configured outcome and the returned phrase `APPROVE HALOPSA EMAIL <ticket-id>`. It does not write directly to Halo's outgoing-email queue.
 
 ## Runtime Configuration
 
