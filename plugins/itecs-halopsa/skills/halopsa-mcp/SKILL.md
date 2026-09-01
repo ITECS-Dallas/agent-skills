@@ -1,6 +1,6 @@
 ---
 name: halopsa-mcp
-description: Use when looking up live HaloPSA records or performing an explicitly approved private/public note, time entry, ticket write, or project write through the ITECS HaloPSA MCP plugin.
+description: Use when looking up live HaloPSA records or performing an explicitly approved ticket action, note, time entry, email, ticket/project write, or contract write through the ITECS HaloPSA MCP plugin.
 ---
 
 # HaloPSA MCP
@@ -12,17 +12,20 @@ Use the bundled HaloPSA MCP server for live lookup workflows and tightly governe
 ## Required Boundaries
 
 - Keep all activity read-only unless the user explicitly requests one exact supported mutation and approves its complete preview.
-- Default notes to `halopsa.ticket_actions.create_private_note`. Re-read the exact ticket/project, preview the complete internal note, and require `APPROVE HALOPSA PRIVATE NOTE <ticket-id>`. The tool hard-codes private visibility and disables email.
+- Default notes to `halopsa.ticket_actions.create_private_note`. Re-read the exact ticket/project, preview the complete internal note, obtain one plain confirmation, and pass `confirm: true`. The tool hard-codes private visibility and disables email.
 - Before a public note, re-read the exact ticket, verify its client and context, preview the complete note, identify it as public/client-visible, and obtain the workflow's exact approval phrase.
-- Use only `halopsa.ticket_actions.create_public_note` with the approved ticket ID and note body and `confirm_public: true`. Never substitute a direct HTTP request or browser write.
-- Before a time entry, re-read the exact ticket/project and preview the work note, total hours, nonbillable hours, charge-rate ID, and performed timestamp. Require `APPROVE HALOPSA TIME ENTRY <ticket-id>`. Time entries are private `Note` actions with email disabled.
+- Use only `halopsa.ticket_actions.create_public_note` with the approved ticket ID and note body. Preview first, then use the returned `APPROVE HALOPSA PUBLIC NOTE <ticket-id>` phrase. Never substitute a direct HTTP request or browser write.
+- Before a time entry, re-read the exact ticket/project and preview the work note, total hours, nonbillable hours, charge-rate ID, and performed timestamp. Obtain one plain confirmation and pass `confirm: true`. Time entries are private `Note` actions with email disabled.
 - Accept ticket and project creation requests in ordinary conversational language. Resolve names to live HaloPSA IDs, infer only unambiguous values from verified context, and ask concise follow-up questions only for required values that remain missing. Technicians should not need to construct tool payloads.
 - Before ticket creation, verify the exact client, site/user when supplied, ticket type, priority/team/agent when supplied, at least one category ID, positive impact and urgency values, summary, and details. Call `halopsa.tickets.create` without `approval_phrase` to return the non-mutating exact preview. Warn that tenant rules or workflows may still send notifications, obtain the returned exact phrase `APPROVE HALOPSA TICKET CREATE`, then call once with the unchanged payload.
-- Before a ticket field update, re-read the exact ticket, record `last_update`, preview every changed field, and require `APPROVE HALOPSA TICKET UPDATE <ticket-id>`. Pass the snapshot as `expected_last_update`; use the separate status tool for status.
+- Before a ticket field update, re-read the exact ticket, record `last_update`, preview every changed field, obtain one plain confirmation, and pass `confirm: true` with the snapshot as `expected_last_update`; use the separate status tool for status.
 - Before a status change or resolution, read the exact ticket and `halopsa.ticket_statuses.list`, preview the current and target status IDs and names, warn that tenant rules or workflows may activate, and obtain `APPROVE HALOPSA STATUS CHANGE <ticket-id> TO <new-status-id>`. Pass the immediately read current status as `expected_current_status_id` and call `halopsa.tickets.update_status` once.
-- Before project creation, verify at least one category ID plus positive impact and urgency values. Call `halopsa.projects.create` without `confirm` for its non-mutating exact preview, obtain one plain confirmation, then call once with the unchanged payload and `confirm: true`. Project field updates use `last_update`; status changes revalidate current/allowed statuses.
+- Before project creation, verify at least one category ID plus positive impact and urgency values. Call `halopsa.projects.create` without `confirm` for its non-mutating exact preview, obtain one plain confirmation, then call once with the unchanged payload and `confirm: true`. Project field updates also use a plain confirmation plus `last_update`; status changes revalidate current/allowed statuses and retain their exact phrase.
+- For Start Work, read the exact ticket and its `last_update`, then call `halopsa.ticket_actions.start_work` without `confirm`. The tool must resolve exactly one currently available tenant outcome named `Start Work` and return its configured effects. Obtain one plain confirmation and call once with the unchanged snapshot and `confirm: true`. Do not substitute `halopsa.tickets.update_status`. Do not claim Halo's continuously running browser timer remains open; the connector exposes explicit time-entry logging, while the browser timer is UI state.
+- For ticket email, list/get the configured outcomes, choose an exact email-capable outcome, and preview recipients, subject, body, and outcome effects through `halopsa.ticket_actions.send_email`. Obtain the returned `APPROVE HALOPSA EMAIL <ticket-id>` phrase and call once. Do not write directly to `/Outgoingemail`.
+- For contract create/update, resolve the exact client, site, type/subtype, dates, billing values, and invoice flags. Preview the exact payload and possible billing effects, obtain one plain confirmation, and call once with `confirm: true`. Contract update also requires `last_modified` from the immediately preceding read.
 - After a successful or ambiguous call, independently read back the ticket or actions. Never automatically retry an ambiguous write.
-- Do not email, reply to a user, set recipients/subjects, choose an arbitrary action outcome, add attachments, delete records, or bypass the typed tools with direct API/browser writes. Those operations are not exposed.
+- Do not choose an arbitrary action outcome, add attachments, delete records, or bypass the typed tools with direct API/browser writes. Email and Start Work are allowed only through their dedicated typed tools and exact configured outcomes.
 - Do not print or commit HaloPSA credentials, local config JSON, OAuth tokens, client secrets, raw exports, generated billing reports, or sensitive customer detail unless the user explicitly asks for the detail.
 - Use local runtime config under `~/.codex/halopsa-mcp/`.
 - Standard technician setup uses 1Password CLI command-backed secrets from the technician's approved `GO-MCP HaloPSA <Technician> Read Write` item. Do not use a shared API identity or create local secret-bearing `.env` files.
@@ -40,6 +43,8 @@ Use the bundled HaloPSA MCP server for live lookup workflows and tightly governe
 - `halopsa.recurring_invoices.get` - get one recurring invoice by ID.
 - `halopsa.contracts.list` - list client contracts with client, site, type, renewal, and pagination filters.
 - `halopsa.contracts.get` - get one client contract by ID.
+- `halopsa.contracts.create` - preview or create one client contract with dates, type, status, billing, invoice, and rolling fields.
+- `halopsa.contracts.update` - preview or update supported contract fields after `last_modified` revalidation.
 - `halopsa.purchase_orders.list` - list purchase orders with open/closed status, supplier, client, ticket, search, and pagination filters.
 - `halopsa.purchase_orders.get` - get one purchase order by ID.
 - `halopsa.projects.list` - list projects with client, site, agent, status, milestone, team, text, date, and pagination filters.
@@ -51,6 +56,10 @@ Use the bundled HaloPSA MCP server for live lookup workflows and tightly governe
 - `halopsa.tickets.get` - get one ticket by ID, optionally including recent actions/notes.
 - `halopsa.ticket_statuses.list` - list ticket statuses, optionally narrowed to an exact ticket or ticket type.
 - `halopsa.ticket_actions.list` - list ticket actions/notes for a specific ticket.
+- `halopsa.ticket_outcomes.list` - list tenant-configured action outcomes available for an exact ticket or explicit state.
+- `halopsa.ticket_outcomes.get` - get one configured outcome and its effects, optionally resolved for an exact ticket.
+- `halopsa.ticket_actions.start_work` - preview or execute the one exact available Start Work outcome with plain confirmation and `last_update` revalidation.
+- `halopsa.ticket_actions.send_email` - preview or send one ticket email through an exact email-capable outcome and exact approval phrase.
 - `halopsa.ticket_actions.create_public_note` - add one public/client-visible note to an exact ticket after explicit approval; no email, status, time, attachment, or private-note side effects.
 - `halopsa.ticket_actions.create_private_note` - add one internal/private, non-email note to an exact ticket or project; this is the default note path.
 - `halopsa.ticket_actions.create_time_entry` - log one private, non-email time entry against an exact ticket or project.
