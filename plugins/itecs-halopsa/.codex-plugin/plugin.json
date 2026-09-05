@@ -1,6 +1,6 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.10.0+codex.20260905220123",
+  "version": "0.10.0+codex.20260905222451",
   "description": "ITECS HaloPSA tools for technician operations and billing evidence.",
   "author": {
     "name": "ITECS-Dallas"
@@ -33,15 +33,9 @@
     ],
     "websiteURL": "https://github.com/ITECS-Dallas/agent-skills",
     "defaultPrompt": [
-      "List HaloPSA purchase orders that need CFO review.",
-      "Look up a HaloPSA client, invoice, contract, PO, ticket, or project.",
-      "Add an approved client-visible note to an exact HaloPSA ticket.",
-      "Create a HaloPSA ticket from my details and ask only for required information that is missing.",
-      "Move an exact HaloPSA ticket to an approved status after revalidation.",
-      "Add a private note or time entry to an exact HaloPSA ticket.",
-      "Run the exact available Start Work action for a HaloPSA ticket.",
-      "Send an approved ticket email through a configured HaloPSA action outcome.",
-      "Create or update a HaloPSA project or client contract from a conversational request."
+      "Work a ticket and identify the next useful diagnostic.",
+      "Assign this ticket to me and record the work I completed.",
+      "Create a low-priority ticket from my description."
     ],
     "brandColor": "#2563EB",
     "screenshots": []
