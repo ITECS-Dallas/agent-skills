@@ -1,81 +1,19 @@
 ---
 name: vcenter-mcp
-description: Use when working on the GO-MCP vCenter connector, vCenter inventory, VM tags, billable client reporting, Excel audit workbooks, or live read-only vCenter validation.
+description: Use when looking up live vCenter VMs, Client/BillingScope tags, resource allocations, or hosting inventory through the installed ITECS vCenter plugin.
 ---
 
-# vCenter MCP
+# vCenter operations
 
-## Purpose
+Use the bundled MCP tools directly for inventory requests. A technician does not need Go or a GO-MCP checkout.
 
-Use the read-only vCenter MCP connector to audit client VM resource allocations from vCenter tags and generate local billing-review artifacts.
+- `vcenter.servers.list`: configured targets.
+- `vcenter.vms.list`: VM identities, allocation, tags and storage evidence.
+- `vcenter.inventory.summary`: counts, power state, resources and tag grouping.
+- `vcenter.billable_report` and `vcenter.monthly_report`: Markdown billable allocation reports.
 
-## Required Boundaries
+Resolve the requested server and client from available context and returned IDs/tags. Preserve CPU, memory, total provisioned storage, mechanical, SSD and unknown storage separately. Identify the collection time and distinguish source evidence from inferred client identity.
 
-- Do not print or commit vCenter credentials, local config values, or secret-bearing local files.
-- Use local runtime config under `~/.codex/vcenter-mcp/`.
-- Keep vCenter actions read-only.
-- Keep MCP stdout reserved for protocol traffic; write diagnostics to stderr or external files.
-- Generated billing workbooks belong in `reports/` and may be tracked only when the user explicitly approves sharing the audit snapshot through git.
+For an Excel/JSON source report, use ITECS Billing Audit's packaged `scripts/run-source-report vcenter -month YYYY-MM -json-only=false -out-dir /absolute/output/path`. For consolidated hosting reconciliation use its `billing-reconciliation` skill. The original GO-MCP developer CLI remains available.
 
-## Billing Workbook Workflow
-
-1. Rebuild and verify `connectors/vcenter` before live use.
-2. Confirm local config exists without displaying secrets.
-3. Run a read-only VM inventory scan through `connectors/vcenter/cmd/billing-report`.
-4. Use VM tags where `Client=<client name>` to group rows.
-5. Include only VMs tagged `BillingScope=Billable`.
-6. Create local report files in `reports/`.
-7. Put Client Name in the first column and group VMs with the same Client tag together.
-8. For each VM row, include CPU, MEM GB, total STORAGE GB, MECHANICAL STORAGE GB, SSD STORAGE GB, and UNKNOWN STORAGE GB.
-9. STORAGE must be the total provisioned virtual disk capacity for the VM, including all attached virtual disks. Tiered storage is derived from each disk backing datastore name and must preserve unmatched datastore names in the unknown bucket.
-10. Add client subtotals and workbook totals so recurring invoices can be audited and adjusted.
-
-## Billing Workbook Decisions
-
-- Scope: billable VMs only.
-- Month: infer the current month from today's date when the user asks to run the skill, state the inferred month, and ask for confirmation before generating files.
-- CLI behavior: the underlying generator should require `-month YYYY-MM`; the skill supplies it after confirmation.
-- Filenames: overwrite `reports/vcenter-billing-audit-YYYY-MM.xlsx` and `reports/vcenter-billing-audit-YYYY-MM.json`.
-- Sheets: `Summary`, `Billable VMs`, and `Client Mapping`.
-- `Billable VMs` columns only: `Client Name`, `VM Name`, `CPU`, `MEM GB`, `STORAGE GB`, `MECHANICAL STORAGE GB`, `SSD STORAGE GB`, `UNKNOWN STORAGE GB`.
-- `Summary` columns: `Client Name`, `VM Count`, `CPU Total`, `MEM GB Total`, `STORAGE GB Total`, `MECHANICAL STORAGE GB Total`, `SSD STORAGE GB Total`, `UNKNOWN STORAGE GB Total`.
-- Add a subtotal row after each client group in `Billable VMs`.
-- Add a grand total row across all billable clients.
-- `Client Mapping` rows should be auto-populated from distinct vCenter `Client` tags.
-- `Client Mapping` columns: `vCenter Client Tag`, `Normalized Match Key`, `HaloPSA Client Name`, `HaloPSA Client ID`, `Match Status`, `Notes`.
-- Do not put the normalized match key in the main `Billable VMs` sheet.
-- Write a JSON sidecar for later HaloPSA recurring-service reconciliation.
-- Implementation path: use the repo-local Go command at `connectors/vcenter/cmd/billing-report`; it reuses existing config, inventory, tag, and report logic.
-
-## Run Command
-
-For the full monthly vCenter-to-HaloPSA hosting audit, prefer the repo-root command:
-
-```bash
-make hosting-audit
-```
-
-It infers the billing month from today's local date and runs the vCenter report as one step in the full audit.
-
-After confirming the inferred month with the user, run from `connectors/vcenter`:
-
-```bash
-go run ./cmd/billing-report -config ~/.codex/vcenter-mcp/config.json -month YYYY-MM
-```
-
-or:
-
-```bash
-make billing-report MONTH=YYYY-MM
-```
-
-Report only the generated file paths and aggregate counts. Do not paste the full VM inventory unless explicitly requested.
-
-## Windows Startup Troubleshooting
-
-If vCenter tools are not callable, check startup layers before checking API auth:
-
-1. Confirm the plugin is installed and the Codex thread was started after install.
-2. On Windows, confirm `bash -lc 'uname -s'` returns `MINGW`, `MSYS`, or `CYGWIN`; WSL Bash is not supported.
-3. Treat `/usr/bin/env: 'bash\r': No such file or directory` as a launcher line-ending or wrong-Bash-runtime issue, not a vCenter API issue.
-4. Treat `codex.exe` under `WindowsApps` returning `Access is denied` as a local Codex/PATH issue.
+Use the requested month, or state the current-month assumption and proceed. Existing configuration is `~/.codex/vcenter-mcp/config.json`, with `VCENTER_MCP_CONFIG` as an override. Keep credential values out of output. Use `scripts/doctor` in this plugin for optional startup diagnostics; its MCP discovery option lists tools without running an inventory query.
