@@ -1,6 +1,6 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.9.0",
+  "version": "0.10.0+codex.20260905220123",
   "description": "ITECS HaloPSA tools for technician operations and billing evidence.",
   "author": {
     "name": "ITECS-Dallas"
@@ -22,8 +22,8 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "ITECS HaloPSA",
-    "shortDescription": "HaloPSA lookups and guarded writes",
-    "longDescription": "Provides 32 typed HaloPSA tools for lookups plus approval-gated ticket actions, Start Work, email, notes, time entries, ticket/project create and update, and contract create and update. Every write previews the exact payload, commits once after the connector-required confirmation, and requires independent readback. Per-technician 1Password setup supports macOS and Windows. Deletion and raw passthrough are excluded.",
+    "shortDescription": "HaloPSA technician operations",
+    "longDescription": "34 typed tools for technician lookups, metadata and current-agent resolution, notes, time, Start Work, email, tickets, projects and contracts. Routine internal requests execute directly; client-visible and billing changes use ordinary confirmation. Existing 1Password setup supports Windows and macOS.",
     "developerName": "ITECS-Dallas",
     "category": "Business",
     "capabilities": [

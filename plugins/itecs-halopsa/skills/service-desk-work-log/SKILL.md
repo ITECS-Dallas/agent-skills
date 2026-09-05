@@ -9,4 +9,4 @@ Use the ticket/project context already supplied and read the relevant record and
 
 For a note, use `halopsa.ticket_actions.create_private_note` by default; use the public-note path when the technician requests client-visible content. For logged time, use `halopsa.ticket_actions.create_time_entry`, resolving charge-rate details from verified context and asking for duration only when it is missing. A time entry already contains a private work note, so do not create a duplicate note unless requested.
 
-Follow the installed HaloPSA runtime skill and the existing tool's preview/confirmation fields. Do not add a second confirmation layer. Read back the resulting action and report the ticket, recorded duration when relevant, and outcome.
+An explicit request to record internal work or specified time is authorization to execute with `confirm: true`; do not ask again. Use metadata lookup to resolve the technician and charge rate. Review client-visible content once with ordinary confirmation. Read back the resulting action and report the ticket, recorded duration when relevant, and outcome.

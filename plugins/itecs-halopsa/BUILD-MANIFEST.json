@@ -1,10 +1,10 @@
 {
   "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
-  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_revision": "f5406692037c558699e92ba8b1674dbafad4bbfd",
   "source_dirty": false,
   "go_toolchain": "go version go1.27.1 darwin/arm64",
   "plugin": "itecs-halopsa",
-  "version": "0.9.0",
+  "version": "0.10.0+codex.20260905220123",
   "build_flags": [
     "-trimpath",
     "-ldflags=-s -w -buildid="
@@ -13,37 +13,38 @@
     {
       "path": "bin/halopsa-mcp-darwin-amd64",
       "target": "darwin-amd64",
-      "sha256": "97b4a03516aca49189a19a0f187c6560d05ed0428f820d8006d6748d8279f6ed",
-      "bytes": 9580624,
+      "sha256": "9c225c8ce26cefd49ae6a4c54c6df5e99cf50d3886bd7bc64ca47d56302ebb9b",
+      "bytes": 9614720,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-darwin-arm64",
       "target": "darwin-arm64",
-      "sha256": "4ac7cb3050c3251d0e35639a996cd0ebb78b8b946384f80e08286e1a6d0178f7",
-      "bytes": 8866610,
+      "sha256": "2c1c37da0f06cab45fd80048865d15438b2a1bb1901b5bd039a97af077914475",
+      "bytes": 8900994,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-windows-amd64.exe",
       "target": "windows-amd64",
-      "sha256": "db3d73938533830f83ea33a31792e7a2f2a805707320a6366b795a87068ddc02",
-      "bytes": 9618432,
+      "sha256": "fd87e9b105767534d56c223a25fa9b77a1e3e68cd44f94b5099e82d0dec2a578",
+      "bytes": 9653760,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-windows-arm64.exe",
       "target": "windows-arm64",
-      "sha256": "1e973ae5ec13301f5147adc4d434bbc6d07bd575d1bef681f5420d0c21aab908",
-      "bytes": 8772608,
+      "sha256": "027bdba785f57b125fde3894ecaf89575df8afc965ab30c5f0aa99851712cff0",
+      "bytes": 8805376,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     }
   ],
   "tools": [
+    "halopsa.agents.me",
     "halopsa.clients.get",
     "halopsa.clients.list",
     "halopsa.contracts.create",
@@ -52,6 +53,7 @@
     "halopsa.contracts.update",
     "halopsa.invoices.get",
     "halopsa.invoices.list",
+    "halopsa.metadata.list",
     "halopsa.projects.create",
     "halopsa.projects.get",
     "halopsa.projects.list",

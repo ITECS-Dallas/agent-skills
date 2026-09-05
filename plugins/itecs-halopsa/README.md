@@ -1,6 +1,8 @@
-# ITECS HaloPSA Plugin
+# ITECS HaloPSA for Atlas
 
-`itecs-halopsa` packages the ITECS HaloPSA MCP connector for Codex. Version 0.8.0 provides 32 typed tools: 19 reads and 13 approval-gated writes for tickets, configured action outcomes, notes, time entries, projects, and client contracts. Internal/private notes are the default. Public notes and email require explicit client-visible approval. No tool exposes arbitrary actions, attachments, deletion, or raw API passthrough.
+Version 0.10.0 provides 34 typed tools (21 reads and 13 writes), including tenant metadata and the authenticated technician. Routine internal requests use existing chat authorization. Client-visible and billing changes use a single ordinary confirmation. All writes use `confirm`; old ordinary confirmations have been removed.
+
+See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior. Existing 1Password configuration and platform launchers are unchanged. Restart into a new Codex task after updating the plugin.
 
 ## Tool Surface
 
@@ -41,11 +43,11 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 
 Technicians can request a ticket or project in ordinary chat. The agent resolves supplied names to HaloPSA IDs and asks concise follow-up questions only when required values remain missing; technicians do not compose tool payloads. Ticket and project creation require at least one category ID plus positive HaloPSA impact and urgency values.
 
-Every write requires one exact preview and the connector-required confirmation. Exact phrases remain for client-visible public notes and email, ticket creation, and ticket/project status changes. Private notes, time entries, ticket/project field updates, project creation, contract create/update, and the exact tenant-configured `Start Work` outcome use one plain confirmation passed as `confirm: true`. Ticket/project field updates require an immediately read `last_update`; contract updates require `last_modified`; status tools revalidate current and allowed target statuses. Every mutation makes one POST attempt with no automatic retry; independently read back after every successful or ambiguous result.
+All write tools use `confirm`: omitted or false for preview, true for execution. An explicit technician request authorizes routine internal notes, specified time, assignment/field updates and Start Work. Review client-visible, creation/status and billing changes with one ordinary confirmation. Snapshot/status revalidation and independent readback remain part of execution; ambiguous writes are not automatically retried.
 
 `Start Work` resolves exactly one currently available tenant outcome named `Start Work` and posts that outcome through `/Actions`; it never substitutes a generic status update. Outcome metadata can disclose configured status, assignment, workflow, email, billing, and timer effects. Halo's continuously running browser timer is UI state, so the connector does not claim that it remains open. Explicit time logging is supported through `halopsa.ticket_actions.create_time_entry`.
 
-Ticket email uses one exact email-capable configured outcome and the returned phrase `APPROVE HALOPSA EMAIL <ticket-id>`. It does not write directly to Halo's outgoing-email queue.
+Ticket email uses one exact email-capable configured outcome and the returned phrase `confirm: true`. It does not write directly to Halo's outgoing-email queue.
 
 ## Runtime Configuration
 

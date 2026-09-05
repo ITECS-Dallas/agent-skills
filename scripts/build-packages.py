@@ -41,13 +41,55 @@ def build(source, module, command, destination, target):
             'module': module, 'command': command}
 
 
+def build_connector(source, entry, jobs):
+    """Rebuild one connector package without changing billing or other plugins."""
+    module = 'connectors/' + entry['connector']
+    subprocess.run(['go', 'test', './...'], cwd=source / module, check=True)
+    subprocess.run(['go', 'vet', './...'], cwd=source / module, check=True)
+    root = ROOT / 'plugins' / entry['plugin']
+    metadata = json.loads((root / '.codex-plugin/plugin.json').read_text())
+    revision = run(['git', 'rev-parse', 'HEAD'], source)
+    names = tool_names(source / module / 'internal/tools/tools.go')
+    records = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
+        futures = []
+        for target in TARGETS:
+            suffix = '.exe' if target.startswith('windows') else ''
+            dest = root / 'bin' / (entry['binary'] + '-' + target + suffix)
+            futures.append(pool.submit(build, source, module, './cmd/mcp', dest, target))
+        for future in concurrent.futures.as_completed(futures):
+            record = future.result()
+            record['path'] = str(Path(record['path']).relative_to(root))
+            records.append(record)
+            print('Built ' + record['path'], flush=True)
+    manifest = {'source_repository':'https://github.com/ITECS-Dallas/GO-MCP',
+                'source_revision':revision, 'source_dirty':bool(run(['git','status','--porcelain'],source)),
+                'go_toolchain':run(['go','version'],source), 'plugin':entry['plugin'], 'version':metadata['version'],
+                'build_flags':['-trimpath','-ldflags=-s -w -buildid='],
+                'binaries':sorted(records,key=lambda x:x['path']), 'tools':names}
+    (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
+    path = ROOT / 'TOOL-CATALOG.json'
+    catalog = json.loads(path.read_text())
+    catalog['plugins'][entry['plugin']] = names
+    catalog.pop('source_revision',None)
+    catalog['source_revisions'] = {name:json.loads((ROOT/'plugins'/name/'BUILD-MANIFEST.json').read_text())['source_revision'] for name in catalog['plugins']}
+    path.write_text(json.dumps(catalog,indent=2)+'\n')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path, default=ROOT.parent / 'GO-MCP')
     parser.add_argument('--jobs', type=int, default=2)
+    parser.add_argument('--plugin', help='Build one connector plugin and preserve other packages')
     args = parser.parse_args()
     source = args.source.resolve()
     entries = json.loads((ROOT / 'scripts/connectors.json').read_text())
+    if args.plugin:
+        entry = next((e for e in entries if e['plugin'] == args.plugin), None)
+        if entry is None:
+            parser.error('unknown connector plugin: ' + args.plugin)
+        build_connector(source, entry, args.jobs)
+        return
     revision = run(['git', 'rev-parse', 'HEAD'], source)
     dirty = bool(run(['git', 'status', '--porcelain'], source))
     toolchain = run(['go', 'version'], source)
