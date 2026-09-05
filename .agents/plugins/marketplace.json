@@ -51,6 +51,66 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Business"
+    },
+    {
+      "name": "itecs-veeam-cloud-connect",
+      "source": {
+        "source": "local",
+        "path": "./plugins/itecs-veeam-cloud-connect"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business"
+    },
+    {
+      "name": "itecs-sophos-central",
+      "source": {
+        "source": "local",
+        "path": "./plugins/itecs-sophos-central"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business"
+    },
+    {
+      "name": "itecs-checkpoint-harmony",
+      "source": {
+        "source": "local",
+        "path": "./plugins/itecs-checkpoint-harmony"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business"
+    },
+    {
+      "name": "itecs-commvault",
+      "source": {
+        "source": "local",
+        "path": "./plugins/itecs-commvault"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business"
+    },
+    {
+      "name": "itecs-billing-audit",
+      "source": {
+        "source": "local",
+        "path": "./plugins/itecs-billing-audit"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business"
     }
   ]
 }

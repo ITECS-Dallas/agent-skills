@@ -1,0 +1,292 @@
+{
+  "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
+  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_dirty": false,
+  "go_toolchain": "go version go1.27.1 darwin/arm64",
+  "plugin": "itecs-billing-audit",
+  "version": "0.1.0",
+  "build_flags": [
+    "-trimpath",
+    "-ldflags=-s -w -buildid="
+  ],
+  "binaries": [
+    {
+      "path": "bin/darwin-amd64/billing-reconcile",
+      "target": "darwin-amd64",
+      "sha256": "d245d728a67f749cafd4cba28fa202862773f491b70a248505cb1dc91c43e22e",
+      "bytes": 8197920,
+      "module": "workflows/billing-reconciliation",
+      "command": "./cmd/reconcile"
+    },
+    {
+      "path": "bin/darwin-amd64/checkpoint-harmony-billing-report",
+      "target": "darwin-amd64",
+      "sha256": "9ad3a3fc1a8e79c4d1b1301056ff9f831bf11c1a79cbc5c160b929404df0cebb",
+      "bytes": 11440848,
+      "module": "connectors/checkpoint-harmony",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-amd64/commvault-billing-report",
+      "target": "darwin-amd64",
+      "sha256": "016a1ce6805c4e076b4905ee3dbb37dabe7ca43904563e614b7fae7af6942d83",
+      "bytes": 11383216,
+      "module": "connectors/commvault",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-amd64/halopsa-billing-report",
+      "target": "darwin-amd64",
+      "sha256": "90d5587acd22f7154ab4a7bbbfd116ff5406a791dba68f0de87fe0ec370d29f0",
+      "bytes": 11785392,
+      "module": "connectors/halopsa",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-amd64/pax8-billing-report",
+      "target": "darwin-amd64",
+      "sha256": "b91abdbb39cddbfed929f25f2ee1357b4eb72c1db3dea8b10307ef29e3413760",
+      "bytes": 11506416,
+      "module": "connectors/pax8",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-amd64/sophos-central-billing-report",
+      "target": "darwin-amd64",
+      "sha256": "5af202372a41ce6f392d4c0d9df17f8488ea248a755784e21bb523c48cfcbb95",
+      "bytes": 11454672,
+      "module": "connectors/sophos-central",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-amd64/vcenter-billing-report",
+      "target": "darwin-amd64",
+      "sha256": "00bba8cad7009ff3f53359bd91a5e4d2b1bc3b5d5cdba88355be9c515cd778b3",
+      "bytes": 22994352,
+      "module": "connectors/vcenter",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-amd64/veeam-cloud-connect-billing-report",
+      "target": "darwin-amd64",
+      "sha256": "a55e0e39a5c4c5caf1327c3eaef60ea478ac89d82da6cd84a5481004be99ceb7",
+      "bytes": 11464912,
+      "module": "connectors/veeam-cloud-connect",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-arm64/billing-reconcile",
+      "target": "darwin-arm64",
+      "sha256": "b3532a73f28a90daad0ae58ae377920d77695b0d52eb1d934241a7d6000ffc41",
+      "bytes": 7667570,
+      "module": "workflows/billing-reconciliation",
+      "command": "./cmd/reconcile"
+    },
+    {
+      "path": "bin/darwin-arm64/checkpoint-harmony-billing-report",
+      "target": "darwin-arm64",
+      "sha256": "e0ae4c6dc14d1cd9a434060de3f4b0278c4d1aedd0a39361cea495c59125d918",
+      "bytes": 10691906,
+      "module": "connectors/checkpoint-harmony",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-arm64/commvault-billing-report",
+      "target": "darwin-arm64",
+      "sha256": "d555607eb99ca4c0d45773d4f311ea42a85100679cf19196ca19c6110d40b0bd",
+      "bytes": 10642034,
+      "module": "connectors/commvault",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-arm64/halopsa-billing-report",
+      "target": "darwin-arm64",
+      "sha256": "dde0d5a5417a97b942584b0f69c742cfb9e87abca436406402eb423f4431b531",
+      "bytes": 10997858,
+      "module": "connectors/halopsa",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-arm64/pax8-billing-report",
+      "target": "darwin-arm64",
+      "sha256": "d27aa1cae9b8c29cc441f0ac7f30b89e1e6b1f5105ea9e6000324e9be6b78f72",
+      "bytes": 10745602,
+      "module": "connectors/pax8",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-arm64/sophos-central-billing-report",
+      "target": "darwin-arm64",
+      "sha256": "a4db1ebb52a2ee099f0afcc516a9f493343fc10870380de06d4b9a1fbc458ae8",
+      "bytes": 10709954,
+      "module": "connectors/sophos-central",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-arm64/vcenter-billing-report",
+      "target": "darwin-arm64",
+      "sha256": "de4014f8f84933c482281fbadda95b16ae6b83290e5b8325023b00dd3f38ea44",
+      "bytes": 21291218,
+      "module": "connectors/vcenter",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/darwin-arm64/veeam-cloud-connect-billing-report",
+      "target": "darwin-arm64",
+      "sha256": "0bd0e9a51e6e7b4c7f745ffdcdf014d5d516d47b88a2e681eb611a94a3702589",
+      "bytes": 10711986,
+      "module": "connectors/veeam-cloud-connect",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-amd64/billing-reconcile.exe",
+      "target": "windows-amd64",
+      "sha256": "9485c967f1df138e9ff19c8a585e1f5f8a295c653032c144e038294008a7bd63",
+      "bytes": 8270336,
+      "module": "workflows/billing-reconciliation",
+      "command": "./cmd/reconcile"
+    },
+    {
+      "path": "bin/windows-amd64/checkpoint-harmony-billing-report.exe",
+      "target": "windows-amd64",
+      "sha256": "255c84b5a9f7f0aaf7600042e553b40adc7a637770d76b34c4bde63ef124b371",
+      "bytes": 11502592,
+      "module": "connectors/checkpoint-harmony",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-amd64/commvault-billing-report.exe",
+      "target": "windows-amd64",
+      "sha256": "3caddacce61a1b563ec416f864838c9d29db0c497f29b3691c02e6aaa59b0014",
+      "bytes": 11443712,
+      "module": "connectors/commvault",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-amd64/halopsa-billing-report.exe",
+      "target": "windows-amd64",
+      "sha256": "a92dce3f0777e0ea570da4dcd3424fc3fdbcdbb07b7251b4210b6a923456396b",
+      "bytes": 11835904,
+      "module": "connectors/halopsa",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-amd64/pax8-billing-report.exe",
+      "target": "windows-amd64",
+      "sha256": "30455c04c9258b71b35bbf42dc260f105c6336dfed241c48ab8370a72fd4060a",
+      "bytes": 11559424,
+      "module": "connectors/pax8",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-amd64/sophos-central-billing-report.exe",
+      "target": "windows-amd64",
+      "sha256": "9acf7be15831b0d02ba0fde6331be514dcb2fb29b4c22774bb81468d6843317f",
+      "bytes": 11513344,
+      "module": "connectors/sophos-central",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-amd64/vcenter-billing-report.exe",
+      "target": "windows-amd64",
+      "sha256": "dc893ec5a37d26864fce16b53c2a605ee9be170a2e9281504e6fed9bd519ec0c",
+      "bytes": 22828032,
+      "module": "connectors/vcenter",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-amd64/veeam-cloud-connect-billing-report.exe",
+      "target": "windows-amd64",
+      "sha256": "f563d3fe379455ac70dfd3ccb2307013ab242f562a50a3611345b7d3ecb3b680",
+      "bytes": 11520512,
+      "module": "connectors/veeam-cloud-connect",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-arm64/billing-reconcile.exe",
+      "target": "windows-arm64",
+      "sha256": "19718edaa8586d205654c4b9cfe67e3c9da3960c5a3365b4f01fa9ac2a4a4844",
+      "bytes": 7584768,
+      "module": "workflows/billing-reconciliation",
+      "command": "./cmd/reconcile"
+    },
+    {
+      "path": "bin/windows-arm64/checkpoint-harmony-billing-report.exe",
+      "target": "windows-arm64",
+      "sha256": "3f4d54385aad98a0c43734823c3dcdee5d28c34c95666ec9c04485063c7b3389",
+      "bytes": 10541568,
+      "module": "connectors/checkpoint-harmony",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-arm64/commvault-billing-report.exe",
+      "target": "windows-arm64",
+      "sha256": "a337b7cd2f0d54aebc367f759c9913687c3bd7caecff984ff040f04a2bdb4a9a",
+      "bytes": 10491904,
+      "module": "connectors/commvault",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-arm64/halopsa-billing-report.exe",
+      "target": "windows-arm64",
+      "sha256": "7035073ec8e67921d7d6f2ef38b3a0f7460403b50034bc56c1daa1699d207e02",
+      "bytes": 10830336,
+      "module": "connectors/halopsa",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-arm64/pax8-billing-report.exe",
+      "target": "windows-arm64",
+      "sha256": "c942e42f7ac2f6c0155c2eca46fe4303958a3bcba0ee2034b3605c8816414cb8",
+      "bytes": 10583552,
+      "module": "connectors/pax8",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-arm64/sophos-central-billing-report.exe",
+      "target": "windows-arm64",
+      "sha256": "d0079e6ffa2cccb41455643459a510d81992df368307afb58ca34a8b961596cc",
+      "bytes": 10547712,
+      "module": "connectors/sophos-central",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-arm64/vcenter-billing-report.exe",
+      "target": "windows-arm64",
+      "sha256": "9c6bdff94312264aa4ade2ff7a05dee54ae1f2a49944c682d1b95a541bc4590e",
+      "bytes": 20671488,
+      "module": "connectors/vcenter",
+      "command": "./cmd/billing-report"
+    },
+    {
+      "path": "bin/windows-arm64/veeam-cloud-connect-billing-report.exe",
+      "target": "windows-arm64",
+      "sha256": "7124cb015ff8ef5e56b103d8b4ca0c1f077b728febcb12f5ca1e7edef4bcd320",
+      "bytes": 10553856,
+      "module": "connectors/veeam-cloud-connect",
+      "command": "./cmd/billing-report"
+    }
+  ],
+  "resources": [
+    {
+      "path": "scripts/billing-audit.sh",
+      "source": "scripts/billing-audit.sh",
+      "sha256": "ae374a991d1ec4541c7ed3d3961b9d2f44af44792849d7d4960cb9dc8ca346e8"
+    },
+    {
+      "path": "scripts/hosting-audit.sh",
+      "source": "scripts/hosting-audit.sh",
+      "sha256": "8e5a5c01efaae4105886ef858a8ab6df9fbb94513e7a8f1fc5f379a91296f18e"
+    },
+    {
+      "path": "references/monthly-billing-audit.md",
+      "source": "docs/runbooks/monthly-billing-audit.md",
+      "sha256": "9bff8957aacc4d5ca9df7115e7db56bbbb8f1126a720e82a58e18b9a840e820c"
+    },
+    {
+      "path": "references/source-billing-reconciliation.md",
+      "source": "skills/billing-reconciliation/SKILL.md",
+      "sha256": "de2c31a8481d48410953bdcee3166037c2aa70ab5ace9fd2ea47b3b7e6fdca5d"
+    }
+  ]
+}

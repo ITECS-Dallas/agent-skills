@@ -1,0 +1,8 @@
+{
+  "connector": "checkpoint-harmony",
+  "plugin": "itecs-checkpoint-harmony",
+  "title": "Check Point Harmony",
+  "server": "checkpoint_harmony",
+  "config_env": "CHECKPOINT_HARMONY_MCP_CONFIG",
+  "binary": "checkpoint-harmony-mcp"
+}

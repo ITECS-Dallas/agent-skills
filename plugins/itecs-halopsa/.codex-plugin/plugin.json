@@ -1,7 +1,7 @@
 {
   "name": "itecs-halopsa",
   "version": "0.9.0",
-  "description": "Cross-platform HaloPSA MCP connector for ITECS reads and guarded ticket, action, project, and contract writes.",
+  "description": "ITECS HaloPSA tools for technician operations and billing evidence.",
   "author": {
     "name": "ITECS-Dallas"
   },

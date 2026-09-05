@@ -83,3 +83,9 @@ GO-MCP/connectors/vcenter
 ```
 
 Rebuild this plugin's binaries only from that connector after its tests pass.
+
+## Packaged reporting and diagnostics
+
+ITECS Billing Audit provides source Excel/JSON reports and the staged reconciliation commands without Go or a developer checkout. Use its `scripts/run-source-report vcenter -month YYYY-MM -json-only=false -out-dir /absolute/output/path`. Ordinary lookups continue to use this plugin's bundled MCP tools.
+
+Run `scripts/doctor` for optional local version, platform and config-presence diagnostics (Python 3). Add `--discover` to list the actual MCP tools; discovery starts the configured server and resolves its credential commands but invokes no vendor operation. Config contents and credential values are not printed. `BUILD-MANIFEST.json` records the source revision, platform binaries and SHA-256 hashes.

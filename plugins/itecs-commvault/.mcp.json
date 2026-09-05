@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "commvault": {
+      "command": "bash",
+      "args": [
+        "./scripts/run-commvault-mcp"
+      ],
+      "cwd": "."
+    }
+  }
+}

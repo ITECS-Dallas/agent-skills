@@ -1,0 +1,53 @@
+{
+  "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
+  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_dirty": false,
+  "go_toolchain": "go version go1.27.1 darwin/arm64",
+  "plugin": "itecs-vcenter",
+  "version": "0.3.0",
+  "build_flags": [
+    "-trimpath",
+    "-ldflags=-s -w -buildid="
+  ],
+  "binaries": [
+    {
+      "path": "bin/vcenter-mcp-darwin-amd64",
+      "target": "darwin-amd64",
+      "sha256": "92608dcf9b81657dea40e4a56bb56975cdcd28466a0f09d0f8ce269432d94b20",
+      "bytes": 16711056,
+      "module": "connectors/vcenter",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/vcenter-mcp-darwin-arm64",
+      "target": "darwin-arm64",
+      "sha256": "5d4aeb3c7aec49053d8184718822bd02fc94063db6184bbe8cee7889ae56cd49",
+      "bytes": 15367410,
+      "module": "connectors/vcenter",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/vcenter-mcp-windows-amd64.exe",
+      "target": "windows-amd64",
+      "sha256": "9c3695c429e45014cebf5b5d2d78dcd8d4d7691dcf85bfbfb5036374354c7b66",
+      "bytes": 16528896,
+      "module": "connectors/vcenter",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/vcenter-mcp-windows-arm64.exe",
+      "target": "windows-arm64",
+      "sha256": "c42640162f5457d15c257293a15293bf01bbdbccef40d5945d38cc29a3acca8e",
+      "bytes": 14913536,
+      "module": "connectors/vcenter",
+      "command": "./cmd/mcp"
+    }
+  ],
+  "tools": [
+    "vcenter.billable_report",
+    "vcenter.inventory.summary",
+    "vcenter.monthly_report",
+    "vcenter.servers.list",
+    "vcenter.vms.list"
+  ]
+}

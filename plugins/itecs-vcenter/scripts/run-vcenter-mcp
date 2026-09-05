@@ -1,49 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-CONFIG="${VCENTER_MCP_CONFIG:-${HOME:?HOME is required}/.codex/vcenter-mcp/config.json}"
-
-OS_NAME="$(uname -s)"
-ARCH_NAME="$(uname -m)"
-
-if [[ "$OS_NAME" == Linux* ]] && grep -qi microsoft /proc/version 2>/dev/null; then
-  printf 'WSL Bash is not supported for the bundled vCenter MCP launcher. Use Git Bash on Windows and make sure it appears before WSL on PATH.\n' >&2
+ITECS_PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+# shellcheck source=runtime.sh
+source "$ITECS_PLUGIN_DIR/scripts/runtime.sh"
+itecs_platform
+itecs_config vcenter VCENTER_MCP_CONFIG
+if [[ ! -f "$ITECS_CONFIG" ]]; then
+  printf 'vCenter MCP config not found at %s\n' "$ITECS_CONFIG" >&2
   exit 2
 fi
-
-if [[ ! -f "$CONFIG" ]]; then
-  printf 'vCenter MCP config not found at %s\n' "$CONFIG" >&2
-  printf 'Create ~/.codex/vcenter-mcp/config.json or set VCENTER_MCP_CONFIG.\n' >&2
-  exit 2
-fi
-
-case "$OS_NAME" in
-  Darwin*) OS="darwin" ;;
-  MINGW*|MSYS*|CYGWIN*) OS="windows" ;;
-  *)
-    printf 'Unsupported platform for bundled vCenter MCP binary: %s-%s\n' "$OS_NAME" "$ARCH_NAME" >&2
-    exit 2
-    ;;
-esac
-
-case "$ARCH_NAME" in
-  arm64|aarch64) ARCH="arm64" ;;
-  x86_64|amd64) ARCH="amd64" ;;
-  *)
-    printf 'Unsupported architecture for bundled vCenter MCP binary: %s-%s\n' "$OS_NAME" "$ARCH_NAME" >&2
-    exit 2
-    ;;
-esac
-
-BIN="$ROOT/bin/vcenter-mcp-$OS-$ARCH"
-if [[ "$OS" == "windows" ]]; then
-  BIN="$BIN.exe"
-fi
-
-if [[ ! -x "$BIN" ]]; then
-  printf 'vCenter MCP binary is missing or not executable: %s\n' "$BIN" >&2
-  exit 2
-fi
-
-exec "$BIN" -config "$CONFIG" "$@"
+exec "$ITECS_PLUGIN_DIR/bin/vcenter-mcp-$ITECS_PLATFORM$ITECS_SUFFIX" -config "$ITECS_CONFIG" "$@"

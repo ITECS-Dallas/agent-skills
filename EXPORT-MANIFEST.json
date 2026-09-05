@@ -7,9 +7,14 @@
     "portable-development-workflow",
     "itecs-halopsa",
     "itecs-vcenter",
-    "itecs-pax8"
+    "itecs-pax8",
+    "itecs-veeam-cloud-connect",
+    "itecs-sophos-central",
+    "itecs-checkpoint-harmony",
+    "itecs-commvault",
+    "itecs-billing-audit"
   ],
-  "generated_on": "2026-05-05",
+  "generated_on": "2026-09-05",
   "skills": [
     "backend-api-dev",
     "backend-boundary-testing",

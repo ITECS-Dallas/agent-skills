@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export SOURCES=vcenter
+exec "$(dirname "${BASH_SOURCE[0]}")/run-billing-audit" "$@"

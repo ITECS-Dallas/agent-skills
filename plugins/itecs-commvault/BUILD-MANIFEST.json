@@ -1,0 +1,52 @@
+{
+  "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
+  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_dirty": false,
+  "go_toolchain": "go version go1.27.1 darwin/arm64",
+  "plugin": "itecs-commvault",
+  "version": "0.1.0",
+  "build_flags": [
+    "-trimpath",
+    "-ldflags=-s -w -buildid="
+  ],
+  "binaries": [
+    {
+      "path": "bin/commvault-mcp-darwin-amd64",
+      "target": "darwin-amd64",
+      "sha256": "e393ed5af24feb3a2ea2d88bc4dfe911ff8db555ecfa6a578dba1eb75f831504",
+      "bytes": 8931696,
+      "module": "connectors/commvault",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/commvault-mcp-darwin-arm64",
+      "target": "darwin-arm64",
+      "sha256": "7febe4397542a945d6423d26b5ac10b8dda7fa54601a90947431af0fde8221f2",
+      "bytes": 8282786,
+      "module": "connectors/commvault",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/commvault-mcp-windows-amd64.exe",
+      "target": "windows-amd64",
+      "sha256": "40d786d4dd01b0f6e4cdf85170b121213cb989a9a6e7d8e22c0aec5d574ebf9c",
+      "bytes": 8981504,
+      "module": "connectors/commvault",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/commvault-mcp-windows-arm64.exe",
+      "target": "windows-arm64",
+      "sha256": "f8aaefd18617f636d6366bea7149b7836ea57a2078269c32e24c48412c423af0",
+      "bytes": 8209408,
+      "module": "connectors/commvault",
+      "command": "./cmd/mcp"
+    }
+  ],
+  "tools": [
+    "commvault.accounts.list",
+    "commvault.billing_snapshot.get",
+    "commvault.servers.list",
+    "commvault.usage_summary.get"
+  ]
+}

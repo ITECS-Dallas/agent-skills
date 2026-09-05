@@ -1,0 +1,85 @@
+{
+  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "plugins": {
+    "itecs-halopsa": [
+      "halopsa.clients.get",
+      "halopsa.clients.list",
+      "halopsa.contracts.create",
+      "halopsa.contracts.get",
+      "halopsa.contracts.list",
+      "halopsa.contracts.update",
+      "halopsa.invoices.get",
+      "halopsa.invoices.list",
+      "halopsa.projects.create",
+      "halopsa.projects.get",
+      "halopsa.projects.list",
+      "halopsa.projects.update",
+      "halopsa.projects.update_status",
+      "halopsa.purchase_orders.get",
+      "halopsa.purchase_orders.list",
+      "halopsa.recurring_invoices.get",
+      "halopsa.recurring_invoices.list",
+      "halopsa.servers.list",
+      "halopsa.ticket_actions.create_private_note",
+      "halopsa.ticket_actions.create_public_note",
+      "halopsa.ticket_actions.create_time_entry",
+      "halopsa.ticket_actions.list",
+      "halopsa.ticket_actions.send_email",
+      "halopsa.ticket_actions.start_work",
+      "halopsa.ticket_outcomes.get",
+      "halopsa.ticket_outcomes.list",
+      "halopsa.ticket_statuses.list",
+      "halopsa.tickets.create",
+      "halopsa.tickets.get",
+      "halopsa.tickets.list",
+      "halopsa.tickets.update",
+      "halopsa.tickets.update_status"
+    ],
+    "itecs-vcenter": [
+      "vcenter.billable_report",
+      "vcenter.inventory.summary",
+      "vcenter.monthly_report",
+      "vcenter.servers.list",
+      "vcenter.vms.list"
+    ],
+    "itecs-pax8": [
+      "pax8.companies.list",
+      "pax8.draft_invoice_items.list",
+      "pax8.invoice_items.list",
+      "pax8.invoices.list",
+      "pax8.products.list",
+      "pax8.servers.list",
+      "pax8.subscriptions.list"
+    ],
+    "itecs-veeam-cloud-connect": [
+      "veeam_cloud_connect.backup_agents.list",
+      "veeam_cloud_connect.companies.list",
+      "veeam_cloud_connect.license_reports.latest",
+      "veeam_cloud_connect.license_usage.list",
+      "veeam_cloud_connect.protected_computer_restore_points.list",
+      "veeam_cloud_connect.protected_computers.list",
+      "veeam_cloud_connect.servers.list",
+      "veeam_cloud_connect.storage_usage.list"
+    ],
+    "itecs-sophos-central": [
+      "sophos_central.billing_usage.get",
+      "sophos_central.firewall_licenses.list",
+      "sophos_central.servers.list",
+      "sophos_central.tenant_licenses.get",
+      "sophos_central.tenants.list",
+      "sophos_central.whoami.get"
+    ],
+    "itecs-checkpoint-harmony": [
+      "checkpoint_harmony.profile.get",
+      "checkpoint_harmony.servers.list",
+      "checkpoint_harmony.tenants.list",
+      "checkpoint_harmony.usage_report.get"
+    ],
+    "itecs-commvault": [
+      "commvault.accounts.list",
+      "commvault.billing_snapshot.get",
+      "commvault.servers.list",
+      "commvault.usage_summary.get"
+    ]
+  }
+}

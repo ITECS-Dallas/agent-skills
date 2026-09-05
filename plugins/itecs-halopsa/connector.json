@@ -1,0 +1,8 @@
+{
+  "connector": "halopsa",
+  "plugin": "itecs-halopsa",
+  "title": "HaloPSA",
+  "server": "halopsa",
+  "config_env": "HALOPSA_MCP_CONFIG",
+  "binary": "halopsa-mcp"
+}

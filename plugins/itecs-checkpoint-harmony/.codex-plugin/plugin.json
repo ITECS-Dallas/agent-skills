@@ -1,0 +1,26 @@
+{
+  "name": "itecs-checkpoint-harmony",
+  "version": "0.1.0",
+  "description": "ITECS Check Point Harmony tools for technician operations and billing evidence.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ITECS Check Point Harmony",
+    "shortDescription": "Check Point Harmony operations and usage",
+    "longDescription": "Bundled Check Point Harmony source tools for inventory, usage and operational evidence. Uses existing local command-backed configuration.",
+    "developerName": "ITECS-Dallas",
+    "category": "Business",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Look up Check Point Harmony inventory and usage for this client."
+    ]
+  },
+  "mcpServers": "./.mcp.json",
+  "repository": "https://github.com/ITECS-Dallas/agent-skills",
+  "homepage": "https://github.com/ITECS-Dallas/agent-skills/tree/main/plugins/itecs-checkpoint-harmony"
+}

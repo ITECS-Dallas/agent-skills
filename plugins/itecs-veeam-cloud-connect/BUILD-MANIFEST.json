@@ -1,0 +1,56 @@
+{
+  "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
+  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_dirty": false,
+  "go_toolchain": "go version go1.27.1 darwin/arm64",
+  "plugin": "itecs-veeam-cloud-connect",
+  "version": "0.1.0",
+  "build_flags": [
+    "-trimpath",
+    "-ldflags=-s -w -buildid="
+  ],
+  "binaries": [
+    {
+      "path": "bin/veeam-cloud-connect-mcp-darwin-amd64",
+      "target": "darwin-amd64",
+      "sha256": "7d72661f5462a15ff07a09097e9b9c442528aa72a5cb39ffc6c040fa344b7200",
+      "bytes": 9009200,
+      "module": "connectors/veeam-cloud-connect",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/veeam-cloud-connect-mcp-darwin-arm64",
+      "target": "darwin-arm64",
+      "sha256": "5a03df4c34bd54e59c20e90efac567a1c35b0b85d18b45bd341828642932f032",
+      "bytes": 8369170,
+      "module": "connectors/veeam-cloud-connect",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/veeam-cloud-connect-mcp-windows-amd64.exe",
+      "target": "windows-amd64",
+      "sha256": "e93c00e0c36db91b640d95a1423b72b8d42d801c4d19acb8ff4d1e827fd824b6",
+      "bytes": 9059840,
+      "module": "connectors/veeam-cloud-connect",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/veeam-cloud-connect-mcp-windows-arm64.exe",
+      "target": "windows-arm64",
+      "sha256": "5e8b26e5b33faf977c170f9da9a030fafe3df433cd026516de778b03fbf898ed",
+      "bytes": 8279552,
+      "module": "connectors/veeam-cloud-connect",
+      "command": "./cmd/mcp"
+    }
+  ],
+  "tools": [
+    "veeam_cloud_connect.backup_agents.list",
+    "veeam_cloud_connect.companies.list",
+    "veeam_cloud_connect.license_reports.latest",
+    "veeam_cloud_connect.license_usage.list",
+    "veeam_cloud_connect.protected_computer_restore_points.list",
+    "veeam_cloud_connect.protected_computers.list",
+    "veeam_cloud_connect.servers.list",
+    "veeam_cloud_connect.storage_usage.list"
+  ]
+}

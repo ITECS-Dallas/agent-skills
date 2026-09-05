@@ -1,0 +1,26 @@
+{
+  "name": "itecs-sophos-central",
+  "version": "0.1.0",
+  "description": "ITECS Sophos Central tools for technician operations and billing evidence.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ITECS Sophos Central",
+    "shortDescription": "Sophos Central operations and usage",
+    "longDescription": "Bundled Sophos Central source tools for inventory, usage and operational evidence. Uses existing local command-backed configuration.",
+    "developerName": "ITECS-Dallas",
+    "category": "Business",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Look up Sophos Central inventory and usage for this client."
+    ]
+  },
+  "mcpServers": "./.mcp.json",
+  "repository": "https://github.com/ITECS-Dallas/agent-skills",
+  "homepage": "https://github.com/ITECS-Dallas/agent-skills/tree/main/plugins/itecs-sophos-central"
+}

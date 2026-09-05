@@ -1,0 +1,8 @@
+{
+  "connector": "sophos-central",
+  "plugin": "itecs-sophos-central",
+  "title": "Sophos Central",
+  "server": "sophos_central",
+  "config_env": "SOPHOS_CENTRAL_MCP_CONFIG",
+  "binary": "sophos-central-mcp"
+}

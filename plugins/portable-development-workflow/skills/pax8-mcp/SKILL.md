@@ -66,3 +66,9 @@ The JSON schema is `pax8-subscriptions-v3`. Draft invoice items are pre-final ev
 ## Windows Runtime Notes
 
 When validating packaged plugins on Windows, `bash` must resolve to Git Bash/MSYS/Cygwin, not WSL. If startup reports `/usr/bin/env: 'bash\r': No such file or directory`, treat it as a launcher line-ending or wrong-Bash-runtime issue before investigating Pax8 API auth.
+
+## Installed workflow
+
+For ordinary company/subscription/invoice lookups, use the installed ITECS Pax8 MCP tools. For Excel/JSON extraction without a GO-MCP checkout, use ITECS Billing Audit: `scripts/run-source-report pax8 -month YYYY-MM -json-only=false -out-dir /absolute/output/path`. This defaults to source-only extraction; `-client-mapping` can supply an existing derived mapping when needed.
+
+The HaloPSA extractor now emits `halopsa-recurring-invoices-v3` and `halopsa-client-snapshot-v1` and does not refresh operator mappings. The current staged workflow's mapping review and finalization require vCenter; a Pax8-only selection supports collection. The specialized offline Pax8 diagnostic mode remains available with an explicitly prepared derived v2 client mapping. Use the current billing-reconciliation skill for those contracts.

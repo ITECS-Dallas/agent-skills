@@ -17,6 +17,10 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 - `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools, guarded ticket/project writes, and per-technician macOS/Windows 1Password setup.
 - `plugins/itecs-vcenter/` - Codex plugin that bundles the read-only vCenter MCP runtime and its vCenter skill.
 - `plugins/itecs-pax8/` - Codex plugin that bundles the read-only Pax8 MCP runtime and its Pax8 skill.
+- `plugins/itecs-veeam-cloud-connect/`, `plugins/itecs-sophos-central/`, `plugins/itecs-checkpoint-harmony/`, `plugins/itecs-commvault/` - additional installed source connectors for operations and usage evidence.
+- `plugins/itecs-billing-audit/` - self-contained source report and staged reconciliation commands, with no Go/source-checkout requirement.
+- `TOOL-CATALOG.json` - source-revision-bound catalog of all 66 packaged MCP tools.
+- `scripts/build-packages.py` - tests source modules and builds all platform packages with source and checksum records.
 - `scripts/install.sh` - copies or symlinks portable skills into `$CODEX_HOME/skills` and `$AGENTS_HOME/skills`.
 - `scripts/validate.mjs` - validates skill frontmatter, marketplace entries, plugin metadata, required files, and portability.
 - `templates/project-skill-source-of-truth.md` - drop-in project docs for linking this repo from another project.
@@ -29,6 +33,11 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled HaloPSA MCP server exposing reads plus approval-gated private/public notes, time entries, and typed ticket/project writes. |
 | `itecs-vcenter@itecs-agent-skills` | ITECS vCenter | Bundled read-only vCenter MCP server for VM inventory, tags, hosting allocation, and billing evidence. |
 | `itecs-pax8@itecs-agent-skills` | ITECS Pax8 | Bundled read-only Pax8 MCP server for companies, subscriptions, products, invoices, and billing evidence. |
+| `itecs-veeam-cloud-connect@itecs-agent-skills` | ITECS Veeam Cloud Connect | Storage, agents, protected computers, restore points and license evidence. |
+| `itecs-sophos-central@itecs-agent-skills` | ITECS Sophos Central | Tenant, monthly usage, license and firewall evidence. |
+| `itecs-checkpoint-harmony@itecs-agent-skills` | ITECS Check Point Harmony | Portal tenant and usage evidence. |
+| `itecs-commvault@itecs-agent-skills` | ITECS Commvault | Accounts and partner-level usage evidence. |
+| `itecs-billing-audit@itecs-agent-skills` | ITECS Billing Audit | Native Excel/JSON extraction and staged offline reconciliation. |
 
 The Codex plugin surface is repo-backed from this repository. It is not a global public marketplace publication path. Other Codex installations can install from the public GitHub URL or from an approved local clone.
 
@@ -417,3 +426,31 @@ go run github.com/modelcontextprotocol/go-sdk/examples/client/listfeatures@lates
 - For MCP-backed plugins, keep credentials outside the plugin and document the read-only or write boundary clearly.
 - Prefer scripts for deterministic validation and repetitive installation steps.
 - Run `node scripts/validate.mjs` before committing.
+
+## Team operations packages
+
+Choose the plugins needed for the technician's jobs. The additional install IDs are:
+
+```bash
+codex plugin add itecs-veeam-cloud-connect@itecs-agent-skills
+codex plugin add itecs-sophos-central@itecs-agent-skills
+codex plugin add itecs-checkpoint-harmony@itecs-agent-skills
+codex plugin add itecs-commvault@itecs-agent-skills
+codex plugin add itecs-billing-audit@itecs-agent-skills
+```
+
+HaloPSA also includes `service-desk-handoff` and `service-desk-work-log` skills. Ask for a ticket briefing or describe the completed work in ordinary language. Billing Audit includes the current `billing-reconciliation` skill and packaged report commands. See each plugin's README for config and usage. Existing credentials and operator mapping files remain outside the packages.
+
+## Maintainer package builds
+
+With Python 3 and the installed Go toolchain:
+
+```bash
+python3 scripts/build-packages.py --source /absolute/path/to/GO-MCP
+node scripts/validate.mjs
+python3 scripts/test-packages.py
+```
+
+The build runs tests and vet in each source module, cross-compiles macOS and Windows ARM64/x64 binaries with CGO disabled and stable build flags, and writes `BUILD-MANIFEST.json` per package plus `TOOL-CATALOG.json`. It records the source revision, dirty status, Go version, command, target, size and SHA-256. Repeating a build from the same source and Go toolchain produces the same binary bytes. Copied source runbooks and orchestration scripts have their own hashes. Source/config examples and runtime implementations remain owned by GO-MCP; operator wording and installation packaging live here.
+
+Optional `scripts/doctor` in each runtime plugin reports version, platform, config-file presence and missing package files. `--discover` starts the connector and lists its MCP tools without running a vendor query. It may resolve the existing credential commands. This diagnostic is not required to run the plugin. Python 3 is needed only for this optional diagnostic; MCP and report execution use the bundled binaries and Bash.

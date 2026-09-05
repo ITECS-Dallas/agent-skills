@@ -121,29 +121,14 @@ for (const expectedPluginName of expectedPluginNames) {
   }
 }
 
-const runtimePlugins = [
-  {
-    name: 'itecs-halopsa',
-    serverName: 'halopsa',
-    skillName: 'halopsa-mcp',
-    script: 'run-halopsa-mcp',
-    binaryPrefix: 'halopsa-mcp'
-  },
-  {
-    name: 'itecs-vcenter',
-    serverName: 'vcenter',
-    skillName: 'vcenter-mcp',
-    script: 'run-vcenter-mcp',
-    binaryPrefix: 'vcenter-mcp'
-  },
-  {
-    name: 'itecs-pax8',
-    serverName: 'pax8',
-    skillName: 'pax8-mcp',
-    script: 'run-pax8-mcp',
-    binaryPrefix: 'pax8-mcp'
-  }
-];
+const connectors = readJson(path.join(repoRoot, 'scripts', 'connectors.json')) ?? [];
+const runtimePlugins = connectors.map((entry) => ({
+  name: entry.plugin,
+  serverName: entry.server,
+  skillName: `${entry.connector}-mcp`,
+  script: `run-${entry.connector}-mcp`,
+  binaryPrefix: entry.binary
+}));
 
 for (const runtimePlugin of runtimePlugins) {
   const runtimePluginRoot = path.join(repoRoot, 'plugins', runtimePlugin.name);

@@ -1,0 +1,80 @@
+{
+  "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
+  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_dirty": false,
+  "go_toolchain": "go version go1.27.1 darwin/arm64",
+  "plugin": "itecs-halopsa",
+  "version": "0.9.0",
+  "build_flags": [
+    "-trimpath",
+    "-ldflags=-s -w -buildid="
+  ],
+  "binaries": [
+    {
+      "path": "bin/halopsa-mcp-darwin-amd64",
+      "target": "darwin-amd64",
+      "sha256": "97b4a03516aca49189a19a0f187c6560d05ed0428f820d8006d6748d8279f6ed",
+      "bytes": 9580624,
+      "module": "connectors/halopsa",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/halopsa-mcp-darwin-arm64",
+      "target": "darwin-arm64",
+      "sha256": "4ac7cb3050c3251d0e35639a996cd0ebb78b8b946384f80e08286e1a6d0178f7",
+      "bytes": 8866610,
+      "module": "connectors/halopsa",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/halopsa-mcp-windows-amd64.exe",
+      "target": "windows-amd64",
+      "sha256": "db3d73938533830f83ea33a31792e7a2f2a805707320a6366b795a87068ddc02",
+      "bytes": 9618432,
+      "module": "connectors/halopsa",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/halopsa-mcp-windows-arm64.exe",
+      "target": "windows-arm64",
+      "sha256": "1e973ae5ec13301f5147adc4d434bbc6d07bd575d1bef681f5420d0c21aab908",
+      "bytes": 8772608,
+      "module": "connectors/halopsa",
+      "command": "./cmd/mcp"
+    }
+  ],
+  "tools": [
+    "halopsa.clients.get",
+    "halopsa.clients.list",
+    "halopsa.contracts.create",
+    "halopsa.contracts.get",
+    "halopsa.contracts.list",
+    "halopsa.contracts.update",
+    "halopsa.invoices.get",
+    "halopsa.invoices.list",
+    "halopsa.projects.create",
+    "halopsa.projects.get",
+    "halopsa.projects.list",
+    "halopsa.projects.update",
+    "halopsa.projects.update_status",
+    "halopsa.purchase_orders.get",
+    "halopsa.purchase_orders.list",
+    "halopsa.recurring_invoices.get",
+    "halopsa.recurring_invoices.list",
+    "halopsa.servers.list",
+    "halopsa.ticket_actions.create_private_note",
+    "halopsa.ticket_actions.create_public_note",
+    "halopsa.ticket_actions.create_time_entry",
+    "halopsa.ticket_actions.list",
+    "halopsa.ticket_actions.send_email",
+    "halopsa.ticket_actions.start_work",
+    "halopsa.ticket_outcomes.get",
+    "halopsa.ticket_outcomes.list",
+    "halopsa.ticket_statuses.list",
+    "halopsa.tickets.create",
+    "halopsa.tickets.get",
+    "halopsa.tickets.list",
+    "halopsa.tickets.update",
+    "halopsa.tickets.update_status"
+  ]
+}

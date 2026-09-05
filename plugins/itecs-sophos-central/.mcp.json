@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "sophos_central": {
+      "command": "bash",
+      "args": [
+        "./scripts/run-sophos-central-mcp"
+      ],
+      "cwd": "."
+    }
+  }
+}

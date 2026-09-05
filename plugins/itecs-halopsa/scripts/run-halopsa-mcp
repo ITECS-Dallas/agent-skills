@@ -1,57 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-OS_NAME="$(uname -s)"
-ARCH_NAME="$(uname -m)"
-
-if [[ "$OS_NAME" == Linux* ]] && grep -qi microsoft /proc/version 2>/dev/null; then
-  printf 'WSL Bash is not supported for the bundled HaloPSA MCP launcher. Use Git Bash on Windows and make sure it appears before WSL on PATH.\n' >&2
+ITECS_PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+# shellcheck source=runtime.sh
+source "$ITECS_PLUGIN_DIR/scripts/runtime.sh"
+itecs_platform
+itecs_config halopsa HALOPSA_MCP_CONFIG
+if [[ ! -f "$ITECS_CONFIG" ]]; then
+  printf 'HaloPSA MCP config not found at %s\n' "$ITECS_CONFIG" >&2
   exit 2
 fi
-
-case "$OS_NAME" in
-  Darwin*)
-    OS="darwin"
-    DEFAULT_CONFIG="${HOME:?HOME is required}/.codex/halopsa-mcp/config.json"
-    ;;
-  MINGW*|MSYS*|CYGWIN*)
-    OS="windows"
-    [[ -n "${USERPROFILE:-}" ]] || { printf 'USERPROFILE is required on Windows.\n' >&2; exit 2; }
-    command -v cygpath >/dev/null 2>&1 || { printf 'cygpath is required from Git Bash/MSYS/Cygwin.\n' >&2; exit 2; }
-    DEFAULT_CONFIG="$(cygpath -m "$USERPROFILE")/.codex/halopsa-mcp/config.json"
-    ;;
-  *)
-    printf 'Unsupported platform for bundled HaloPSA MCP binary: %s-%s\n' "$OS_NAME" "$ARCH_NAME" >&2
-    exit 2
-    ;;
-esac
-
-CONFIG="${HALOPSA_MCP_CONFIG:-$DEFAULT_CONFIG}"
-
-if [[ ! -f "$CONFIG" ]]; then
-  printf 'HaloPSA MCP config not found at %s\n' "$CONFIG" >&2
-  printf 'Create ~/.codex/halopsa-mcp/config.json or set HALOPSA_MCP_CONFIG.\n' >&2
-  exit 2
-fi
-
-case "$ARCH_NAME" in
-  arm64|aarch64) ARCH="arm64" ;;
-  x86_64|amd64) ARCH="amd64" ;;
-  *)
-    printf 'Unsupported architecture for bundled HaloPSA MCP binary: %s-%s\n' "$OS_NAME" "$ARCH_NAME" >&2
-    exit 2
-    ;;
-esac
-
-BIN="$ROOT/bin/halopsa-mcp-$OS-$ARCH"
-if [[ "$OS" == "windows" ]]; then
-  BIN="$BIN.exe"
-fi
-
-if [[ ! -x "$BIN" ]]; then
-  printf 'HaloPSA MCP binary is missing or not executable: %s\n' "$BIN" >&2
-  exit 2
-fi
-
-exec "$BIN" -config "$CONFIG" "$@"
+exec "$ITECS_PLUGIN_DIR/bin/halopsa-mcp-$ITECS_PLATFORM$ITECS_SUFFIX" -config "$ITECS_CONFIG" "$@"

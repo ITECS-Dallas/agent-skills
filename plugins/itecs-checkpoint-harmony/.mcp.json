@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "checkpoint_harmony": {
+      "command": "bash",
+      "args": [
+        "./scripts/run-checkpoint-harmony-mcp"
+      ],
+      "cwd": "."
+    }
+  }
+}

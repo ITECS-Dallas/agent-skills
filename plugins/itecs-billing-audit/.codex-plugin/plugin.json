@@ -1,0 +1,24 @@
+{
+  "name": "itecs-billing-audit",
+  "version": "0.1.0",
+  "description": "Packaged ITECS source reports and staged monthly billing reconciliation.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ITECS Billing Audit",
+    "shortDescription": "Monthly source reports and reconciliation",
+    "longDescription": "Run bundled source report executables and the existing staged billing workflow without a Go installation or source checkout.",
+    "developerName": "ITECS-Dallas",
+    "category": "Business",
+    "capabilities": [
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Generate the requested monthly source reports.",
+      "Run the hosting audit using my existing mapping files."
+    ]
+  },
+  "repository": "https://github.com/ITECS-Dallas/agent-skills"
+}

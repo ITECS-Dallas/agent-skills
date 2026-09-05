@@ -1,0 +1,58 @@
+[
+  {
+    "connector": "halopsa",
+    "plugin": "itecs-halopsa",
+    "title": "HaloPSA",
+    "server": "halopsa",
+    "config_env": "HALOPSA_MCP_CONFIG",
+    "binary": "halopsa-mcp"
+  },
+  {
+    "connector": "vcenter",
+    "plugin": "itecs-vcenter",
+    "title": "vCenter",
+    "server": "vcenter",
+    "config_env": "VCENTER_MCP_CONFIG",
+    "binary": "vcenter-mcp"
+  },
+  {
+    "connector": "pax8",
+    "plugin": "itecs-pax8",
+    "title": "Pax8",
+    "server": "pax8",
+    "config_env": "PAX8_MCP_CONFIG",
+    "binary": "pax8-mcp"
+  },
+  {
+    "connector": "veeam-cloud-connect",
+    "plugin": "itecs-veeam-cloud-connect",
+    "title": "Veeam Cloud Connect",
+    "server": "veeam_cloud_connect",
+    "config_env": "VEEAM_CLOUD_CONNECT_MCP_CONFIG",
+    "binary": "veeam-cloud-connect-mcp"
+  },
+  {
+    "connector": "sophos-central",
+    "plugin": "itecs-sophos-central",
+    "title": "Sophos Central",
+    "server": "sophos_central",
+    "config_env": "SOPHOS_CENTRAL_MCP_CONFIG",
+    "binary": "sophos-central-mcp"
+  },
+  {
+    "connector": "checkpoint-harmony",
+    "plugin": "itecs-checkpoint-harmony",
+    "title": "Check Point Harmony",
+    "server": "checkpoint_harmony",
+    "config_env": "CHECKPOINT_HARMONY_MCP_CONFIG",
+    "binary": "checkpoint-harmony-mcp"
+  },
+  {
+    "connector": "commvault",
+    "plugin": "itecs-commvault",
+    "title": "Commvault",
+    "server": "commvault",
+    "config_env": "COMMVAULT_MCP_CONFIG",
+    "binary": "commvault-mcp"
+  }
+]

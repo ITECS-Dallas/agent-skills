@@ -1,0 +1,8 @@
+{
+  "connector": "veeam-cloud-connect",
+  "plugin": "itecs-veeam-cloud-connect",
+  "title": "Veeam Cloud Connect",
+  "server": "veeam_cloud_connect",
+  "config_env": "VEEAM_CLOUD_CONNECT_MCP_CONFIG",
+  "binary": "veeam-cloud-connect-mcp"
+}

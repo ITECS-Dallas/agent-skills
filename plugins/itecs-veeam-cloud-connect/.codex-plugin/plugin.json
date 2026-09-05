@@ -1,0 +1,26 @@
+{
+  "name": "itecs-veeam-cloud-connect",
+  "version": "0.1.0",
+  "description": "ITECS Veeam Cloud Connect tools for technician operations and billing evidence.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ITECS Veeam Cloud Connect",
+    "shortDescription": "Veeam Cloud Connect operations and usage",
+    "longDescription": "Bundled Veeam Cloud Connect source tools for inventory, usage and operational evidence. Uses existing local command-backed configuration.",
+    "developerName": "ITECS-Dallas",
+    "category": "Business",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Look up Veeam Cloud Connect inventory and usage for this client."
+    ]
+  },
+  "mcpServers": "./.mcp.json",
+  "repository": "https://github.com/ITECS-Dallas/agent-skills",
+  "homepage": "https://github.com/ITECS-Dallas/agent-skills/tree/main/plugins/itecs-veeam-cloud-connect"
+}
