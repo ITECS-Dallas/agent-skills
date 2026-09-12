@@ -1,7 +1,7 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.10.0+codex.20260905222451",
-  "description": "ITECS HaloPSA tools for technician operations and billing evidence.",
+  "version": "0.11.0",
+  "description": "ITECS HaloPSA tools for technician operations, Linux Codex CLI support and billing evidence.",
   "author": {
     "name": "ITECS-Dallas"
   },
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "ITECS HaloPSA",
     "shortDescription": "HaloPSA technician operations",
-    "longDescription": "34 typed tools for technician lookups, metadata and current-agent resolution, notes, time, Start Work, email, tickets, projects and contracts. Routine internal requests execute directly; client-visible and billing changes use ordinary confirmation. Existing 1Password setup supports Windows and macOS.",
+    "longDescription": "34 typed tools for technician lookups, metadata and current-agent resolution, notes, time, Start Work, email, tickets, projects and contracts. Includes optional client troubleshooting and confirmed-resolution closure workflows. Runs on Linux, macOS and Windows with the existing command-backed 1Password setup.",
     "developerName": "ITECS-Dallas",
     "category": "Business",
     "capabilities": [

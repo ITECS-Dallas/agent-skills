@@ -7,6 +7,7 @@ itecs_platform() {
   arch_name="$(uname -m)"
   case "$os_name" in
     Darwin*) ITECS_OS=darwin ;;
+    Linux*) ITECS_OS=linux ;;
     MINGW*|MSYS*|CYGWIN*) ITECS_OS=windows ;;
     *) printf 'No bundled binary for platform %s.\n' "$os_name" >&2; return 2 ;;
   esac

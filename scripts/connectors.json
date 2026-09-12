@@ -5,7 +5,8 @@
     "title": "HaloPSA",
     "server": "halopsa",
     "config_env": "HALOPSA_MCP_CONFIG",
-    "binary": "halopsa-mcp"
+    "binary": "halopsa-mcp",
+    "additional_targets": ["linux-arm64", "linux-amd64"]
   },
   {
     "connector": "vcenter",

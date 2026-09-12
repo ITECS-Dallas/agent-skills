@@ -13,6 +13,7 @@ Use the bundled typed tools to finish the technician's requested outcome. Reuse 
 - Use narrow ticket/project filters and read details/actions only for relevant records. Parallelize independent reads, keeping dependent writes sequential.
 - An explicit technician request authorizes routine internal notes, specified time entries, assignment/field updates and Start Work. Once the target and necessary fields are known, execute with `confirm: true` without asking the technician to repeat that request. Preview remains available when drafting or clarifying a proposed action.
 - Review client-visible notes, outgoing email, new ticket/project creation, status changes and contract/billing changes using `confirm: false` or omitted. Show the meaningful payload and possible effects, then accept one ordinary confirmation such as “yes” or “go ahead.” Pass `confirm: true`; no exact phrases are required. Group related reviews into one clear confirmation when possible.
+- For an authorized optional client troubleshooting conversation, use [service-desk-client-troubleshooting](../service-desk-client-troubleshooting/SKILL.md). Its invitation, relevant replies and closure after clear client resolution confirmation use the technician's existing conversation authorization; do not request that authorization again per message or at closure. Continue to inspect previews, configured effects, current records and write readback.
 - A time entry already carries a private note. Do not create a duplicate private note unless requested. Ask for elapsed time only when missing; never invent it.
 - Use the exact tenant Start Work outcome with its current snapshot. Do not substitute a status update or claim that Halo's browser timer remains running.
 - Use the dedicated email tool and exact email-capable outcome; review recipients, subject, body and configured effects together. Private/public note tools do not send email.
@@ -23,7 +24,7 @@ Use the bundled typed tools to finish the technician's requested outcome. Reuse 
 
 ## Credentials and runtime
 
-Preserve the established 1Password Automation Vault and per-technician command-backed secret pipeline. Do not print credentials, keys or tokens, copy values into config, or replace `/opt/homebrew/bin/op-itecs` with plain `op` on macOS. Keep the existing external config and launchers. Summarize retrieved records at the level needed for the task; keep MCP stdout reserved for protocol traffic.
+Preserve the established 1Password Automation Vault and per-technician command-backed secret pipeline. Do not print credentials, keys or tokens, copy values into config, or replace `/opt/homebrew/bin/op-itecs` with plain `op` on macOS. Linux uses the configured prompt-free `op-itecs` wrapper. Keep the existing external config and launchers. Summarize retrieved records at the level needed for the task; keep MCP stdout reserved for protocol traffic.
 
 ## Available Tools
 
@@ -48,7 +49,7 @@ Preserve the established 1Password Automation Vault and per-technician command-b
 - `halopsa.tickets.list` - list tickets with client, site, user, agent, status, priority, team, text, date, and pagination filters.
 - `halopsa.tickets.get` - get one ticket by ID, optionally including recent actions/notes.
 - `halopsa.ticket_statuses.list` - list ticket statuses, optionally narrowed to an exact ticket or ticket type.
-- `halopsa.ticket_actions.list` - list ticket actions/notes for a specific ticket.
+- `halopsa.ticket_actions.list` - list ticket actions/notes for a specific ticket, optionally narrowed to conversation/public actions or a date window, with email HTML when needed. Leave `agent_only` false when reading client replies.
 - `halopsa.ticket_outcomes.list` - list tenant-configured action outcomes available for an exact ticket or explicit state.
 - `halopsa.ticket_outcomes.get` - get one configured outcome and its effects, optionally resolved for an exact ticket.
 - `halopsa.ticket_actions.start_work` - preview or execute the one exact available Start Work outcome with plain confirmation and `last_update` revalidation.
@@ -92,6 +93,8 @@ On Windows 11, run in PowerShell from the installed plugin directory:
 ```
 
 Both scripts require the exact per-technician `GO-MCP HaloPSA <Technician> Read Write` item, validate its six expected fields and live OAuth response, and write command references only. Do not copy credential values into `config.json`; do not use another technician's item. On macOS, never fall back from `/opt/homebrew/bin/op-itecs` to plain `op`.
+
+On Linux, run `./scripts/configure-halopsa-mcp-linux.sh --technician "Exact Technician Name"` from the installed plugin directory. It uses the same validation and config format, resolving `op-itecs` on `PATH` or the absolute `--op-command` path. See the [Linux support-agent setup](../../docs/linux-support-agent.md) for subscription-authenticated Codex CLI setup and the canonical `/home/itecs/US1/ATLAS` documentation workspace.
 
 ## Windows Startup Troubleshooting
 

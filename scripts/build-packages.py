@@ -14,6 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 TARGETS = ('darwin-arm64', 'darwin-amd64', 'windows-arm64', 'windows-amd64')
 
 
+def connector_targets(entry):
+    return TARGETS + tuple(entry.get('additional_targets', ()))
+
+
 def run(args, cwd):
     return subprocess.check_output(args, cwd=cwd, text=True).strip()
 
@@ -53,7 +57,7 @@ def build_connector(source, entry, jobs):
     records = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = []
-        for target in TARGETS:
+        for target in connector_targets(entry):
             suffix = '.exe' if target.startswith('windows') else ''
             dest = root / 'bin' / (entry['binary'] + '-' + target + suffix)
             futures.append(pool.submit(build, source, module, './cmd/mcp', dest, target))
@@ -62,6 +66,8 @@ def build_connector(source, entry, jobs):
             record['path'] = str(Path(record['path']).relative_to(root))
             records.append(record)
             print('Built ' + record['path'], flush=True)
+    for name in ['runtime.sh', 'doctor.py']:
+        shutil.copy2(ROOT / 'scripts/templates' / name, root / 'scripts' / name)
     manifest = {'source_repository':'https://github.com/ITECS-Dallas/GO-MCP',
                 'source_revision':revision, 'source_dirty':bool(run(['git','status','--porcelain'],source)),
                 'go_toolchain':run(['go','version'],source), 'plugin':entry['plugin'], 'version':metadata['version'],
@@ -115,10 +121,12 @@ def main():
     for entry in entries:
         module = 'connectors/' + entry['connector']
         catalogs[entry['plugin']] = tool_names(source / module / 'internal/tools/tools.go')
-        for target in TARGETS:
+        for target in connector_targets(entry):
             suffix = '.exe' if target.startswith('windows') else ''
             jobs.append((entry['plugin'], module, './cmd/mcp',
                          ROOT / 'plugins' / entry['plugin'] / 'bin' / (entry['binary'] + '-' + target + suffix), target))
+        for target in TARGETS:
+            suffix = '.exe' if target.startswith('windows') else ''
             jobs.append(('itecs-billing-audit', module, './cmd/billing-report',
                          audit / 'bin' / target / (entry['connector'] + '-billing-report' + suffix), target))
     for target in TARGETS:
