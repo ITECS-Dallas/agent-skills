@@ -2,7 +2,7 @@
 
 Version 0.11.0 packages the existing 34 typed tools (21 reads and 13 writes) for macOS, Windows and Linux, including tenant metadata and the authenticated technician. Routine internal requests use existing chat authorization. Client-visible and billing changes use a single ordinary confirmation. All writes use `confirm`; no exact approval phrases are required.
 
-See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1/ATLAS` documentation workspace. The optional [client troubleshooting skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution. Restart into a new Codex task after updating the plugin.
+See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution. Restart into a new Codex task after updating the plugin.
 
 ## Tool Surface
 

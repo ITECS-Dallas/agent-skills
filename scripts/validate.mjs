@@ -312,8 +312,8 @@ const textExtensions = new Set([
 ]);
 
 // This deployment path is part of the requested HaloPSA support workflow.
-const atlasDocumentationPath = ['', 'home', 'itecs', 'US1', 'ATLAS'].join('/').toLowerCase();
-const atlasDocumentationFiles = new Set([
+const supportDocumentationPath = ['', 'home', 'itecs', 'US1'].join('/').toLowerCase();
+const supportDocumentationFiles = new Set([
   'README.md',
   'plugins/itecs-halopsa/README.md',
   'plugins/itecs-halopsa/docs/linux-support-agent.md',
@@ -325,8 +325,8 @@ for (const file of walk(repoRoot)) {
   if (!textExtensions.has(path.extname(file))) continue;
   const rel = path.relative(repoRoot, file);
   let content = fs.readFileSync(file, 'utf8').toLowerCase();
-  if (atlasDocumentationFiles.has(rel.split(path.sep).join('/'))) {
-    content = content.replaceAll(atlasDocumentationPath, '');
+  if (supportDocumentationFiles.has(rel.split(path.sep).join('/'))) {
+    content = content.replaceAll(supportDocumentationPath, '');
   }
   for (const term of bannedTerms) {
     if (content.includes(term.toLowerCase())) {

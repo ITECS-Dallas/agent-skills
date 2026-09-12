@@ -360,7 +360,7 @@ codex plugin marketplace remove itecs-agent-skills
 
 The `itecs-halopsa`, `itecs-vcenter`, and `itecs-pax8` plugins package MCP launchers, bundled macOS and Windows binaries, and connector-specific skill instructions. Live credentials and runtime configuration stay outside this repo.
 
-HaloPSA additionally bundles `linux-amd64` and `linux-arm64` binaries and a Linux setup script. See [Linux support-agent setup](plugins/itecs-halopsa/docs/linux-support-agent.md) for ChatGPT subscription authentication, local marketplace installation and the canonical synchronized `/home/itecs/US1/ATLAS` workspace. Linux packaging does not imply Linux support in the other connector packages.
+HaloPSA additionally bundles `linux-amd64` and `linux-arm64` binaries and a Linux setup script. See [Linux support-agent setup](plugins/itecs-halopsa/docs/linux-support-agent.md) for ChatGPT subscription authentication, local marketplace installation and the canonical synchronized `/home/itecs/US1` workspace. Linux packaging does not imply Linux support in the other connector packages.
 
 Current bundled binaries target:
 

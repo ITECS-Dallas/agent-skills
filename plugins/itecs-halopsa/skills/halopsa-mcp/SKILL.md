@@ -94,7 +94,7 @@ On Windows 11, run in PowerShell from the installed plugin directory:
 
 Both scripts require the exact per-technician `GO-MCP HaloPSA <Technician> Read Write` item, validate its six expected fields and live OAuth response, and write command references only. Do not copy credential values into `config.json`; do not use another technician's item. On macOS, never fall back from `/opt/homebrew/bin/op-itecs` to plain `op`.
 
-On Linux, run `./scripts/configure-halopsa-mcp-linux.sh --technician "Exact Technician Name"` from the installed plugin directory. It uses the same validation and config format, resolving `op-itecs` on `PATH` or the absolute `--op-command` path. See the [Linux support-agent setup](../../docs/linux-support-agent.md) for subscription-authenticated Codex CLI setup and the canonical `/home/itecs/US1/ATLAS` documentation workspace.
+On Linux, run `./scripts/configure-halopsa-mcp-linux.sh --technician "Exact Technician Name"` from the installed plugin directory. It uses the same validation and config format, resolving `op-itecs` on `PATH` or the absolute `--op-command` path. See the [Linux support-agent setup](../../docs/linux-support-agent.md) for subscription-authenticated Codex CLI setup and the canonical `/home/itecs/US1` documentation workspace.
 
 ## Windows Startup Troubleshooting
 

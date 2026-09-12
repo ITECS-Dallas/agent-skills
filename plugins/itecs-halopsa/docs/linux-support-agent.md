@@ -1,6 +1,6 @@
 # Linux Codex support agent
 
-Run Codex CLI under the Linux account that owns the support session, using its ChatGPT subscription login and the existing ITECS HaloPSA plugin. The server's canonical synchronized documentation is `/home/itecs/US1/ATLAS`. The plugin provides the existing Go connector over local stdio; it needs no OpenAI API key, separate API application server, or duplicate HaloPSA connector.
+Run Codex CLI under the Linux account that owns the support session, using its ChatGPT subscription login and the existing ITECS HaloPSA plugin. The server's canonical synchronized documentation is `/home/itecs/US1`. The plugin provides the existing Go connector over local stdio; it needs no OpenAI API key, separate API application server, or duplicate HaloPSA connector.
 
 ## Install the package and authenticate
 
@@ -42,14 +42,14 @@ Discovery should expose 34 tools, including `halopsa.agents.me`, metadata, ticke
 Start a new Codex session after plugin installation or refresh:
 
 ```bash
-codex -C /home/itecs/US1/ATLAS
+codex -C /home/itecs/US1
 ```
 
-The ATLAS workspace supplies client documentation and local instructions. Search it for the relevant client and procedure; do not create a second documentation tree inside the plugin or substitute a workstation DOCBOT copy for the synchronized server path.
+The US1 workspace supplies client documentation and local instructions. Search it for the relevant client and procedure; do not create a second documentation tree inside the plugin or substitute a workstation DOCBOT copy for the synchronized server path.
 
 A technician can request ordinary HaloPSA lookups, notes, time logging, assignment or Start Work using the existing runtime skill. Client troubleshooting is optional. Example technician request, with the actual ticket number substituted:
 
-> Offer the client on ticket TICKET_ID a choice of guided troubleshooting or a technician. If they opt in, use the relevant ATLAS procedure and continue on this ticket. Close it only after they clearly confirm the current issue is resolved; otherwise leave it open and hand it back with the work summary.
+> Offer the client on ticket TICKET_ID a choice of guided troubleshooting or a technician. If they opt in, use the relevant client procedure and continue on this ticket. Close it only after they clearly confirm the current issue is resolved; otherwise leave it open and hand it back with the work summary.
 
 Use [service-desk-client-troubleshooting](../skills/service-desk-client-troubleshooting/SKILL.md) for that workflow. The technician's request authorizes the conversation and its confirmed-resolution closure once. The client chooses whether to troubleshoot. Subsequent replies reuse the authorization, inspect current ticket actions and use the existing email outcome. The agent records the fix and client confirmation, resolves a tenant-allowed closure status, and reads back the final ticket before reporting closure.
 
@@ -58,7 +58,7 @@ A failed diagnostic can lead to the next applicable documented step while the cl
 For a noninteractive read-only briefing from the synchronized workspace, `codex exec` can run outside a Git repository:
 
 ```bash
-codex -C /home/itecs/US1/ATLAS exec --skip-git-repo-check \
+codex -C /home/itecs/US1 exec --skip-git-repo-check \
   'Use the HaloPSA handoff skill to summarize my current open tickets and their next actions.'
 ```
 
