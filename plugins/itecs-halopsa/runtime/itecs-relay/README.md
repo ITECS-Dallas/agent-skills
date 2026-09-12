@@ -100,6 +100,13 @@ subsequent technician work still ends participation. Repeated `process` calls ke
 all previous progress and delivery receipts. It cannot run alongside the resident
 worker using the same state directory.
 
+To run an ongoing simulation on that ticket, `serve --ticket TICKET_ID` watches
+only the named conversation and does not discover or process other tickets.
+Pass the ticket ID as the installer's second argument to persist that mode in the
+unit, then enable the service normally. Reinstall without the second argument and
+restart when authorizing general new-ticket intake. Client replies still determine
+whether to continue, hand off or close; the service does not synthesize replies.
+
 The installer stages the unit without starting client correspondence. Once
 deployment is authorized, enable it with:
 

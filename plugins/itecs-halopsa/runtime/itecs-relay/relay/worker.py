@@ -49,6 +49,8 @@ class MailText(HTMLParser):
             self.parts.append("\n")
 
     def handle_endtag(self, tag):
+        if tag in ("br", "hr", "img", "input", "meta", "link"):
+            return
         if self.skip:
             self.skip -= 1
         elif tag in ("p", "div", "li", "tr"):
@@ -80,7 +82,7 @@ def action_view(action, ticket, relay_agent_id):
     agent = action.get("actionby_agent_id") or action.get("who_agentid") or 0
     user = action.get("actionby_user_id") or 0
     sender = parseaddr(str(action.get("emailfrom", "")))[1].lower()
-    contact = parseaddr(str(ticket.get("useremail", "")))[1].lower()
+    contact = parseaddr(str(ticket.get("user_email", "")))[1].lower()
     private = bool(action.get("hiddenfromuser"))
     if agent == relay_agent_id:
         source = "relay"
@@ -95,10 +97,11 @@ def action_view(action, ticket, relay_agent_id):
     else:
         source = "other"
     body = action.get("note") or action.get("emailbody_html") or ""
+    fresh_body = action.get("emailbody_html") or action.get("note_html") or body
     return {"id": action["id"], "source": source, "agent_id": agent, "user_id": user,
             "datetime": action.get("datetime") or action.get("actiondatecreated"),
             "private": private, "actiontype": action.get("actiontype", ""),
-            "text": text(body), "fresh_text": text(body, fresh=True),
+            "text": text(body), "fresh_text": text(fresh_body, fresh=True),
             "emailto": action.get("emailto", ""), "sendemail": action.get("sendemail", False)}
 
 
@@ -107,7 +110,7 @@ def snapshot(halo, ticket_id, relay_agent_id):
     actions = sorted((action_view(a, ticket, relay_agent_id) for a in halo.actions(ticket_id)),
                      key=lambda a: (a["datetime"] or "", a["id"]))
     fields = ("id", "summary", "details", "client_id", "client_name", "site_id", "site_name",
-              "user_id", "user_name", "useremail", "agent_id", "team_id", "tickettype_id",
+              "user_id", "user_name", "user_email", "agent_id", "team_id", "tickettype_id",
               "status_id", "last_update", "dateoccurred", "dateoccured", "source", "closed",
               "workflow_id", "workflow_step", "workflow_seq")
     ticket = {key: ticket[key] for key in fields if key in ticket}
@@ -289,6 +292,13 @@ class Worker:
                 if receipt:
                     self.store.receipt(op["id"], receipt)
                     allowed.add(receipt["action_id"])
+                    if kind == "email":
+                        # The receipt may have committed just before a crash, while
+                        # conversation progress did not. Preserve the sent reply
+                        # before a new client action can invalidate this old plan.
+                        reply_state = {"offer": "offered", "decline": "handed_off",
+                                       "handoff": "handed_off"}.get(decision, "troubleshooting")
+                        self.progress(ticket_id, bundle, reply_state)
                 else:
                     raise Uncertain("previous " + kind + " operation needs readback")
         status_op = self.store.operation(prefix + ":status")
@@ -301,7 +311,7 @@ class Worker:
             raise Uncertain("previous closure needs readback")
         ticket, current_actions = self.fresh(ticket_id, baseline, actions, allowed)
         if plan.get("reply"):
-            email = parseaddr(str(ticket.get("useremail", "")))[1]
+            email = parseaddr(str(ticket.get("user_email", "")))[1]
             if not email:
                 raise ValueError("ticket contact has no email address")
             outcome = self.halo.call("ticket_outcomes.get", outcome_id=self.cfg["email_outcome_id"],

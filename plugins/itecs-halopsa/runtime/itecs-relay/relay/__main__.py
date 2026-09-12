@@ -74,35 +74,49 @@ def run_ticket(cfg, ticket_id):
         store.db.close()
 
 
-def serve(cfg, store):
+def serve(cfg, store, ticket_id=None):
     lock = open(Path(cfg["state_dir"]) / "worker.lock", "a")
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     stop = threading.Event()
     signal.signal(signal.SIGTERM, lambda *_: stop.set())
     signal.signal(signal.SIGINT, lambda *_: stop.set())
     inflight = {}
+    next_discovery = 0
+    if ticket_id is not None:
+        mcp, halo = connect(cfg)
+        try:
+            Worker(cfg, store, halo, Codex(cfg)).enroll_ticket(ticket_id)
+        finally:
+            mcp.close()
+        log("named_ticket_service", ticket_id=ticket_id)
     with concurrent.futures.ThreadPoolExecutor(max_workers=cfg["workers"]) as executor:
         while not stop.is_set():
-            mcp = None
-            try:
-                mcp, halo = connect(cfg)
-                count = Worker(cfg, store, halo, Codex(cfg)).discover()
-                store.set_setting("last_discovery_success", str(time.time()))
-                store.set_setting("discovery_error", "")
-                log("discovery", rows=count)
-            except Exception as exc:
-                store.set_setting("discovery_error", type(exc).__name__)
-                log("discovery_error", error=type(exc).__name__)
-            finally:
-                if mcp:
-                    mcp.close()
+            if ticket_id is None and time.monotonic() >= next_discovery:
+                mcp = None
+                try:
+                    mcp, halo = connect(cfg)
+                    count = Worker(cfg, store, halo, Codex(cfg)).discover()
+                    store.set_setting("last_discovery_success", str(time.time()))
+                    store.set_setting("discovery_error", "")
+                    log("discovery", rows=count)
+                except Exception as exc:
+                    store.set_setting("discovery_error", type(exc).__name__)
+                    log("discovery_error", error=type(exc).__name__)
+                finally:
+                    if mcp:
+                        mcp.close()
+                next_discovery = time.monotonic() + cfg["poll_seconds"]
             inflight = {key: future for key, future in inflight.items() if not future.done()}
-            for ticket_id in store.due():
+            for due_id in store.due():
+                if ticket_id is not None and due_id != ticket_id:
+                    continue
                 if len(inflight) >= cfg["workers"]:
                     break
-                if ticket_id not in inflight:
-                    inflight[ticket_id] = executor.submit(run_ticket, cfg, ticket_id)
-            stop.wait(cfg["poll_seconds"])
+                if due_id not in inflight:
+                    inflight[due_id] = executor.submit(run_ticket, cfg, due_id)
+            # Refill free workers promptly; discovery and per-ticket due times keep
+            # their own poll interval instead of throttling the whole queue to two.
+            stop.wait(1)
     lock.close()
 
 
@@ -125,7 +139,9 @@ def main():
         return int(bool(status["discovery_error"]) or any(
             row["error"] for row in status["tickets"]))
     if args.command == "serve":
-        serve(cfg, store)
+        if args.ticket is not None and args.ticket <= 0:
+            parser.error("--ticket must be positive")
+        serve(cfg, store, args.ticket)
         return 0
     if args.command == "resume":
         if not args.ticket or not store.ticket(args.ticket):

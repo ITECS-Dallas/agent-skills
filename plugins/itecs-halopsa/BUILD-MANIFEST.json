@@ -1,10 +1,10 @@
 {
   "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
-  "source_revision": "45a0ac0fb5134a12de1bbcd11b8a5f41e94766f7",
+  "source_revision": "81f0226766d6c383d2e801db83cad48105e3b064",
   "source_dirty": false,
   "go_toolchain": "go version go1.27.1 darwin/arm64",
   "plugin": "itecs-halopsa",
-  "version": "0.11.0+codex.20260912232700",
+  "version": "0.11.0+codex.20260912235816",
   "build_flags": [
     "-trimpath",
     "-ldflags=-s -w -buildid="
@@ -13,7 +13,7 @@
     {
       "path": "bin/halopsa-mcp-darwin-amd64",
       "target": "darwin-amd64",
-      "sha256": "aa4b78618b604e1a25d4bc7f628705ace98146bcd52db905d3432877ff053eec",
+      "sha256": "89553a2c492304d9e57deba870871e77cb4faf847add39d282bf615caa076eeb",
       "bytes": 9623088,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
@@ -21,7 +21,7 @@
     {
       "path": "bin/halopsa-mcp-darwin-arm64",
       "target": "darwin-arm64",
-      "sha256": "8e3d7d8fbcaeea8934276efb111d70fe3182038d56d8ac7d72c4bdc773e40cf6",
+      "sha256": "4692f6bda7206d6b1df9fe3fe406c745e3435cbabf8cead70357d37ee852d64e",
       "bytes": 8901170,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
@@ -29,7 +29,7 @@
     {
       "path": "bin/halopsa-mcp-linux-amd64",
       "target": "linux-amd64",
-      "sha256": "3a05c7ac64c286b64c8ca1c7cc4e476d4e4c1d032aac3f703772b00c44d7739b",
+      "sha256": "d6fb36efc84afdaf0bfabaa55c37d1cb9bb394beb704251a0f0274c87b382793",
       "bytes": 9392252,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
@@ -37,7 +37,7 @@
     {
       "path": "bin/halopsa-mcp-linux-arm64",
       "target": "linux-arm64",
-      "sha256": "5f773c4397bcb59c7d039151821c793fcbb528fc240a22c2e70dbd4b3080e00b",
+      "sha256": "07ffa91195416f92409fd44ac759920df612bea58660b060c031e3fe217ed701",
       "bytes": 8716412,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
@@ -45,7 +45,7 @@
     {
       "path": "bin/halopsa-mcp-windows-amd64.exe",
       "target": "windows-amd64",
-      "sha256": "ee6bbd96da0d96c96aabe12486608aced705fc140ce9dceb51475d7753f07654",
+      "sha256": "090f47d8beff476d4d578e8bcc00012b0cc1540ba10404777f3b3ca3514760d9",
       "bytes": 9657856,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
@@ -53,7 +53,7 @@
     {
       "path": "bin/halopsa-mcp-windows-arm64.exe",
       "target": "windows-arm64",
-      "sha256": "01c345ca989e94592f1bf0438be7b4f3255402391440650f5460807853d4d05d",
+      "sha256": "36237e86e95e3ec019e7fe6b54386ddee72aa39d0c113aa4bf22f9c098ef8592",
       "bytes": 8807936,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
@@ -98,7 +98,7 @@
   "runtime_files": [
     {
       "path": "runtime/itecs-relay/README.md",
-      "sha256": "1e8317f805a5818d6926a299e03c1d6729405dec3d57f689ce3480e3daf1fa88"
+      "sha256": "17a066e6f507af4c3f389457de9d1dd5ec8dbfc206b032e7ebc32b7993e73c12"
     },
     {
       "path": "runtime/itecs-relay/config.example.json",
@@ -106,7 +106,7 @@
     },
     {
       "path": "runtime/itecs-relay/install-user-service.sh",
-      "sha256": "cb5af752e1bfb9bda16cc923991ef1a6d2c3bcc5b3cd0ad2c7e9d718025aab7a"
+      "sha256": "2ea41451b88bdc49c3cb3c5f4c8f6e0a250ef1c4c507d9e14103e758bef21e61"
     },
     {
       "path": "runtime/itecs-relay/relay/__init__.py",
@@ -114,7 +114,7 @@
     },
     {
       "path": "runtime/itecs-relay/relay/__main__.py",
-      "sha256": "efa642546986300c3b53412c2f64b1e419583b6a4296f3083bef84b36b5c52e9"
+      "sha256": "72a51fad2af71cc48060967fd26f47f91fcc010e9c263b2c9eb01af7501048d0"
     },
     {
       "path": "runtime/itecs-relay/relay/decision.py",
@@ -130,7 +130,7 @@
     },
     {
       "path": "runtime/itecs-relay/relay/worker.py",
-      "sha256": "842d94c01c09708daa4d9a942393fa99357387df7c50ea1386476318a1dd602a"
+      "sha256": "bce94e1be877471e3c0feae5a8f7a86ac009be75f35e70aa8bdd37f8b8d72b7f"
     }
   ]
 }
