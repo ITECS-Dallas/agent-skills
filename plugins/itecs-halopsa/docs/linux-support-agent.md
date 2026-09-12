@@ -1,10 +1,10 @@
 # Linux Codex support agent
 
-Run Codex CLI under the Linux account that owns the support session, using its ChatGPT subscription login and the existing ITECS HaloPSA plugin. The server's canonical synchronized documentation is `/home/itecs/US1`. The plugin provides the existing Go connector over local stdio; it needs no OpenAI API key, separate API application server, or duplicate HaloPSA connector.
+Run Codex CLI under the Linux account that owns the support session, using its ChatGPT subscription login and the existing ITECS HaloPSA plugin. The working root is `/home/itecs/US1`; its current synchronized documentation library is `/home/itecs/US1/ATLAS`. The plugin provides the existing Go connector over local stdio; it needs no OpenAI API key, separate API application server, or duplicate HaloPSA connector.
 
 ## Install the package and authenticate
 
-Use a Linux x64 or ARM64 host with Codex CLI, Git, Bash, `curl`, and the managed prompt-free `op-itecs` wrapper. The wrapper must have access to the exact technician's Automation Vault item. Python 3 is needed only for the optional package doctor. The bundled connector requires no Go toolchain on the host.
+Use a Linux x64 or ARM64 host with Codex CLI, Git, Bash, `curl`, and the managed prompt-free `op-itecs` wrapper. The wrapper must have access to the exact technician's Automation Vault item. Python 3 runs the optional package doctor; the resident RELAY service requires Python 3.12 or newer. The bundled connector requires no Go toolchain on the host.
 
 Run setup and Codex as the same Linux account, here `itecs`, so the ChatGPT login, plugin registration, HaloPSA config and wrapper access belong to the account that executes support work. ChatGPT authentication and HaloPSA authentication are separate: subscription login runs Codex; the existing HaloPSA OAuth identity attributes ticket work to the configured technician.
 
@@ -53,7 +53,13 @@ A technician can request ordinary HaloPSA lookups, notes, time logging, assignme
 
 Use [service-desk-client-troubleshooting](../skills/service-desk-client-troubleshooting/SKILL.md) for that workflow. The technician's request authorizes the conversation and its confirmed-resolution closure once. The client chooses whether to troubleshoot. Subsequent replies reuse the authorization, inspect current ticket actions and use the existing email outcome. The agent records the fix and client confirmation, resolves a tenant-allowed closure status, and reads back the final ticket before reporting closure.
 
-A failed diagnostic can lead to the next applicable documented step while the client wants help and the agent can perform the work. Hand off when the client declines or requests a technician, the procedure or capabilities are exhausted, or the unresolved issue calls for escalation. Ambiguity or no reply keeps the ticket open; “Thanks” and quoted older messages do not establish current resolution. The skill does not create a mailbox listener, recurring job or unattended service. Resume the authorized Codex task to inspect new ticket replies and continue from the latest exchange. If starting a separate task, include the technician's requested scope again; ticket history carries progress, not independent permission to send messages.
+A failed diagnostic can lead to the next applicable documented step while the client wants help and the agent can perform the work. Hand off when the client declines or requests a technician, the procedure or capabilities are exhausted, or the unresolved issue calls for escalation. Ambiguity or no reply keeps the ticket open; “Thanks” and quoted older messages do not establish current resolution. For an interactive conversation, resume the authorized Codex task to inspect new replies. If starting a separate task, include the technician's requested scope again.
+
+## Resident ITECS RELAY service
+
+The package includes the resident worker at `runtime/itecs-relay`. Follow its [setup and operations guide](../runtime/itecs-relay/README.md) to configure the existing connector identity, actual documentation path, email outcome and closure status, verify access, inspect a ticket without writes, and install the user systemd service. The service polls new ticket intake every 15 seconds, runs subscription-authenticated Codex decisions, and persists conversation progress and independently verified Halo write receipts in SQLite outside the synchronized library.
+
+The deployed service's authorization covers its defined client conversations. Codex reads the workflow skill and client documents and returns a structured decision; the worker executes typed Halo tools. A client can decline, continue through a failed step, or confirm resolution. The worker records the work and current confirmation before closing and reading back the ticket. Unanswered or ambiguous replies keep it open. Installing the unit does not start it; the operations guide includes the activation command.
 
 For a noninteractive read-only briefing from the synchronized workspace, `codex exec` can run outside a Git repository:
 
@@ -68,4 +74,4 @@ Do not infer continuing execution from that command returning successfully. It c
 
 After placing the updated package in the configured local marketplace, run `codex plugin add itecs-halopsa@itecs-agent-skills` and start a new Codex session. Existing sessions retain their loaded tool schema and skills.
 
-Package implementation belongs in `GO-MCP/connectors/halopsa`; Linux binaries, setup, launcher and operator skills belong in `agent-skills/plugins/itecs-halopsa`. Local configs and ChatGPT login state remain external to both repositories. Cross-compilation, package discovery and scenario tests establish package behavior; a successful host login, representative HaloPSA read and authorized ticket conversation are separate live verification results.
+Connector implementation belongs in `GO-MCP/connectors/halopsa` and the resident worker in `GO-MCP/workflows/itecs-relay`; the package builder copies the worker into this plugin and records its file hashes in `BUILD-MANIFEST.json`. Linux binaries, setup, launcher and operator skills belong in `agent-skills/plugins/itecs-halopsa`. Local configs and ChatGPT login state remain external to both repositories. Cross-compilation, package discovery and scenario tests establish package behavior; a successful host login, representative HaloPSA read and authorized ticket conversation are separate live verification results.

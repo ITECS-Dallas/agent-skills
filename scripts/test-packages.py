@@ -45,6 +45,17 @@ def main():
             manifest = json.loads((plugin / 'BUILD-MANIFEST.json').read_text())
             metadata = json.loads((plugin / '.codex-plugin/plugin.json').read_text())
             check(manifest['version'] == metadata['version'], 'build version: ' + entry['plugin'])
+            if entry['plugin'] == 'itecs-halopsa':
+                check(bool(manifest.get('runtime_files')), 'missing RELAY runtime manifest')
+                runtime = plugin / 'runtime/itecs-relay'
+                actual = {str(path.relative_to(plugin)) for path in runtime.rglob('*')
+                          if path.is_file() and '__pycache__' not in path.parts}
+                check(actual == {row['path'] for row in manifest['runtime_files']}, 'RELAY runtime file manifest is incomplete')
+                result = execute(['python3', '-m', 'relay', '--help'], cwd=runtime)
+                check(result.returncode == 0 and 'inspect' in result.stdout, 'packaged RELAY entrypoint does not run')
+            for record in manifest.get('runtime_files', []):
+                path = plugin / record['path']
+                check(hashlib.sha256(path.read_bytes()).hexdigest() == record['sha256'], 'runtime hash: ' + str(path))
             expected_targets = {'darwin-arm64', 'darwin-amd64', 'windows-arm64', 'windows-amd64'} | set(entry.get('additional_targets', []))
             check({binary['target'] for binary in manifest['binaries']} == expected_targets, 'packaged target set: ' + entry['plugin'])
             for binary in manifest['binaries']:

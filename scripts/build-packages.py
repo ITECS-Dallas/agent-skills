@@ -32,6 +32,22 @@ def tool_names(source):
                       + re.findall(r'Name:\s*"([\w.]+)"', text)))
 
 
+def copy_relay_runtime(source, root):
+    worker_source = source / 'workflows/itecs-relay'
+    worker_dest = root / 'runtime/itecs-relay'
+    if worker_dest.exists():
+        shutil.rmtree(worker_dest)
+    worker_dest.mkdir(parents=True)
+    for name in ['relay', 'README.md', 'config.example.json', 'install-user-service.sh']:
+        src, dest = worker_source / name, worker_dest / name
+        if src.is_dir():
+            shutil.copytree(src, dest, ignore=shutil.ignore_patterns('__pycache__'))
+        else:
+            shutil.copy2(src, dest)
+    return [{'path':str(path.relative_to(root)), 'sha256':digest(path)}
+            for path in sorted(worker_dest.rglob('*')) if path.is_file()]
+
+
 def build(source, module, command, destination, target):
     goos, goarch = target.split('-')
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -73,6 +89,8 @@ def build_connector(source, entry, jobs):
                 'go_toolchain':run(['go','version'],source), 'plugin':entry['plugin'], 'version':metadata['version'],
                 'build_flags':['-trimpath','-ldflags=-s -w -buildid='],
                 'binaries':sorted(records,key=lambda x:x['path']), 'tools':names}
+    if entry['plugin'] == 'itecs-halopsa':
+        manifest['runtime_files'] = copy_relay_runtime(source, root)
     (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
     path = ROOT / 'TOOL-CATALOG.json'
     catalog = json.loads(path.read_text())
@@ -158,6 +176,8 @@ def main():
             manifest['resources'] = [dict(row, sha256=digest(root / row['path'])) for row in resources]
         else:
             manifest['tools'] = catalogs[plugin]
+        if plugin == 'itecs-halopsa':
+            manifest['runtime_files'] = copy_relay_runtime(source, root)
         (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest, indent=2) + '\n')
     (ROOT / 'TOOL-CATALOG.json').write_text(json.dumps({'source_revision': revision, 'plugins': catalogs}, indent=2) + '\n')
     print('Built %d binaries from %s' % (len(jobs), revision), flush=True)

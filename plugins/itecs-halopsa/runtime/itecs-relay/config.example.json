@@ -1,0 +1,15 @@
+{
+  "workspace": "/home/itecs/US1",
+  "documentation_root": "/home/itecs/US1/ATLAS",
+  "skill_path": "/home/itecs/agent-skills/plugins/itecs-halopsa/skills/service-desk-client-troubleshooting/SKILL.md",
+  "state_dir": "/home/itecs/.local/state/itecs-relay",
+  "connector_command": ["/home/itecs/agent-skills/plugins/itecs-halopsa/scripts/run-halopsa-mcp"],
+  "codex_command": "/usr/bin/codex",
+  "server_id": "itecs-halopsa",
+  "agent_id": 49,
+  "email_outcome_id": 0,
+  "closed_status_id": 0,
+  "poll_seconds": 15,
+  "workers": 2,
+  "decision_timeout": 300
+}
