@@ -110,6 +110,8 @@ class Codex:
                 env.pop(key, None)
             if cfg.get("codex_model"):
                 command[2:2] = ["--model", cfg["codex_model"]]
+            if cfg.get("codex_use_legacy_landlock", False):
+                command[2:2] = ["--enable", "use_legacy_landlock"]
             process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
                                        stderr=subprocess.DEVNULL, text=True, env=env,
                                        start_new_session=True)

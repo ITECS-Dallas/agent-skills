@@ -125,6 +125,16 @@ under `~/.local/state/itecs-relay`, outside Seafile. The service uses restrictiv
 file creation permissions. Journal messages contain IDs/status and error classes,
 not client bodies or credentials.
 
+On US1, Codex 0.153.4's default bubblewrap sandbox cannot initialize its loopback
+interface (`bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted`). Set
+`codex_use_legacy_landlock` to `true` in this host's Relay configuration to select
+Codex's available Landlock compatibility implementation. The decision still runs
+with `--sandbox read-only`; this is an explicit host setting, not an automatic
+retry without a sandbox. Verify actual document reads and denied writes/network
+with that installed CLI before enabling the service. The feature is deprecated in
+0.153.4, so recheck availability when upgrading Codex. See the official
+[Linux permission implementation](https://learn.chatgpt.com/docs/permissions#how-enforcement-works).
+
 ## Operate and recover
 
 ```bash
