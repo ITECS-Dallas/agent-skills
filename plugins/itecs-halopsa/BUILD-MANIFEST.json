@@ -1,10 +1,10 @@
 {
   "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
-  "source_revision": "e4662377caf161d0155b279c392f3821f1e73d69",
+  "source_revision": "aa65719eef5c9fd641fe926e7916244ff1c9810f",
   "source_dirty": false,
   "go_toolchain": "go version go1.27.1 darwin/arm64",
   "plugin": "itecs-halopsa",
-  "version": "0.11.0+codex.20260913013359",
+  "version": "0.11.0+codex.20260913094804",
   "build_flags": [
     "-trimpath",
     "-ldflags=-s -w -buildid="
@@ -13,31 +13,31 @@
     {
       "path": "bin/halopsa-mcp-darwin-amd64",
       "target": "darwin-amd64",
-      "sha256": "86e9f3b5ea16237f6ab2594eb04949b3ca938afbad7d80f25f73272b2716cb67",
-      "bytes": 9623120,
+      "sha256": "5e96a402fa5d194f2dcee916b72f9fe8b55ef0640d4a676b9cc7d00bd9dbf753",
+      "bytes": 9627328,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-darwin-arm64",
       "target": "darwin-arm64",
-      "sha256": "a0529fa963a18b392a9b381cc98468d01a3944e8f1433d8e41ae5e1f110f20b5",
-      "bytes": 8901202,
+      "sha256": "1de64d1d74bf7440b06e25408a65287089ea245f0774cb865a311c65c0baa1dd",
+      "bytes": 8901314,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-linux-amd64",
       "target": "linux-amd64",
-      "sha256": "cb01734b9092e703b781455afba65b1ef77036f61acc0855b73d5a58b1077151",
-      "bytes": 9400444,
+      "sha256": "e55732ae1a3493aec9aeed7b5ae076cc5bc31cf8f279dad9489eb5a488d6bd81",
+      "bytes": 9404540,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-linux-arm64",
       "target": "linux-arm64",
-      "sha256": "8c2bfb92f11164f420e757d8bd0653083f299f1409dc0901dedb217e3ba9a3c6",
+      "sha256": "0c6ee6873cd601e812cfaf29689f2c61a6ff8afd4c9be2d8975bf31288c6bcad",
       "bytes": 8716412,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
@@ -45,16 +45,16 @@
     {
       "path": "bin/halopsa-mcp-windows-amd64.exe",
       "target": "windows-amd64",
-      "sha256": "2a1a6ea9963a80472013300f459ab614e4d7b7b5d7f0de316719e5ac16257421",
-      "bytes": 9657856,
+      "sha256": "04f692465eb71ae8f81a8461d19f0a12a85806889c89ccb48e66d5eebe9bac70",
+      "bytes": 9665024,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-windows-arm64.exe",
       "target": "windows-arm64",
-      "sha256": "ca4791340aba559a3b4643cae52954e38c25500b80138df82bbab05c26bd8abe",
-      "bytes": 8808448,
+      "sha256": "32b2fcd808ddfca420e2c25cd87a5c54ad1a7b1bb6859540a87b2e3ec07688e4",
+      "bytes": 8814592,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     }
@@ -98,7 +98,7 @@
   "runtime_files": [
     {
       "path": "runtime/itecs-relay/README.md",
-      "sha256": "addc1cdd9e816c00530672d40dafe889f6c0d8963ad8d94991a38a7cf1c63620"
+      "sha256": "31248e38d5580951571f78abefcf63ff8ca6a6e62aaded922f9b623b40a67923"
     },
     {
       "path": "runtime/itecs-relay/config.example.json",
@@ -118,19 +118,19 @@
     },
     {
       "path": "runtime/itecs-relay/relay/decision.py",
-      "sha256": "108ad9d3fa86c2d9d4fea90b52fba0e31b79f535d8003f99b2a17649cea1f52d"
+      "sha256": "2451aa610328e4689dba3fb50908c8e79027d4cf1c18dc7d4a38b675f3cc01b2"
     },
     {
       "path": "runtime/itecs-relay/relay/mcp.py",
-      "sha256": "28d69f00b562a07cc8d2db2fddae205f9e182954adf43a45f8fd83fc528511cf"
+      "sha256": "c99c2714c40541f9ebc9b785314ec7d706ac327540d711d2134aad066c4ce9bd"
     },
     {
       "path": "runtime/itecs-relay/relay/store.py",
-      "sha256": "e8ca570e7f35b877d2de6ddd7b5e079b87f024735f6bece85414955956778707"
+      "sha256": "71665d98464237aa1f86991d927d58060ee3f2748d7af049404f9c60da886e91"
     },
     {
       "path": "runtime/itecs-relay/relay/worker.py",
-      "sha256": "677dbc57ad6e0e306d2bf2a0700ec7017b76e4e69b2fd72a561ecc575ac10213"
+      "sha256": "8852266efd63d0984a13da60bf11f04d24f32c6e7a7352b7418e7deb095e41cc"
     }
   ]
 }

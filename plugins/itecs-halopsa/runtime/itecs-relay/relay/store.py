@@ -60,9 +60,18 @@ class Store:
 
     def begin_operation(self, op_id, ticket_id, kind, arguments, before_ids):
         with self.db:
-            self.db.execute("INSERT INTO operations VALUES (?,?,?,?,?,'dispatching',NULL,?)",
+            self.db.execute("""INSERT INTO operations VALUES (?,?,?,?,?,'dispatching',NULL,?)
+                ON CONFLICT(id) DO UPDATE SET arguments=excluded.arguments,
+                  before_ids=excluded.before_ids, state='dispatching', receipt=NULL,
+                  created=excluded.created WHERE operations.state='not_attempted'""",
                             (op_id, ticket_id, kind, json.dumps(arguments),
                              json.dumps(before_ids), time.time()))
+
+    def reject_operation(self, op_id, ticket_id):
+        with self.db:
+            self.db.execute("UPDATE operations SET state='not_attempted' WHERE id=?", (op_id,))
+            # Rejection and removal of the stale plan survive the same crash.
+            self.db.execute("UPDATE tickets SET plan=NULL WHERE id=?", (ticket_id,))
 
     def operation(self, op_id):
         row = self.db.execute("SELECT * FROM operations WHERE id=?", (op_id,)).fetchone()

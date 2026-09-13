@@ -71,12 +71,27 @@ be established enters `uncertain`; the service does not repeat that email. An
 operator can inspect Halo and use `resume` to recheck the same operation. Resume
 retains its journal and cannot erase an uncertain send or force a duplicate.
 
+A structured `ticket_changed` rejection with `write_attempted: false` proves the
+connector rejected an email or ticket status update before POST. The worker records
+`not_attempted`, atomically discards that stale plan, and replans from fresh Halo
+evidence. Only that proven rejection can be prepared again; transport failures and
+post-write errors still require readback. Static invalid configuration is not a
+ticket-change signal.
+
 Before closure, the decision must identify the latest fresh, attributable client
 message and quote its confirmation. The worker sends the resolution acknowledgment,
 then records actual work and its documentation or general knowledge basis
 in a private note, rereads ticket/actions, resolves the configured closed status
 against current allowed statuses, closes, and reads back. A contradictory reply or
 technician action arriving before closure invalidates the pending plan.
+
+Acknowledgment delivery does not consume unfinished closure work. A pending
+resolution retains the confirming client action and original operation journal.
+After a concurrent system update or restart, Codex reviews the confirmation with
+the current history; verified acknowledgment and note receipts are reused. A
+contradictory reply or technician takeover still stops closure. Tickets already
+closed remain outside automatic resumption; later replies need normal technician
+handling.
 
 `email_subject_template` preserves the tenant's ticket reference format for inbound
 reply matching. The ITECS example uses `[ITECS-0093055]` for ticket 93055. The subject

@@ -11,6 +11,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 from .decision import schema
+from .mcp import TicketChangedBeforeWrite
 
 
 class Changed(RuntimeError):
@@ -231,6 +232,9 @@ class Worker:
     def context(self, ticket, actions, row):
         prior = json.loads(row["context"])
         processed = set(prior.get("processed_client_ids", []))
+        # A delivered acknowledgment does not consume unfinished resolution work.
+        if prior.get("pending_resolution"):
+            processed.discard(prior["pending_resolution"]["confirmation_action_id"])
         incoming = [a for a in actions if a["source"] == "client" and a["id"] not in processed]
         return {"state": row["state"], "previous": prior, "ticket": ticket,
                 "actions": actions, "new_client_actions": incoming}
@@ -258,7 +262,7 @@ class Worker:
 
     def fresh(self, ticket_id, baseline_ticket, baseline_actions, allowed_ids):
         ticket, actions = snapshot(self.halo, ticket_id, self.cfg["agent_id"])
-        baseline = {a["id"]: a for a in baseline_actions}
+        baseline = {a["id"]: a for a in baseline_actions if a["id"] not in allowed_ids}
         now = {a["id"]: a for a in actions if a["id"] not in allowed_ids}
         current_fields = {k: v for k, v in ticket.items() if k != "last_update"}
         original_fields = {k: v for k, v in baseline_ticket.items() if k != "last_update"}
@@ -288,7 +292,7 @@ class Worker:
 
     def dispatch(self, op_id, ticket_id, kind, name, arguments, before_ids):
         existing = self.store.operation(op_id)
-        if existing:
+        if existing and existing["state"] != "not_attempted":
             if existing["state"] == "verified":
                 return json.loads(existing["receipt"])
             receipt = self.reconcile_operation(existing)
@@ -297,10 +301,16 @@ class Worker:
                 return receipt
             raise Uncertain("unverified " + kind + " operation; no duplicate send attempted")
         # Preview is read-only, and is completed before the durable dispatch record.
-        self.halo.call(name, **arguments, confirm=False)
+        try:
+            self.halo.call(name, **arguments, confirm=False)
+        except TicketChangedBeforeWrite:
+            raise Changed("ticket changed before preview") from None
         self.store.begin_operation(op_id, ticket_id, kind, arguments, before_ids)
         try:
             self.halo.call(name, **arguments, confirm=True)
+        except TicketChangedBeforeWrite:
+            self.store.reject_operation(op_id, ticket_id)
+            raise Changed("ticket changed before write") from None
         except Exception:
             # Accepted-but-disconnected calls must be read back, never repeated.
             pass
@@ -316,10 +326,14 @@ class Worker:
         decision = plan["decision"]
         allowed = set()
         prefix = f"{ticket_id}:{digest}"
+        pending = json.loads(self.store.ticket(ticket_id)["context"]).get("pending_resolution")
+        if decision == "resolve" and pending and pending["confirmation_action_id"] == plan["confirmation_action_id"]:
+            # Reuse the original journal, including receipts created before restart.
+            prefix = pending["operation_prefix"]
         # A recovered plan may already have verified writes before its crash.
         for kind in ("email", "note"):
             op = self.store.operation(prefix + ":" + kind)
-            if op:
+            if op and op["state"] != "not_attempted":
                 receipt = json.loads(op["receipt"]) if op["state"] == "verified" else self.reconcile_operation(op)
                 if receipt:
                     self.store.receipt(op["id"], receipt)
@@ -331,10 +345,12 @@ class Worker:
                         reply_state = {"offer": "offered", "decline": "handed_off",
                                        "handoff": "handed_off"}.get(decision, "troubleshooting")
                         self.progress(ticket_id, bundle, reply_state)
+                    elif decision == "resolve":
+                        self.progress(ticket_id, bundle, "troubleshooting")
                 else:
                     raise Uncertain("previous " + kind + " operation needs readback")
         status_op = self.store.operation(prefix + ":status")
-        if status_op:
+        if status_op and status_op["state"] != "not_attempted":
             receipt = self.reconcile_operation(status_op)
             if receipt:
                 self.store.receipt(status_op["id"], receipt)
@@ -342,7 +358,8 @@ class Worker:
                 return
             raise Uncertain("previous closure needs readback")
         ticket, current_actions = self.fresh(ticket_id, baseline, actions, allowed)
-        if plan.get("reply"):
+        email_op = self.store.operation(prefix + ":email")
+        if plan.get("reply") and not (email_op and email_op["state"] == "verified"):
             email = parseaddr(str(ticket.get("user_email", "")))[1]
             if not email:
                 raise ValueError("ticket contact has no email address")
@@ -377,6 +394,8 @@ class Worker:
                                     {"ticket_id": ticket_id, "note": note},
                                     [a["id"] for a in current_actions])
             allowed.add(receipt["action_id"])
+            if decision == "resolve":
+                self.progress(ticket_id, bundle, "troubleshooting")
         if decision == "resolve":
             ticket, current_actions = self.fresh(ticket_id, baseline, actions, allowed)
             statuses = self.halo.statuses(ticket_id)
@@ -398,11 +417,18 @@ class Worker:
 
     def progress(self, ticket_id, bundle, state):
         previous = json.loads(self.store.ticket(ticket_id)["context"])
+        pending_resolution = None
+        if bundle["plan"]["decision"] == "resolve" and state != "resolved":
+            pending_resolution = previous.get("pending_resolution")
+            if not pending_resolution or pending_resolution["confirmation_action_id"] != bundle["plan"]["confirmation_action_id"]:
+                pending_resolution = {"confirmation_action_id": bundle["plan"]["confirmation_action_id"],
+                                      "operation_prefix": f"{ticket_id}:{bundle['digest']}"}
         self.store.save(ticket_id, state=state, context=json.dumps({
                             "manually_enrolled": previous.get("manually_enrolled", False),
                             "known_agent_action_ids": previous.get("known_agent_action_ids", []),
                             "owner": bundle["ticket"].get("agent_id"),
                             "summary": bundle["plan"].get("context", ""),
+                            "pending_resolution": pending_resolution,
                             "processed_client_ids": [a["id"] for a in bundle["actions"] if a["source"] == "client"],
                             "sources": bundle["plan"].get("sources", previous.get("sources", []))}))
 

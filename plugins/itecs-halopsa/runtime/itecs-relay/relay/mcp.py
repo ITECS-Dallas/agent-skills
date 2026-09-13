@@ -10,6 +10,10 @@ class ConnectorError(RuntimeError):
     pass
 
 
+class TicketChangedBeforeWrite(ConnectorError):
+    """The connector proved this request never reached a write."""
+
+
 class MCP:
     def __init__(self, command, timeout=120):
         self.timeout = timeout
@@ -56,6 +60,11 @@ class MCP:
     def call(self, name, **arguments):
         result = self.request("tools/call", {"name": name, "arguments": arguments})
         if result.get("isError"):
+            structured = result.get("structuredContent")
+            detail = structured.get("error") if isinstance(structured, dict) else None
+            if (isinstance(detail, dict) and detail.get("code") == "ticket_changed"
+                    and detail.get("write_attempted") is False):
+                raise TicketChangedBeforeWrite("ticket changed before write")
             # Vendor errors can contain client details or credential-provider stderr.
             raise ConnectorError("Halo tool failed: " + name)
         if not isinstance(result.get("structuredContent"), dict):
