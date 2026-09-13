@@ -321,7 +321,8 @@ class Worker:
             body = "<p>" + html.escape(plan["reply"]).replace("\n", "<br>") + "</p>"
             args = {"ticket_id": ticket_id, "outcome_id": self.cfg["email_outcome_id"],
                     "expected_last_update": ticket["last_update"], "to": email,
-                    "subject": f"Re: [ID:{ticket_id}] {ticket.get('summary', '')}", "body": body}
+                    "subject": self.cfg["email_subject_template"].format(
+                        ticket_id=ticket_id, summary=ticket.get("summary", "")), "body": body}
             receipt = self.dispatch(prefix + ":email", ticket_id, "email", "ticket_actions.send_email",
                                     args, [a["id"] for a in current_actions])
             allowed.add(receipt["action_id"])

@@ -33,6 +33,7 @@ def load_config(path):
         raise ValueError("server_id and connector_command are required")
     if not cfg["connector_command"] or not all(isinstance(v, str) for v in cfg["connector_command"]):
         raise ValueError("connector_command must be a nonempty argv list")
+    cfg["email_subject_template"].format(ticket_id=1, summary="Readiness check")
     return cfg
 
 

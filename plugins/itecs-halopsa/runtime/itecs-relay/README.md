@@ -46,6 +46,10 @@ in a private note, rereads ticket/actions, resolves the configured closed status
 against current allowed statuses, closes, and reads back. A contradictory reply or
 technician action arriving before closure invalidates the pending plan.
 
+`email_subject_template` preserves the tenant's ticket reference format for inbound
+reply matching. The ITECS example uses `[ITECS-0093055]` for ticket 93055. The subject
+uses the existing ticket summary; the model cannot choose another ticket reference.
+
 Halo has no transactional API spanning an incoming client reply and a status
 change. The worker narrows that race with immediate action readback and the
 connector's current-status check; it cannot provide atomic exactly-once delivery
