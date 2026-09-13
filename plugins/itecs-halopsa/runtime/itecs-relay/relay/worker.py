@@ -219,10 +219,10 @@ class Worker:
             self.store.set_setting("activated_at", now)
             self.store.set_setting("cursor", now)
             return 0
-        overlap = (timestamp(start) - timedelta(seconds=120)).isoformat()
+        activated = timestamp(self.store.setting("activated_at"))
+        overlap = max(timestamp(start) - timedelta(seconds=120), activated).isoformat()
         tickets = self.halo.collection("tickets.list", datesearch="dateoccured",
                                        startdate=overlap, enddate=now, include_closed=True)
-        activated = timestamp(self.store.setting("activated_at"))
         for ticket in tickets:
             created = ticket.get("dateoccurred") or ticket.get("dateoccured")
             if not created:

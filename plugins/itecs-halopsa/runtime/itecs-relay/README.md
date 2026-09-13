@@ -18,6 +18,8 @@ second Halo API client, public webhook endpoint, or separate knowledge database.
   Conversation actions are read completely and deduplicated by ID. Two independent
   decision workers prevent one slow conversation from stopping discovery.
 - Activation starts with new intake, rather than emailing an existing backlog.
+  The persisted activation timestamp is also the earliest query boundary: the
+  recovery overlap cannot query or enroll tickets created before activation.
   The model checks that the ticket is a client email support request and that the
   reported issue is clearly simple with a known standard-user approach before
   offering help. Unclear or administrative issues, projects, internal tasks,

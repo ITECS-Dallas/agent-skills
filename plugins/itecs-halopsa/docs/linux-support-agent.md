@@ -61,6 +61,12 @@ A failed diagnostic can lead to another appropriate simple user-level step while
 
 The package includes the resident worker at `runtime/itecs-relay`. Follow its [setup and operations guide](../runtime/itecs-relay/README.md) to configure the existing connector identity, actual documentation path, email outcome and closure status, verify access, inspect a ticket without writes, and install the user systemd service. The service polls new ticket intake every 15 seconds, runs subscription-authenticated Codex decisions, and persists conversation progress and independently verified Halo write receipts in SQLite outside the synchronized library.
 
+General intake starts at a persisted activation timestamp. Queries and enrollment
+remain at or after that boundary, including after restart; existing tickets are
+left with their technicians. The resident model reads only the mapped client's
+directory and Global KB. The independent health timer reports service, discovery
+and delivery-recovery failures through the configured operational notification route.
+
 The deployed service's authorization covers its defined client conversations. Codex reads the workflow skill and client documents and returns a structured decision; the worker executes typed Halo tools. A client can decline, continue through a failed step, or confirm resolution. The worker records the work and current confirmation before closing and reading back the ticket. Unanswered or ambiguous replies keep it open. Installing the unit does not start it; the operations guide includes the activation command.
 
 For a noninteractive read-only briefing from the synchronized workspace, `codex exec` can run outside a Git repository:
