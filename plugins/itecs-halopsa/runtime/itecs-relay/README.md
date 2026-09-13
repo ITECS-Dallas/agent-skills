@@ -21,10 +21,13 @@ second Halo API client, public webhook endpoint, or separate knowledge database.
   The persisted activation timestamp is also the earliest query boundary: the
   recovery overlap cannot query or enroll tickets created before activation.
   The model checks that the ticket is a client email support request and that the
-  reported issue is clearly simple with a known standard-user approach before
-  offering help. Unclear or administrative issues, projects, internal tasks,
-  complex requests and monitoring alerts continue through normal handling.
-- A client can accept, decline, ask a question, report failure or confirm a fix.
+  problem or desired how-to task is clearly simple with a known standard-user
+  approach before offering help. A how-to request does not need a malfunction to
+  qualify. Unclear or administrative issues, projects, internal tasks, complex
+  requests and monitoring alerts continue through normal handling. The connector's
+  broader ticket/project capabilities do not expand the worker's mandate.
+- A client can accept, decline, ask a question, report failure or confirm a fix or
+  task completion.
   Failed intermediate steps can lead to another suitable user-level step. Silence
   does not generate a follow-up or close the ticket. Technician work or a change
   of owner ends Relay's participation.
@@ -39,6 +42,31 @@ admin access or an ATLAS procedure does not establish authorization. If a prompt
 requires elevation or privileged work becomes necessary, stop those steps and
 hand off.
 
+Suitability also depends on impact. User-accessible settings do not make
+destructive data/profile resets or changes to security, sharing, sync, forwarding,
+mailbox rules or business processes appropriate for RELAY. Guide reversible actions
+limited to the requester's ordinary task. An ordinary app restart can qualify
+when saved work and the interruption are understood; forced termination and data
+resets are not routine follow-on steps.
+
+Routine how-to examples include editing the user's own signature, configuring
+their own out-of-office message/dates, and exporting/importing bookmarks between
+already available browsers. Centrally managed signatures, credentials/profile
+migration, cloud-sync changes and bypassing browser management remain technician
+work. These examples are illustrative, not an allowlist. Once the desired task is
+clearly suitable, missing application/version details can be clarified after the
+client accepts the optional invitation; do not reject a clear how-to request for
+missing break/fix symptoms. Wait for acceptance before providing steps.
+
+Basic sign-in input help can qualify, but password resets, self-service identity
+recovery, account unlocking and MFA recovery/re-enrollment stay with technicians.
+Never request passwords, MFA/one-time codes or recovery codes, or ask the client to
+approve an unexpected MFA prompt. If a client volunteers a secret, do not use or
+repeat it in replies, notes or retained context. Tell them not to send further
+secrets and leave credential remediation to a technician without giving
+rotation/reset instructions. Appropriate help on the original eligible task can
+continue.
+
 Search ATLAS for relevant client facts and procedures. A matching article is
 preferred, not mandatory: well-understood general technical knowledge may support
 clearly simple user-level guidance. Do not invent client configuration or sources.
@@ -46,18 +74,36 @@ Record the general knowledge basis privately when no applicable article was used
 `sources: []` is valid. Listed source files must exist within the current ticket's readable client or
 Global KB scope. Familiar keywords or unclear symptoms do not justify an offer.
 
-Quick automated troubleshooting is complimentary for every client, including
-unlimited-support, retainer and hourly clients. RELAY does not decide charges,
+Quick automated troubleshooting and how-to help are complimentary for every client,
+including unlimited-support, retainer and hourly clients. RELAY does not decide charges,
 deduct retainer hours, create billable time or promise free technician assistance.
 Technician work follows the existing service agreement.
 
 Continue relevant clarification, related symptoms and applicable next steps on the
-original issue, without an arbitrary message limit. A separate issue requires the
+original issue or task, without an arbitrary message limit. Questions about RELAY's
+automated identity, optional participation, complimentary help or technician
+availability belong to this conversation and do not require another ticket; a
+service question alone is not acceptance. A separate issue requires the
 client to submit a new ticket through the client portal or a new support email;
 RELAY does not create, split or link it for them. Ask one short question when
 relatedness is unclear. If the original is confirmed resolved and a separate issue
 is mentioned, acknowledge the fix, direct the client to submit that new ticket,
-then record and close the original. Unresolved original issues remain open.
+then record and close the original. The same applies to a client-confirmed how-to
+completion followed by a separate request. Unresolved original issues remain open.
+
+Unsuitable new intake gets no troubleshooting offer. Silence in an active
+conversation means waiting without chasing. A separate issue gets a new-ticket
+direction while suitable help continues on the original. A decline or request for
+a technician gets an acknowledgment before RELAY stops. Handoff leaves the ticket
+for normal technician handling and records useful context; it does not itself page
+someone, reassign the ticket or change priority. Do not claim those actions or
+promise a response time/SLA without actual operation evidence. The decision snapshot
+does not currently supply Halo priority.
+
+Tickets marked `ignored`, `handed_off` or `resolved` leave ordinary automatic
+polling. Later clarification, a changed mind after declining, or a reopened ticket
+goes to normal technician handling; these events do not automatically resume RELAY.
+Waiting on a reply in an active conversation is different and remains resumable.
 
 ## Decision and delivery
 
@@ -81,14 +127,20 @@ post-write errors still require readback. Static invalid configuration is not a
 ticket-change signal.
 
 Before closure, the decision must identify a fresh, attributable human client
-message and quote its confirmation. Review all later messages: a separate thanks
-or automated acknowledgment preserves that confirmation, while renewed symptoms,
+message and quote its confirmation that the original issue is resolved or the
+intended how-to task is complete. A correct new signature or successful bookmark
+import can establish completion. For scheduled out-of-office replies, confirmation
+that the intended message and dates are configured is sufficient; do not wait for
+the future start date or an actual automatic reply. Review all later messages: a
+separate thanks or automated acknowledgment preserves that confirmation, while renewed symptoms,
 uncertainty, partial success or a request to keep investigating invalidate it.
 Automatic replies, receipts and delivery failures are not consent or confirmation;
-RELAY does not answer them. A genuine human message alongside an automatic reply
-is processed normally. The worker sends the resolution acknowledgment,
+RELAY does not answer them. A human request to configure out-of-office replies is
+support, not an automated message. A genuine human message alongside an automatic
+reply is processed normally. The worker sends the resolution acknowledgment,
 then records actual work and its documentation or general knowledge basis
-in a private note, rereads ticket/actions, resolves the configured closed status
+in a private note without inventing a malfunction or repair for a how-to request,
+rereads ticket/actions, resolves the configured closed status
 against current allowed statuses, closes, and reads back. A contradictory reply or
 technician action arriving before closure invalidates the pending plan.
 
