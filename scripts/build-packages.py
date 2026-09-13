@@ -14,6 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 TARGETS = ('darwin-arm64', 'darwin-amd64', 'windows-arm64', 'windows-amd64')
 
 
+def connector_targets(entry):
+    return TARGETS + tuple(entry.get('additional_targets', ()))
+
+
 def run(args, cwd):
     return subprocess.check_output(args, cwd=cwd, text=True).strip()
 
@@ -26,6 +30,22 @@ def tool_names(source):
     text = source.read_text()
     return sorted(set(re.findall(r'(?:readOnlyTool|writeTool)\("([\w.]+)"', text)
                       + re.findall(r'Name:\s*"([\w.]+)"', text)))
+
+
+def copy_relay_runtime(source, root):
+    worker_source = source / 'workflows/itecs-relay'
+    worker_dest = root / 'runtime/itecs-relay'
+    if worker_dest.exists():
+        shutil.rmtree(worker_dest)
+    worker_dest.mkdir(parents=True)
+    for name in ['relay', 'README.md', 'config.example.json', 'install-user-service.sh']:
+        src, dest = worker_source / name, worker_dest / name
+        if src.is_dir():
+            shutil.copytree(src, dest, ignore=shutil.ignore_patterns('__pycache__'))
+        else:
+            shutil.copy2(src, dest)
+    return [{'path':str(path.relative_to(root)), 'sha256':digest(path)}
+            for path in sorted(worker_dest.rglob('*')) if path.is_file()]
 
 
 def build(source, module, command, destination, target):
@@ -41,13 +61,59 @@ def build(source, module, command, destination, target):
             'module': module, 'command': command}
 
 
+def build_connector(source, entry, jobs):
+    """Rebuild one connector package without changing billing or other plugins."""
+    module = 'connectors/' + entry['connector']
+    subprocess.run(['go', 'test', './...'], cwd=source / module, check=True)
+    subprocess.run(['go', 'vet', './...'], cwd=source / module, check=True)
+    root = ROOT / 'plugins' / entry['plugin']
+    metadata = json.loads((root / '.codex-plugin/plugin.json').read_text())
+    revision = run(['git', 'rev-parse', 'HEAD'], source)
+    names = tool_names(source / module / 'internal/tools/tools.go')
+    records = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
+        futures = []
+        for target in connector_targets(entry):
+            suffix = '.exe' if target.startswith('windows') else ''
+            dest = root / 'bin' / (entry['binary'] + '-' + target + suffix)
+            futures.append(pool.submit(build, source, module, './cmd/mcp', dest, target))
+        for future in concurrent.futures.as_completed(futures):
+            record = future.result()
+            record['path'] = str(Path(record['path']).relative_to(root))
+            records.append(record)
+            print('Built ' + record['path'], flush=True)
+    for name in ['runtime.sh', 'doctor.py']:
+        shutil.copy2(ROOT / 'scripts/templates' / name, root / 'scripts' / name)
+    manifest = {'source_repository':'https://github.com/ITECS-Dallas/GO-MCP',
+                'source_revision':revision, 'source_dirty':bool(run(['git','status','--porcelain'],source)),
+                'go_toolchain':run(['go','version'],source), 'plugin':entry['plugin'], 'version':metadata['version'],
+                'build_flags':['-trimpath','-ldflags=-s -w -buildid='],
+                'binaries':sorted(records,key=lambda x:x['path']), 'tools':names}
+    if entry['plugin'] == 'itecs-halopsa':
+        manifest['runtime_files'] = copy_relay_runtime(source, root)
+    (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
+    path = ROOT / 'TOOL-CATALOG.json'
+    catalog = json.loads(path.read_text())
+    catalog['plugins'][entry['plugin']] = names
+    catalog.pop('source_revision',None)
+    catalog['source_revisions'] = {name:json.loads((ROOT/'plugins'/name/'BUILD-MANIFEST.json').read_text())['source_revision'] for name in catalog['plugins']}
+    path.write_text(json.dumps(catalog,indent=2)+'\n')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path, default=ROOT.parent / 'GO-MCP')
     parser.add_argument('--jobs', type=int, default=2)
+    parser.add_argument('--plugin', help='Build one connector plugin and preserve other packages')
     args = parser.parse_args()
     source = args.source.resolve()
     entries = json.loads((ROOT / 'scripts/connectors.json').read_text())
+    if args.plugin:
+        entry = next((e for e in entries if e['plugin'] == args.plugin), None)
+        if entry is None:
+            parser.error('unknown connector plugin: ' + args.plugin)
+        build_connector(source, entry, args.jobs)
+        return
     revision = run(['git', 'rev-parse', 'HEAD'], source)
     dirty = bool(run(['git', 'status', '--porcelain'], source))
     toolchain = run(['go', 'version'], source)
@@ -73,10 +139,12 @@ def main():
     for entry in entries:
         module = 'connectors/' + entry['connector']
         catalogs[entry['plugin']] = tool_names(source / module / 'internal/tools/tools.go')
-        for target in TARGETS:
+        for target in connector_targets(entry):
             suffix = '.exe' if target.startswith('windows') else ''
             jobs.append((entry['plugin'], module, './cmd/mcp',
                          ROOT / 'plugins' / entry['plugin'] / 'bin' / (entry['binary'] + '-' + target + suffix), target))
+        for target in TARGETS:
+            suffix = '.exe' if target.startswith('windows') else ''
             jobs.append(('itecs-billing-audit', module, './cmd/billing-report',
                          audit / 'bin' / target / (entry['connector'] + '-billing-report' + suffix), target))
     for target in TARGETS:
@@ -108,6 +176,8 @@ def main():
             manifest['resources'] = [dict(row, sha256=digest(root / row['path'])) for row in resources]
         else:
             manifest['tools'] = catalogs[plugin]
+        if plugin == 'itecs-halopsa':
+            manifest['runtime_files'] = copy_relay_runtime(source, root)
         (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest, indent=2) + '\n')
     (ROOT / 'TOOL-CATALOG.json').write_text(json.dumps({'source_revision': revision, 'plugins': catalogs}, indent=2) + '\n')
     print('Built %d binaries from %s' % (len(jobs), revision), flush=True)

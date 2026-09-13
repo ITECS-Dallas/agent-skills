@@ -14,12 +14,12 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 - `.agents/plugins/marketplace.json` - Codex marketplace definition named `itecs-agent-skills`.
 - `plugins/portable-development-workflow/` - Codex plugin for reusable workflow skills and GO-MCP operating guidance.
 - `plugins/portable-development-workflow/skills/` - skill source folders installed into local agent runtimes.
-- `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools, guarded ticket/project writes, and per-technician macOS/Windows 1Password setup.
+- `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools, ticket/project writes, per-technician macOS/Windows/Linux 1Password setup, and optional client troubleshooting with confirmed-resolution closure.
 - `plugins/itecs-vcenter/` - Codex plugin that bundles the read-only vCenter MCP runtime and its vCenter skill.
 - `plugins/itecs-pax8/` - Codex plugin that bundles the read-only Pax8 MCP runtime and its Pax8 skill.
 - `plugins/itecs-veeam-cloud-connect/`, `plugins/itecs-sophos-central/`, `plugins/itecs-checkpoint-harmony/`, `plugins/itecs-commvault/` - additional installed source connectors for operations and usage evidence.
 - `plugins/itecs-billing-audit/` - self-contained source report and staged reconciliation commands, with no Go/source-checkout requirement.
-- `TOOL-CATALOG.json` - source-revision-bound catalog of all 66 packaged MCP tools.
+- `TOOL-CATALOG.json` - source-revision-bound catalog of the packaged MCP tools.
 - `scripts/build-packages.py` - tests source modules and builds all platform packages with source and checksum records.
 - `scripts/install.sh` - copies or symlinks portable skills into `$CODEX_HOME/skills` and `$AGENTS_HOME/skills`.
 - `scripts/validate.mjs` - validates skill frontmatter, marketplace entries, plugin metadata, required files, and portability.
@@ -30,7 +30,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | Install ID | Display Name | Purpose |
 | --- | --- | --- |
 | `portable-development-workflow@itecs-agent-skills` | ITECS Agent Skills | Reusable workflow and connector-operation skills for coding agents. |
-| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled HaloPSA MCP server exposing reads plus approval-gated private/public notes, time entries, and typed ticket/project writes. |
+| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled HaloPSA MCP server and technician workflows on macOS, Windows and Linux, including optional client troubleshooting. |
 | `itecs-vcenter@itecs-agent-skills` | ITECS vCenter | Bundled read-only vCenter MCP server for VM inventory, tags, hosting allocation, and billing evidence. |
 | `itecs-pax8@itecs-agent-skills` | ITECS Pax8 | Bundled read-only Pax8 MCP server for companies, subscriptions, products, invoices, and billing evidence. |
 | `itecs-veeam-cloud-connect@itecs-agent-skills` | ITECS Veeam Cloud Connect | Storage, agents, protected computers, restore points and license evidence. |
@@ -360,6 +360,8 @@ codex plugin marketplace remove itecs-agent-skills
 
 The `itecs-halopsa`, `itecs-vcenter`, and `itecs-pax8` plugins package MCP launchers, bundled macOS and Windows binaries, and connector-specific skill instructions. Live credentials and runtime configuration stay outside this repo.
 
+HaloPSA additionally bundles `linux-amd64` and `linux-arm64` binaries and a Linux setup script. See [Linux support-agent setup](plugins/itecs-halopsa/docs/linux-support-agent.md) for ChatGPT subscription authentication, local marketplace installation and the canonical synchronized `/home/itecs/US1` workspace. Linux packaging does not imply Linux support in the other connector packages.
+
 Current bundled binaries target:
 
 - `darwin-arm64`
@@ -439,7 +441,7 @@ codex plugin add itecs-commvault@itecs-agent-skills
 codex plugin add itecs-billing-audit@itecs-agent-skills
 ```
 
-HaloPSA also includes `service-desk-handoff` and `service-desk-work-log` skills. Ask for a ticket briefing or describe the completed work in ordinary language. Billing Audit includes the current `billing-reconciliation` skill and packaged report commands. See each plugin's README for config and usage. Existing credentials and operator mapping files remain outside the packages.
+HaloPSA also includes `service-desk-handoff`, `service-desk-work-log` and `service-desk-client-troubleshooting` skills. Ask for a ticket briefing, describe completed work, or choose an optional client troubleshooting conversation on an existing ticket. The conversation offers the client a choice, uses relevant procedures and closes only after the client clearly confirms resolution. Billing Audit includes the current `billing-reconciliation` skill and packaged report commands. See each plugin's README for config and usage. Existing credentials and operator mapping files remain outside the packages.
 
 ## Maintainer package builds
 
@@ -451,6 +453,6 @@ node scripts/validate.mjs
 python3 scripts/test-packages.py
 ```
 
-The build runs tests and vet in each source module, cross-compiles macOS and Windows ARM64/x64 binaries with CGO disabled and stable build flags, and writes `BUILD-MANIFEST.json` per package plus `TOOL-CATALOG.json`. It records the source revision, dirty status, Go version, command, target, size and SHA-256. Repeating a build from the same source and Go toolchain produces the same binary bytes. Copied source runbooks and orchestration scripts have their own hashes. Source/config examples and runtime implementations remain owned by GO-MCP; operator wording and installation packaging live here.
+The build runs tests and vet in each source module, cross-compiles macOS and Windows ARM64/x64 binaries plus HaloPSA Linux ARM64/x64 binaries with CGO disabled and stable build flags, and writes `BUILD-MANIFEST.json` per package plus `TOOL-CATALOG.json`. It records the source revision, dirty status, Go version, command, target, size and SHA-256. Repeating a build from the same source and Go toolchain produces the same binary bytes. Copied source runbooks and orchestration scripts have their own hashes. Source/config examples and runtime implementations remain owned by GO-MCP; operator wording and installation packaging live here.
 
 Optional `scripts/doctor` in each runtime plugin reports version, platform, config-file presence and missing package files. `--discover` starts the connector and lists its MCP tools without running a vendor query. It may resolve the existing credential commands. This diagnostic is not required to run the plugin. Python 3 is needed only for this optional diagnostic; MCP and report execution use the bundled binaries and Bash.

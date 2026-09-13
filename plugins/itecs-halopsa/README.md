@@ -1,12 +1,16 @@
-# ITECS HaloPSA Plugin
+# ITECS HaloPSA for Atlas
 
-`itecs-halopsa` packages the ITECS HaloPSA MCP connector for Codex. Version 0.8.0 provides 32 typed tools: 19 reads and 13 approval-gated writes for tickets, configured action outcomes, notes, time entries, projects, and client contracts. Internal/private notes are the default. Public notes and email require explicit client-visible approval. No tool exposes arbitrary actions, attachments, deletion, or raw API passthrough.
+Version 0.11.0 packages the existing 34 typed tools (21 reads and 13 writes) for macOS, Windows and Linux, including tenant metadata and the authenticated technician. Routine internal requests use existing chat authorization. Client-visible and billing changes use a single ordinary confirmation. All writes use `confirm`; no exact approval phrases are required.
+
+See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution. Restart into a new Codex task after updating the plugin.
 
 ## Tool Surface
 
 The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 
 - `halopsa.servers.list`
+- `halopsa.metadata.list`
+- `halopsa.agents.me`
 - `halopsa.clients.list`
 - `halopsa.clients.get`
 - `halopsa.invoices.list`
@@ -39,13 +43,17 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.tickets.update`
 - `halopsa.tickets.update_status`
 
+Ticket action reads support conversation/public filters, date windows and optional email HTML. Keep `agent_only` false to include client replies, and preserve action IDs/authorship when continuing a conversation.
+
 Technicians can request a ticket or project in ordinary chat. The agent resolves supplied names to HaloPSA IDs and asks concise follow-up questions only when required values remain missing; technicians do not compose tool payloads. Ticket and project creation require at least one category ID plus positive HaloPSA impact and urgency values.
 
-Every write requires one exact preview and the connector-required confirmation. Exact phrases remain for client-visible public notes and email, ticket creation, and ticket/project status changes. Private notes, time entries, ticket/project field updates, project creation, contract create/update, and the exact tenant-configured `Start Work` outcome use one plain confirmation passed as `confirm: true`. Ticket/project field updates require an immediately read `last_update`; contract updates require `last_modified`; status tools revalidate current and allowed target statuses. Every mutation makes one POST attempt with no automatic retry; independently read back after every successful or ambiguous result.
+All write tools use `confirm`: omitted or false for preview, true for execution. An explicit technician request authorizes routine internal notes, specified time, assignment/field updates and Start Work. Review client-visible, creation/status and billing changes with one ordinary confirmation. Snapshot/status revalidation and independent readback remain part of execution; ambiguous writes are not automatically retried.
+
+When a technician authorizes the optional client troubleshooting conversation, that authorization covers its invitation, relevant replies, progress notes and closure after the client's clear resolution confirmation. Do not request repeated technician confirmation for those actions. Offer only for a clearly simple issue with a known standard-user approach. Never assume the POC has administrative access or company authorization. ATLAS is preferred but not mandatory for well-understood general technical guidance. A failed diagnostic can lead to another applicable simple user-level step. Decline, a request for a technician, exhausted suitable steps/capabilities, administrative work or an unresolved issue requiring escalation lead to a handoff; unresolved issues and no response leave the ticket open. This is an on-demand Codex workflow using the existing tools; it does not install a background agent or poller.
 
 `Start Work` resolves exactly one currently available tenant outcome named `Start Work` and posts that outcome through `/Actions`; it never substitutes a generic status update. Outcome metadata can disclose configured status, assignment, workflow, email, billing, and timer effects. Halo's continuously running browser timer is UI state, so the connector does not claim that it remains open. Explicit time logging is supported through `halopsa.ticket_actions.create_time_entry`.
 
-Ticket email uses one exact email-capable configured outcome and the returned phrase `APPROVE HALOPSA EMAIL <ticket-id>`. It does not write directly to Halo's outgoing-email queue.
+Ticket email uses one exact email-capable configured outcome and `confirm: true` for the authorized execution. It does not write directly to Halo's outgoing-email queue.
 
 ## Runtime Configuration
 
@@ -69,7 +77,7 @@ export HALOPSA_MCP_CONFIG=/absolute/path/to/config.json
 
 Each technician uses that technician's own Automation Vault item named `GO-MCP HaloPSA <Technician> Read Write`. The setup scripts validate all six expected fields, exact agent identity, approved URLs, least-privilege ticket scopes, and OAuth before writing a config. The generated file contains only command-backed references for `HALO_CLIENT_ID`, `HALO_CLIENT_SECRET`, and `HALO_SCOPE`; it never contains resolved credentials.
 
-Each technician must use that technician's own `GO-MCP HaloPSA <Technician> Read Write` identity so HaloPSA attribution remains individual. The credential must retain the required read permissions and `edit:tickets`. Do not perform a live write test without one exact designated test record, complete preview, and required approval phrase.
+Each technician must use that technician's own `GO-MCP HaloPSA <Technician> Read Write` identity so HaloPSA attribution remains individual. The credential must retain the required read permissions and `edit:tickets`. A live write test uses the technician's designated test record and authorized action with the existing preview and readback behavior.
 
 Do not commit `.env`, local config JSON, API tokens, client secrets, raw HaloPSA exports, or generated billing reports.
 
@@ -82,6 +90,16 @@ Use the managed prompt-free ITECS wrapper. Do not fall back to plain `op`:
 ```
 
 Use `--force` only when intentionally replacing that technician's existing local config.
+
+### Linux Setup
+
+Run from the installed plugin directory as the Linux account that runs Codex:
+
+```bash
+./scripts/configure-halopsa-mcp-linux.sh --technician "Exact Technician Name"
+```
+
+The script resolves the managed prompt-free `op-itecs` wrapper on `PATH`. Use `--op-command /absolute/path/to/op-itecs` when it is installed elsewhere. It shares the existing Automation Vault, identity, scope and OAuth validation with macOS, and writes command references to `~/.codex/halopsa-mcp/config.json`. See [the Linux guide](docs/linux-support-agent.md) for prerequisites, installation and Codex login.
 
 ### Windows 11 Setup
 
@@ -101,6 +119,8 @@ Bundled MCP binaries are included for:
 
 - macOS Apple Silicon: `darwin-arm64`
 - macOS Intel: `darwin-amd64`
+- Linux x64: `linux-amd64`
+- Linux ARM64: `linux-arm64`
 - Windows 11 x64: `windows-amd64.exe`
 - Windows 11 ARM64: `windows-arm64.exe`
 
