@@ -45,15 +45,17 @@ Start a new Codex session after plugin installation or refresh:
 codex -C /home/itecs/US1
 ```
 
-The US1 workspace supplies client documentation and local instructions. Search it for the relevant client and procedure; do not create a second documentation tree inside the plugin or substitute a workstation DOCBOT copy for the synchronized server path.
+The US1 workspace supplies client documentation and local instructions. Search it for the relevant client and any applicable procedure; do not create a second documentation tree inside the plugin or substitute a workstation DOCBOT copy for the synchronized server path.
 
 A technician can request ordinary HaloPSA lookups, notes, time logging, assignment or Start Work using the existing runtime skill. Client troubleshooting is optional. Example technician request, with the actual ticket number substituted:
 
-> Offer the client on ticket TICKET_ID a choice of guided troubleshooting or a technician. If they opt in, use the relevant client procedure and continue on this ticket. Close it only after they clearly confirm the current issue is resolved; otherwise leave it open and hand it back with the work summary.
+> If ticket TICKET_ID describes a clearly simple issue with a known standard-user approach, offer the client a choice of guided troubleshooting or a technician. If they opt in, use applicable ATLAS documentation or well-understood general technical knowledge and continue on this ticket. Close it only after they clearly confirm the current issue is resolved; otherwise leave it open and hand it back with the work summary.
 
 Use [service-desk-client-troubleshooting](../skills/service-desk-client-troubleshooting/SKILL.md) for that workflow. The technician's request authorizes the conversation and its confirmed-resolution closure once. The client chooses whether to troubleshoot. Subsequent replies reuse the authorization, inspect current ticket actions and use the existing email outcome. The agent records the fix and client confirmation, resolves a tenant-allowed closure status, and reads back the final ticket before reporting closure.
 
-A failed diagnostic can lead to the next applicable documented step while the client wants help and the agent can perform the work. Hand off when the client declines or requests a technician, the procedure or capabilities are exhausted, or the unresolved issue calls for escalation. Ambiguity or no reply keeps the ticket open; “Thanks” and quoted older messages do not establish current resolution. For an interactive conversation, resume the authorized Codex task to inspect new replies. If starting a separate task, include the technician's requested scope again.
+Treat the POC as a standard user; never infer administrative access or company authorization from their title, claimed access or an ATLAS procedure. Guide ordinary user actions only; administrative work and changes to company networks, security, policies or shared services belong with a technician. A matching ATLAS article is preferred, not mandatory for well-understood simple guidance. Record the general technical knowledge basis privately when no applicable article was used. Unclear new requests continue through normal technician handling without an offer.
+
+A failed diagnostic can lead to another appropriate simple user-level step while the client wants help. Hand off when the client declines or requests a technician, suitable steps or capabilities are exhausted, or the issue proves complex or requires administrative work. Stop if a permission prompt requires elevation; do not coach around it. Ambiguity or no reply keeps the ticket open; “Thanks” and quoted older messages do not establish current resolution. For an interactive conversation, resume the authorized Codex task to inspect new replies. If starting a separate task, include the technician's requested scope again.
 
 ## Resident ITECS RELAY service
 

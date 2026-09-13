@@ -18,15 +18,31 @@ second Halo API client, public webhook endpoint, or separate knowledge database.
   Conversation actions are read completely and deduplicated by ID. Two independent
   decision workers prevent one slow conversation from stopping discovery.
 - Activation starts with new intake, rather than emailing an existing backlog.
-  The model checks that the ticket is a client email support request and that a
-  short relevant procedure exists before offering help. Projects, internal tasks,
+  The model checks that the ticket is a client email support request and that the
+  reported issue is clearly simple with a known standard-user approach before
+  offering help. Unclear or administrative issues, projects, internal tasks,
   complex requests and monitoring alerts continue through normal handling.
 - A client can accept, decline, ask a question, report failure or confirm a fix.
-  Failed intermediate steps continue through the applicable procedure. Silence
+  Failed intermediate steps can lead to another suitable user-level step. Silence
   does not generate a follow-up or close the ticket. Technician work or a change
   of owner ends Relay's participation.
 
 ## Client service policy
+
+Treat the POC as a standard user, without assuming administrative access or company
+authorization. RELAY guides ordinary actions in the user's own session, app or
+device. Administrative work, changes to company networks/security/policies/shared
+services, and bypassing restrictions belong with a technician. A job title, claimed
+admin access or an ATLAS procedure does not establish authorization. If a prompt
+requires elevation or privileged work becomes necessary, stop those steps and
+hand off.
+
+Search ATLAS for relevant client facts and procedures. A matching article is
+preferred, not mandatory: well-understood general technical knowledge may support
+clearly simple user-level guidance. Do not invent client configuration or sources.
+Record the general knowledge basis privately when no applicable article was used;
+`sources: []` is valid. Listed source files must still exist within the configured
+documentation root. Familiar keywords or unclear symptoms do not justify an offer.
 
 Quick automated troubleshooting is complimentary for every client, including
 unlimited-support, retainer and hourly clients. RELAY does not decide charges,
@@ -57,7 +73,7 @@ retains its journal and cannot erase an uncertain send or force a duplicate.
 
 Before closure, the decision must identify the latest fresh, attributable client
 message and quote its confirmation. The worker sends the resolution acknowledgment,
-then records actual work and its sources
+then records actual work and its documentation or general knowledge basis
 in a private note, rereads ticket/actions, resolves the configured closed status
 against current allowed statuses, closes, and reads back. A contradictory reply or
 technician action arriving before closure invalidates the pending plan.

@@ -181,8 +181,6 @@ def validate_plan(plan, context, cfg):
         path = Path(source).resolve()
         if not path.is_relative_to(root) or not path.is_file():
             raise ValueError("documentation source does not exist within the documentation root")
-    if decision in ("offer", "instructions") and not plan["sources"]:
-        raise ValueError("documented procedure is required")
     if decision == "resolve":
         incoming = context["new_client_actions"]
         if not incoming or incoming[-1]["id"] != plan["confirmation_action_id"]:
@@ -371,7 +369,8 @@ class Worker:
         if decision == "resolve":
             note += f"\nClient confirmation: action {plan['confirmation_action_id']}: {plan['confirmation_quote']}"
         if note:
-            note += "\nDocumentation: " + ", ".join(plan.get("sources", []))
+            if plan["sources"]:
+                note += "\nDocumentation: " + ", ".join(plan["sources"])
             note += "\nITECS RELAY operation: " + prefix
             ticket, current_actions = self.fresh(ticket_id, baseline, actions, allowed)
             receipt = self.dispatch(prefix + ":note", ticket_id, "note", "ticket_actions.create_private_note",
