@@ -74,6 +74,40 @@ def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 
+def email_html(reply):
+    """Render plain reply paragraphs and numbered steps as email-safe HTML."""
+    blocks, paragraph, steps = [], [], []
+
+    def flush():
+        if paragraph:
+            blocks.append('<p style="margin:0 0 16px;">' +
+                          "<br>".join(html.escape(line) for line in paragraph) + "</p>")
+            paragraph.clear()
+        if steps:
+            blocks.append('<ol style="margin:0 0 16px;padding-left:24px;">' +
+                          "".join('<li style="margin:0 0 8px;">' + html.escape(step) +
+                                  "</li>" for step in steps) + "</ol>")
+            steps.clear()
+
+    for line in reply.strip().splitlines():
+        line = line.strip()
+        numbered = re.match(r"^\d+[.)]\s+(.+)$", line)
+        if numbered:
+            if paragraph:
+                flush()
+            steps.append(numbered[1])
+        elif not line:
+            # Blank lines between numbered steps do not restart numbering.
+            if paragraph:
+                flush()
+        else:
+            if steps:
+                flush()
+            paragraph.append(line)
+    flush()
+    return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;">' + "".join(blocks) + "</div>"
+
+
 def fingerprint(ticket, actions):
     return hashlib.sha256(canonical([ticket, actions]).encode()).hexdigest()
 
@@ -138,7 +172,7 @@ def validate_plan(plan, context, cfg):
         raise ValueError("conversation has not started")
     if decision in ("offer", "instructions", "clarify", "decline") and not plan["reply"].strip():
         raise ValueError("reply is required")
-    if decision in ("wait", "ignore", "resolve") and plan["reply"].strip():
+    if decision in ("wait", "ignore") and plan["reply"].strip():
         raise ValueError("this decision does not send an email")
     if decision != "offer" and plan["reply"] and not context["new_client_actions"]:
         raise ValueError("no new client message to answer")
@@ -318,11 +352,13 @@ class Worker:
                                      ticket_id=ticket_id)["result"]["item"]
             if outcome.get("newstatus", 0) not in (0, -1, ticket["status_id"]):
                 raise ValueError("email outcome changes ticket status")
-            body = "<p>" + html.escape(plan["reply"]).replace("\n", "<br>") + "</p>"
+            body = email_html(plan["reply"])
             args = {"ticket_id": ticket_id, "outcome_id": self.cfg["email_outcome_id"],
                     "expected_last_update": ticket["last_update"], "to": email,
                     "subject": self.cfg["email_subject_template"].format(
                         ticket_id=ticket_id, summary=ticket.get("summary", "")), "body": body}
+            if self.cfg.get("email_template_id"):
+                args["email_template_id"] = self.cfg["email_template_id"]
             receipt = self.dispatch(prefix + ":email", ticket_id, "email", "ticket_actions.send_email",
                                     args, [a["id"] for a in current_actions])
             allowed.add(receipt["action_id"])

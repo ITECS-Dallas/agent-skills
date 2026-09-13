@@ -9,6 +9,7 @@
   "server_id": "itecs-halopsa",
   "agent_id": 49,
   "email_outcome_id": 0,
+  "email_template_id": 0,
   "email_subject_template": "Re: [ITECS-{ticket_id:07d}] {summary}",
   "closed_status_id": 0,
   "poll_seconds": 15,

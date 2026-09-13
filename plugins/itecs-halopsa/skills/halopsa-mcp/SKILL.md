@@ -53,7 +53,7 @@ Preserve the established 1Password Automation Vault and per-technician command-b
 - `halopsa.ticket_outcomes.list` - list tenant-configured action outcomes available for an exact ticket or explicit state.
 - `halopsa.ticket_outcomes.get` - get one configured outcome and its effects, optionally resolved for an exact ticket.
 - `halopsa.ticket_actions.start_work` - preview or execute the one exact available Start Work outcome with plain confirmation and `last_update` revalidation.
-- `halopsa.ticket_actions.send_email` - preview or send one ticket email through an exact email-capable outcome and ordinary confirmation.
+- `halopsa.ticket_actions.send_email` - preview or send one ticket email through an exact email-capable outcome and ordinary confirmation. Optional `email_template_id` selects a template for this message only; custom IDs may be negative. Omit it to keep the action's default template and signature behavior.
 - `halopsa.ticket_actions.create_public_note` - add one public/client-visible note to an exact ticket after explicit approval; no email, status, time, attachment, or private-note side effects.
 - `halopsa.ticket_actions.create_private_note` - add one internal/private, non-email note to an exact ticket or project; this is the default note path.
 - `halopsa.ticket_actions.create_time_entry` - log one private, non-email time entry against an exact ticket or project.

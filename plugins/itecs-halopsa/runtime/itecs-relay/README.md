@@ -26,6 +26,21 @@ second Halo API client, public webhook endpoint, or separate knowledge database.
   does not generate a follow-up or close the ticket. Technician work or a change
   of owner ends Relay's participation.
 
+## Client service policy
+
+Quick automated troubleshooting is complimentary for every client, including
+unlimited-support, retainer and hourly clients. RELAY does not decide charges,
+deduct retainer hours, create billable time or promise free technician assistance.
+Technician work follows the existing service agreement.
+
+Continue relevant clarification, related symptoms and applicable next steps on the
+original issue, without an arbitrary message limit. A separate issue requires the
+client to submit a new ticket through the client portal or a new support email;
+RELAY does not create, split or link it for them. Ask one short question when
+relatedness is unclear. If the original is confirmed resolved and a separate issue
+is mentioned, acknowledge the fix, direct the client to submit that new ticket,
+then record and close the original. Unresolved original issues remain open.
+
 ## Decision and delivery
 
 Codex reads the ticket snapshot, conversation state and actual client documents,
@@ -41,7 +56,8 @@ operator can inspect Halo and use `resume` to recheck the same operation. Resume
 retains its journal and cannot erase an uncertain send or force a duplicate.
 
 Before closure, the decision must identify the latest fresh, attributable client
-message and quote its confirmation. The worker records actual work and its sources
+message and quote its confirmation. The worker sends the resolution acknowledgment,
+then records actual work and its sources
 in a private note, rereads ticket/actions, resolves the configured closed status
 against current allowed statuses, closes, and reads back. A contradictory reply or
 technician action arriving before closure invalidates the pending plan.
@@ -49,6 +65,18 @@ technician action arriving before closure invalidates the pending plan.
 `email_subject_template` preserves the tenant's ticket reference format for inbound
 reply matching. The ITECS example uses `[ITECS-0093055]` for ticket 93055. The subject
 uses the existing ticket summary; the model cannot choose another ticket reference.
+
+Replies use short HTML paragraphs and actual ordered lists, with escaped plain-text
+model content. `email_template_id` optionally selects a Halo template for each RELAY
+email; zero or omission retains the action's normal template. Custom Halo template
+IDs may be negative. The ITECS-specific template is `ITECS RELAY - Client Support`
+(ID -121), containing `$richactionnote`, the original ITECS-SALES PNG logo, RELAY's
+contact signature, the complimentary/same-ticket notice and the existing legal
+footer. Configure -121 only on the RELAY service. The shared Ticket Update template
+(11), Email User outcome (16), mailbox defaults and other agent signatures remain
+unchanged. RELAY is API-only, which disables its Preferences tab and excludes it
+from Halo's mailbox signature-override picker; a per-message template avoids
+changing that account type. Maintain branding in Halo, not in model-written replies.
 
 Halo has no transactional API spanning an incoming client reply and a status
 change. The worker narrows that race with immediate action readback and the
