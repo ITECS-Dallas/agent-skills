@@ -59,16 +59,29 @@ class NotificationState:
     """Keep alert receipts independent of the worker config and ticket database."""
     def __init__(self, directory):
         self.path = directory / "health-notification.json"
+        self.error = False
+        self.values = {}
+        try:
+            self.values = json.loads(self.path.read_text())
+            if not isinstance(self.values, dict) or not all(
+                    isinstance(value, str) for value in self.values.values()):
+                raise ValueError("Invalid notification receipt")
+        except FileNotFoundError:
+            pass
+        except (OSError, ValueError):
+            # A corrupt receipt is itself an incident; it must not disable the
+            # channel that reports it. Successful notification replaces it.
+            self.error = True
+            self.values = {}
 
     def setting(self, key):
-        if not self.path.exists():
-            return None
-        return json.loads(self.path.read_text()).get(key)
+        return self.values.get(key)
 
     def set_setting(self, key, value):
         temporary = self.path.with_suffix(".tmp")
         temporary.write_text(json.dumps({key: value}))
         temporary.replace(self.path)
+        self.values = {key: value}
 
 
 def main():
@@ -96,8 +109,12 @@ def main():
         finally:
             if store:
                 store.db.close()
+        notification_state = NotificationState(args.state_dir)
+        if notification_state.error:
+            health["healthy"] = False
+            health["issues"].append({"code": "notification_state_unreadable"})
         try:
-            health["notification_sent"] = notify_changes(NotificationState(args.state_dir),
+            health["notification_sent"] = notify_changes(notification_state,
                 {"health_notify_command": args.notify_command}, health)
         except Exception as exc:
             health["notification_error"] = type(exc).__name__

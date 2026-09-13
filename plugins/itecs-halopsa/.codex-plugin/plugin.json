@@ -1,6 +1,6 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.11.0+codex.20260913104602",
+  "version": "0.11.0+codex.20260913105529",
   "description": "ITECS HaloPSA tools for technician operations, Linux Codex CLI support and billing evidence.",
   "author": {
     "name": "ITECS-Dallas"

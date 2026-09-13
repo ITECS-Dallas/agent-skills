@@ -18,6 +18,7 @@ import sys
 SETTINGS = Path("/opt/seafile-data/seafile/conf/seahub_settings.py")
 RECIPIENT = "notifications@itecsonline.com"
 CODES = {
+    "notification_state_unreadable": "RELAY could not read its alert receipt. Inspect the monitor state; repeat-alert suppression may be affected.",
     "health_check_failed": "RELAY health could not be read; inspect the worker configuration and state database.",
     "service_not_running": "The RELAY service is stopped.",
     "service_heartbeat_stale": "The RELAY service has stopped reporting progress.",

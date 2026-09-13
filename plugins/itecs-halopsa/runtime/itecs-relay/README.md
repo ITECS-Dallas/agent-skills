@@ -240,6 +240,8 @@ When `health_notify_command` is configured, health checks send only changed inci
 states and subsequent recovery. Notification acknowledgment is persisted in a separate private monitor receipt;
 unchanged failures do not repeatedly notify after restart. A failed transport exits
 nonzero and does not claim delivery. SMTP acceptance is not proof of inbox receipt.
+A malformed alert receipt raises an explicit monitor-state incident; it cannot
+suppress the notification attempt. A successful send replaces the damaged receipt.
 
 The US1 helper `relay/notify_smtp.py` can be installed root-owned as
 `/usr/local/sbin/itecs-relay-notify`. It reads only literal SMTP settings from the
