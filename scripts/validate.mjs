@@ -317,6 +317,7 @@ const supportDocumentationFiles = new Set([
   'README.md',
   'plugins/itecs-halopsa/README.md',
   'plugins/itecs-halopsa/docs/linux-support-agent.md',
+  'plugins/itecs-halopsa/runtime/itecs-relay/README.md',
   'plugins/itecs-halopsa/skills/halopsa-mcp/SKILL.md',
   'plugins/itecs-halopsa/skills/service-desk-client-troubleshooting/SKILL.md'
 ]);
@@ -327,6 +328,17 @@ for (const file of walk(repoRoot)) {
   let content = fs.readFileSync(file, 'utf8').toLowerCase();
   if (supportDocumentationFiles.has(rel.split(path.sep).join('/'))) {
     content = content.replaceAll(supportDocumentationPath, '');
+  }
+  if (rel.split(path.sep).join('/') === 'plugins/itecs-halopsa/runtime/itecs-relay/config.example.json') {
+    // These exact example roots belong to the explicitly requested Linux service.
+    // The portable workflow and every other file retain the normal path check.
+    for (const parts of [
+      ['', 'home', 'itecs', 'US1'],
+      ['', 'home', 'itecs', 'agent-skills'],
+      ['', 'home', 'itecs', '.local', 'state', 'itecs-relay']
+    ]) {
+      content = content.replaceAll(parts.join('/').toLowerCase(), '');
+    }
   }
   for (const term of bannedTerms) {
     if (content.includes(term.toLowerCase())) {

@@ -41,8 +41,8 @@ Search ATLAS for relevant client facts and procedures. A matching article is
 preferred, not mandatory: well-understood general technical knowledge may support
 clearly simple user-level guidance. Do not invent client configuration or sources.
 Record the general knowledge basis privately when no applicable article was used;
-`sources: []` is valid. Listed source files must still exist within the configured
-documentation root. Familiar keywords or unclear symptoms do not justify an offer.
+`sources: []` is valid. Listed source files must exist within the current ticket's readable client or
+Global KB scope. Familiar keywords or unclear symptoms do not justify an offer.
 
 Quick automated troubleshooting is complimentary for every client, including
 unlimited-support, retainer and hourly clients. RELAY does not decide charges,
@@ -78,8 +78,13 @@ evidence. Only that proven rejection can be prepared again; transport failures a
 post-write errors still require readback. Static invalid configuration is not a
 ticket-change signal.
 
-Before closure, the decision must identify the latest fresh, attributable client
-message and quote its confirmation. The worker sends the resolution acknowledgment,
+Before closure, the decision must identify a fresh, attributable human client
+message and quote its confirmation. Review all later messages: a separate thanks
+or automated acknowledgment preserves that confirmation, while renewed symptoms,
+uncertainty, partial success or a request to keep investigating invalidate it.
+Automatic replies, receipts and delivery failures are not consent or confirmation;
+RELAY does not answer them. A genuine human message alongside an automatic reply
+is processed normally. The worker sends the resolution acknowledgment,
 then records actual work and its documentation or general knowledge basis
 in a private note, rereads ticket/actions, resolves the configured closed status
 against current allowed statuses, closes, and reads back. A contradictory reply or
@@ -174,7 +179,7 @@ The installer stages the unit without starting client correspondence. Once
 deployment is authorized, enable it with:
 
 ```bash
-systemctl --user enable --now itecs-relay.service
+systemctl --user enable --now itecs-relay.service itecs-relay-health.timer
 ```
 
 The user manager must survive logout and start at boot; on a headless server,
@@ -184,20 +189,30 @@ under `~/.local/state/itecs-relay`, outside Seafile. The service uses restrictiv
 file creation permissions. Journal messages contain IDs/status and error classes,
 not client bodies or credentials.
 
-On US1, Codex 0.153.4's default bubblewrap sandbox cannot initialize its loopback
-interface (`bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted`). Set
-`codex_use_legacy_landlock` to `true` in this host's Relay configuration to select
-Codex's available Landlock compatibility implementation. The decision still runs
-with `--sandbox read-only`; this is an explicit host setting, not an automatic
-retry without a sandbox. Verify actual document reads and denied writes/network
-with that installed CLI before enabling the service. The feature is deprecated in
-0.153.4, so recheck availability when upgrading Codex. See the official
-[Linux permission implementation](https://learn.chatgpt.com/docs/permissions#how-enforcement-works).
+The decision uses a named Codex filesystem permission profile: minimal OS reads,
+the workflow skill, the configured client's ATLAS directory and Global KB are
+readable. Other client documents, unrelated host files, writes and network access
+are denied. `documentation_clients` maps verified positive Halo client IDs to exact
+ATLAS directory names, for example `{"12": "itecs"}`. Establish each mapping from
+canonical identities; never infer it from a ticket-supplied name. Unmapped clients
+receive Global KB plus general technical knowledge; this does not block simple
+support. Resolved source paths are checked against the same scopes. Directory
+redirection and source symlinks cannot grant access to another scope. Host skills,
+project instructions, user integrations and memory are excluded from decisions.
+
+The legacy Landlock option cannot enforce these read scopes and is rejected.
+On Ubuntu 24.04 US1, keep the global user-namespace restriction enabled and load
+the matching distribution package's `bwrap-userns-restrict` AppArmor profile, as
+specified in [OpenAI's Linux sandbox setup](https://learn.chatgpt.com/docs/sandboxing).
+On .92, the profile was obtained from the matching `apparmor-profiles` package and
+installed at `/etc/apparmor.d/bwrap-userns-restrict`. Recheck native isolation after
+Codex, bubblewrap or AppArmor upgrades. No automatic downgrade is performed.
 
 ## Operate and recover
 
 ```bash
 python3 -m relay --config ~/.config/itecs-relay/config.json status
+python3 -m relay --config ~/.config/itecs-relay/config.json health
 journalctl --user -u itecs-relay.service -n 50
 systemctl --user stop itecs-relay.service
 python3 -m relay --config ~/.config/itecs-relay/config.json resume --ticket TICKET_ID
@@ -208,6 +223,32 @@ check subscription login/allowance under the same account. For Halo failures,
 check vault access, requested scope and current outcome availability. Transient
 pre-write failures retain the decision and retry with a bounded delay; they remain
 visible in status. Stopping the service leaves the normal Halo queue operational.
+
+The installer also stages an independent one-minute health timer. `health` checks
+service progress, intake discovery, processing failures, uncertain writes and
+stalled jobs without calling Halo or the model. The timer invokes `python3 -m
+relay.health` with its state path and notification command captured in the unit,
+so malformed worker configuration, missing documentation/skills and a damaged
+ticket database can still raise a health-check failure. Reinstall the unit after
+changing the notification route. Default thresholds are five minutes
+without service/discovery progress and 30 minutes for a single unfinished job;
+`health_max_age_seconds` and `health_job_age_seconds` are configurable operational
+thresholds, not client conversation limits. A missing heartbeat detects a crashed
+process even if it could not record a normal stop.
+
+When `health_notify_command` is configured, health checks send only changed incident
+states and subsequent recovery. Notification acknowledgment is persisted in a separate private monitor receipt;
+unchanged failures do not repeatedly notify after restart. A failed transport exits
+nonzero and does not claim delivery. SMTP acceptance is not proof of inbox receipt.
+
+The US1 helper `relay/notify_smtp.py` can be installed root-owned as
+`/usr/local/sbin/itecs-relay-notify`. It reads only literal SMTP settings from the
+existing root-owned Seafile configuration, authenticates with STARTTLS, and sends a
+fixed operational message to `notifications@itecsonline.com`. It does not copy
+credentials or accept arbitrary recipients/client bodies. `--check` authenticates
+without sending. After the recipient and delivery are approved and tested, configure
+`health_notify_command` as `["/usr/bin/sudo", "-n", "/usr/local/sbin/itecs-relay-notify"]`.
+Keep the installed helper root-owned; do not run a user-editable Python file as root.
 
 ## Validation
 
@@ -221,7 +262,11 @@ PYTHONPATH=. python3 tests/eval_codex.py \
 Unit tests cover restart recovery, lost responses, fresh-client attribution,
 quoted confirmations, declines, procedural continuation, technician takeover,
 pagination, cursor recovery and competing replies. The integration test builds
-the real connector and reuses the existing synthetic Atlas tenant. The separate
+the real connector and reuses the existing synthetic Atlas tenant. On Linux without
+Go source, set `HALOPSA_MCP_TEST_BINARY` to the installed Linux connector executable
+to run those same stdio/HTTP tests. Set `RELAY_SANDBOX_COMMAND` to the installed
+Codex executable to run the native allowed-read/denied-peer/denied-host/denied-write/
+denied-network test. The network test proves parent reachability first. The separate
 Codex evaluation uses subscription authentication and fictional documentation;
 it consumes normal Codex allowance and does not connect to Halo.
 

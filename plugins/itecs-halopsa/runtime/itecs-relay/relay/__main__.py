@@ -12,6 +12,8 @@ import time
 from pathlib import Path
 
 from .decision import Codex
+from .documentation import documentation_roots
+from .health import report as health_report
 from .mcp import Halo, MCP
 from .store import Store
 from .worker import Changed, Uncertain, Worker
@@ -26,9 +28,24 @@ def load_config(path):
         raise ValueError("documentation or workflow skill unavailable")
     if not Path(cfg["documentation_root"]).resolve().is_relative_to(Path(cfg["workspace"]).resolve()):
         raise ValueError("documentation_root must be inside workspace")
+    if cfg.get("codex_use_legacy_landlock"):
+        raise ValueError("client-scoped reads require the native sandbox; repair bubblewrap and remove codex_use_legacy_landlock")
+    if not isinstance(cfg.get("documentation_clients", {}), dict):
+        raise ValueError("documentation_clients must map Halo client IDs to directories")
+    for client_id in cfg.get("documentation_clients", {}):
+        if not client_id.isdecimal() or str(int(client_id)) != client_id or int(client_id) <= 0:
+            raise ValueError("documentation_clients keys must be positive Halo client IDs")
+        documentation_roots(cfg, {"client_id": int(client_id)})
     for key in ("agent_id", "email_outcome_id", "closed_status_id", "poll_seconds", "workers"):
         if type(cfg.get(key)) is not int or cfg[key] <= 0:
             raise ValueError("positive integer required: " + key)
+    for key in ("health_max_age_seconds", "health_job_age_seconds"):
+        if key in cfg and (type(cfg[key]) is not int or cfg[key] <= 0):
+            raise ValueError("positive integer required: " + key)
+    if "health_notify_command" in cfg and (not isinstance(cfg["health_notify_command"], list)
+            or not cfg["health_notify_command"] or not all(
+                isinstance(v, str) and v for v in cfg["health_notify_command"])):
+        raise ValueError("health_notify_command must be a nonempty argv list")
     if not cfg.get("server_id") or not isinstance(cfg.get("connector_command"), list):
         raise ValueError("server_id and connector_command are required")
     if not cfg["connector_command"] or not all(isinstance(v, str) for v in cfg["connector_command"]):
@@ -40,9 +57,12 @@ def load_config(path):
 def connect(cfg):
     mcp = MCP(cfg["connector_command"])
     halo = Halo(mcp, cfg["server_id"])
-    if halo.call("agents.me")["agent"]["id"] != cfg["agent_id"]:
+    try:
+        if halo.call("agents.me")["agent"]["id"] != cfg["agent_id"]:
+            raise ValueError("connector identity does not match configured Relay agent")
+    except Exception:
         mcp.close()
-        raise ValueError("connector identity does not match configured Relay agent")
+        raise
     return mcp, halo
 
 
@@ -82,6 +102,7 @@ def serve(cfg, store, ticket_id=None):
     signal.signal(signal.SIGTERM, lambda *_: stop.set())
     signal.signal(signal.SIGINT, lambda *_: stop.set())
     inflight = {}
+    started = {}
     next_discovery = 0
     if ticket_id is not None:
         mcp, halo = connect(cfg)
@@ -90,8 +111,12 @@ def serve(cfg, store, ticket_id=None):
         finally:
             mcp.close()
         log("named_ticket_service", ticket_id=ticket_id)
+    store.set_setting("service_mode", "named_ticket" if ticket_id is not None else "intake")
+    store.set_setting("service_active", "1")
+    store.set_setting("service_heartbeat", str(time.time()))
     with concurrent.futures.ThreadPoolExecutor(max_workers=cfg["workers"]) as executor:
         while not stop.is_set():
+            store.set_setting("service_heartbeat", str(time.time()))
             if ticket_id is None and time.monotonic() >= next_discovery:
                 mcp = None
                 try:
@@ -108,6 +133,7 @@ def serve(cfg, store, ticket_id=None):
                         mcp.close()
                 next_discovery = time.monotonic() + cfg["poll_seconds"]
             inflight = {key: future for key, future in inflight.items() if not future.done()}
+            started = {key: value for key, value in started.items() if key in inflight}
             for due_id in store.due():
                 if ticket_id is not None and due_id != ticket_id:
                     continue
@@ -115,9 +141,13 @@ def serve(cfg, store, ticket_id=None):
                     break
                 if due_id not in inflight:
                     inflight[due_id] = executor.submit(run_ticket, cfg, due_id)
+                    started[due_id] = time.time()
+            store.set_setting("active_jobs", json.dumps(started))
             # Refill free workers promptly; discovery and per-ticket due times keep
             # their own poll interval instead of throttling the whole queue to two.
             stop.wait(1)
+    store.set_setting("service_active", "0")
+    store.set_setting("active_jobs", "{}")
     lock.close()
 
 
@@ -126,16 +156,21 @@ def main():
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
-    parser.add_argument("command", choices=("check", "inspect", "process", "serve", "status", "resume"))
+    parser.add_argument("command", choices=("check", "inspect", "process", "serve", "status", "health", "resume"))
     parser.add_argument("--ticket", type=int)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     cfg = load_config(args.config)
     store = Store(Path(cfg["state_dir"]) / "relay.sqlite3")
+    if args.command == "health":
+        health = health_report(store, cfg)
+        print(json.dumps(health, indent=2))
+        return int(not health["healthy"])
     if args.command == "status":
         status = store.status()
         status["discovery_error"] = store.setting("discovery_error", "")
         status["last_discovery_success"] = store.setting("last_discovery_success")
+        status["health"] = health_report(store, cfg)
         print(json.dumps(status, indent=2))
         return int(bool(status["discovery_error"]) or any(
             row["error"] for row in status["tickets"]))

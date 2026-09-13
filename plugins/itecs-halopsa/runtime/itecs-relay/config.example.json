@@ -1,11 +1,11 @@
 {
   "workspace": "/home/itecs/US1",
   "documentation_root": "/home/itecs/US1/ATLAS",
+  "documentation_clients": {},
   "skill_path": "/home/itecs/agent-skills/plugins/itecs-halopsa/skills/service-desk-client-troubleshooting/SKILL.md",
   "state_dir": "/home/itecs/.local/state/itecs-relay",
   "connector_command": ["/home/itecs/agent-skills/plugins/itecs-halopsa/scripts/run-halopsa-mcp"],
   "codex_command": "/usr/bin/codex",
-  "codex_use_legacy_landlock": false,
   "server_id": "itecs-halopsa",
   "agent_id": 49,
   "email_outcome_id": 0,

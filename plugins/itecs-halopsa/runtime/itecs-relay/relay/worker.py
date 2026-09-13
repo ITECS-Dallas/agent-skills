@@ -11,6 +11,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 from .decision import schema
+from .documentation import documentation_roots
 from .mcp import TicketChangedBeforeWrite
 
 
@@ -137,7 +138,8 @@ def action_view(action, ticket, relay_agent_id):
             "datetime": action.get("datetime") or action.get("actiondatecreated"),
             "private": private, "actiontype": action.get("actiontype", ""),
             "text": text(body), "fresh_text": text(fresh_body, fresh=True),
-            "emailto": action.get("emailto", ""), "sendemail": action.get("sendemail", False)}
+            "emailto": action.get("emailto", ""), "sendemail": action.get("sendemail", False),
+            "email_subject": action.get("emailsubject") or action.get("emailsubjectnew") or ""}
 
 
 def snapshot(halo, ticket_id, relay_agent_id):
@@ -177,17 +179,18 @@ def validate_plan(plan, context, cfg):
         raise ValueError("this decision does not send an email")
     if decision != "offer" and plan["reply"] and not context["new_client_actions"]:
         raise ValueError("no new client message to answer")
-    root = Path(cfg["documentation_root"]).resolve()
+    roots = documentation_roots(cfg, context["ticket"])
     for source in plan["sources"]:
         path = Path(source).resolve()
-        if not path.is_relative_to(root) or not path.is_file():
-            raise ValueError("documentation source does not exist within the documentation root")
+        if not any(path.is_relative_to(root) for root in roots) or not path.is_file():
+            raise ValueError("documentation source is outside this client's readable scopes")
     if decision == "resolve":
         incoming = context["new_client_actions"]
-        if not incoming or incoming[-1]["id"] != plan["confirmation_action_id"]:
-            raise ValueError("confirmation must identify the latest new client message")
+        confirmation = next((a for a in incoming if a["id"] == plan["confirmation_action_id"]), None)
+        if confirmation is None:
+            raise ValueError("confirmation must identify a new client message")
         quote = plan["confirmation_quote"].strip()
-        if not quote or quote not in incoming[-1]["fresh_text"]:
+        if not quote or quote not in confirmation["fresh_text"]:
             raise ValueError("confirmation is not in the fresh client message")
         if not plan["private_note"].strip():
             raise ValueError("resolution work note is required")
@@ -440,7 +443,8 @@ class Worker:
             plan, ticket, actions, digest = self.plan(ticket_id, row)
             if plan is None:
                 if not inspect:
-                    self.store.save(ticket_id, due=time.time() + self.cfg["poll_seconds"])
+                    self.store.save(ticket_id, due=time.time() + self.cfg["poll_seconds"],
+                                    failures=0, error=None)
                 return None
             bundle = {"plan": plan, "ticket": ticket, "actions": actions, "digest": digest}
         if inspect:
