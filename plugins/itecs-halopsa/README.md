@@ -55,6 +55,16 @@ When a technician authorizes the optional client support conversation, that auth
 
 Ticket email uses one exact email-capable configured outcome and `confirm: true` for the authorized execution. It does not write directly to Halo's outgoing-email queue.
 
+For additional agents, the assigned queue, co-managed workflows or change-request
+plans, use `halopsa.tickets.get` with its normal detailed response. Read
+`ticket_context.assignment`, `workflow`, `change_management` and `custom_fields`.
+Queue means the ticket's returned `team`/`team_id`. Custom Change Plan,
+Implementation Plan, Test Plan and Backout Plan values may be populated while the
+native plan fields are blank; inspect both and preserve field IDs when labels
+repeat. Missing fields are unavailable, not confirmed empty. Discover tenant
+workflow names with metadata kind `workflows` and native/custom plan definitions
+with kind `fields` and search `plan`; use kind `teams` for queue IDs.
+
 ## Runtime Configuration
 
 Store live HaloPSA config and credentials outside this repository:

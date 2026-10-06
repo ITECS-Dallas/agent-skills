@@ -48,7 +48,7 @@ Preserve the established 1Password Automation Vault and per-technician command-b
 - `halopsa.projects.update` - update supported project fields after `last_update` revalidation.
 - `halopsa.projects.update_status` - change one project's status after current/allowed-status revalidation.
 - `halopsa.tickets.list` - list tickets with client, site, user, agent, status, priority, team, text, date, and pagination filters.
-- `halopsa.tickets.get` - get one ticket by ID, optionally including recent actions/notes.
+- `halopsa.tickets.get` - get one ticket with additional agents, team/queue, workflow and native/custom change plans, optionally including recent actions/notes.
 - `halopsa.ticket_statuses.list` - list ticket statuses, optionally narrowed to an exact ticket or ticket type.
 - `halopsa.ticket_actions.list` - list ticket actions/notes for a specific ticket, optionally narrowed to conversation/public actions or a date window, with email HTML when needed. Leave `agent_only` false when reading client replies.
 - `halopsa.ticket_outcomes.list` - list tenant-configured action outcomes available for an exact ticket or explicit state.
@@ -62,8 +62,20 @@ Preserve the established 1Password Automation Vault and per-technician command-b
 - `halopsa.tickets.update` - update supported ticket routing/content/category/parent fields after `last_update` revalidation.
 - `halopsa.tickets.update_status` - change one exact ticket's status only after current-status revalidation and ordinary confirmation; one attempt only.
 
-- `halopsa.metadata.list` - resolve agents, teams, sites, users, ticket types, categories, priorities and charge rates using typed filters.
+- `halopsa.metadata.list` - resolve agents, teams/queues, workflows, field definitions, sites, users, ticket types, categories, priorities and charge rates using typed filters.
 - `halopsa.agents.me` - identify the authenticated technician for my work and assignment requests.
+
+## Ticket context and change plans
+
+For additional agents, the assigned queue, co-managed workflows or change-request
+plans, use `halopsa.tickets.get` with its normal detailed response. Read
+`ticket_context.assignment`, `workflow`, `change_management` and `custom_fields`.
+Queue means the ticket's returned `team`/`team_id`. Custom Change Plan,
+Implementation Plan, Test Plan and Backout Plan values may be populated while the
+native plan fields are blank; inspect both and preserve field IDs when labels
+repeat. Missing fields are unavailable, not confirmed empty. Discover tenant
+workflow names with metadata kind `workflows` and native/custom plan definitions
+with kind `fields` and search `plan`; use kind `teams` for queue IDs.
 
 ## Local Setup
 
