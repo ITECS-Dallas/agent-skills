@@ -140,7 +140,7 @@ VAULT_TOKEN_URL=$(read_op_field HALO_TOKEN_URL)
 [[ "$VAULT_TOKEN_URL" == "$TOKEN_URL" ]] || fail "HALO_TOKEN_URL is not the approved ITECS HaloPSA token URL"
 scope_has read:tickets || fail "HALO_SCOPE is missing read:tickets"
 scope_has edit:tickets || fail "HALO_SCOPE is missing edit:tickets"
-if scope_has read:crm || scope_has read:distributionlists; then
+if scope_has read:distributionlists; then
   fail "HALO_SCOPE contains a prohibited broad read scope"
 fi
 

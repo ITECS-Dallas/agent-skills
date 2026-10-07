@@ -14,7 +14,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 - `.agents/plugins/marketplace.json` - Codex marketplace definition named `itecs-agent-skills`.
 - `plugins/portable-development-workflow/` - Codex plugin for reusable workflow skills and GO-MCP operating guidance.
 - `plugins/portable-development-workflow/skills/` - skill source folders installed into local agent runtimes.
-- `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools, ticket/project writes, per-technician macOS/Windows/Linux 1Password setup, and optional client troubleshooting with confirmed-resolution closure.
+- `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools, ticket/project writes, the sales opportunity workflow (opportunities, prospect clients and contacts, attachments, workflow stages), per-technician macOS/Windows/Linux 1Password setup, and optional client troubleshooting with confirmed-resolution closure.
 - `plugins/itecs-vcenter/` - Codex plugin that bundles the read-only vCenter MCP runtime and its vCenter skill.
 - `plugins/itecs-pax8/` - Codex plugin that bundles the read-only Pax8 MCP runtime and its Pax8 skill.
 - `plugins/itecs-veeam-cloud-connect/`, `plugins/itecs-sophos-central/`, `plugins/itecs-checkpoint-harmony/`, `plugins/itecs-commvault/` - additional installed source connectors for operations and usage evidence.
@@ -30,7 +30,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | Install ID | Display Name | Purpose |
 | --- | --- | --- |
 | `portable-development-workflow@itecs-agent-skills` | ITECS Agent Skills | Reusable workflow and connector-operation skills for coding agents. |
-| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled HaloPSA MCP server and technician workflows on macOS, Windows and Linux, including optional client troubleshooting. |
+| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled HaloPSA MCP server and technician workflows on macOS, Windows and Linux, including the sales opportunity workflow and optional client troubleshooting. |
 | `itecs-vcenter@itecs-agent-skills` | ITECS vCenter | Bundled read-only vCenter MCP server for VM inventory, tags, hosting allocation, and billing evidence. |
 | `itecs-pax8@itecs-agent-skills` | ITECS Pax8 | Bundled read-only Pax8 MCP server for companies, subscriptions, products, invoices, and billing evidence. |
 | `itecs-veeam-cloud-connect@itecs-agent-skills` | ITECS Veeam Cloud Connect | Storage, agents, protected computers, restore points and license evidence. |

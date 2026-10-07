@@ -1,10 +1,10 @@
 {
   "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
-  "source_revision": "cd7baf424bd12da199433152d76fd864d79f8ef4",
+  "source_revision": "2c98c22a3f10dc4cc513666650b5ea1a4f6b85d6",
   "source_dirty": false,
   "go_toolchain": "go version go1.27.1 darwin/arm64",
   "plugin": "itecs-halopsa",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "build_flags": [
     "-trimpath",
     "-ldflags=-s -w -buildid="
@@ -13,54 +13,57 @@
     {
       "path": "bin/halopsa-mcp-darwin-amd64",
       "target": "darwin-amd64",
-      "sha256": "7a6a15328a2a54ceaf90a882d878df644067be4524146a18936840fc75805391",
-      "bytes": 9631488,
+      "sha256": "61e22bb2ef049c2a9f566e37b9b24916b3b7d33f34fafbc840319a4b0305cbaa",
+      "bytes": 10008032,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-darwin-arm64",
       "target": "darwin-arm64",
-      "sha256": "3c42fa59519652d5674b8e89eaa9666c0d829c41219de8f7138adea2fd7e828a",
-      "bytes": 8917890,
+      "sha256": "b98cc77b4886ac664402145358864cb776d9f38c3b64b4e939a476831de0d284",
+      "bytes": 9239586,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-linux-amd64",
       "target": "linux-amd64",
-      "sha256": "66d8c87f51dbe8207211e212430c227bdee3c6c1c27f0a29246c939643f99ca5",
-      "bytes": 9408636,
+      "sha256": "771b168b5d3e0b363c971c4f9e25a3d1dbfb9873f9b9fef9a18155666681a9f3",
+      "bytes": 9777276,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-linux-arm64",
       "target": "linux-arm64",
-      "sha256": "ef4f4162f949c6795c19928efe3397674a0cd1acd1a8387577baa68bba06b37a",
-      "bytes": 8716412,
+      "sha256": "1e4afaf7334e43e080cdbd4d9f6b4fe400f64102f97080ac84c8a33795f17beb",
+      "bytes": 8978556,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-windows-amd64.exe",
       "target": "windows-amd64",
-      "sha256": "091352957c47d75b670448c596973431ce11d4b65436cd09b184db0e549c4675",
-      "bytes": 9668608,
+      "sha256": "f2ce5bbc02906d8ebe916c1097e88fc941b0d6153ea76d05593ea05ff418cc9a",
+      "bytes": 10047488,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-windows-arm64.exe",
       "target": "windows-arm64",
-      "sha256": "cb1b10d7743d5005b05cf735903dfa9c457a3f3368f751c8388bb11d81a8df85",
-      "bytes": 8818176,
+      "sha256": "1fed50f6d04de2d191f7ceeca2298a5fa41c0c4edaf80b3aa2ed249f553c75d5",
+      "bytes": 9155072,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     }
   ],
   "tools": [
     "halopsa.agents.me",
+    "halopsa.attachments.list",
+    "halopsa.attachments.upload",
+    "halopsa.clients.create",
     "halopsa.clients.get",
     "halopsa.clients.list",
     "halopsa.contracts.create",
@@ -70,6 +73,10 @@
     "halopsa.invoices.get",
     "halopsa.invoices.list",
     "halopsa.metadata.list",
+    "halopsa.opportunities.create",
+    "halopsa.opportunities.execute_workflow_action",
+    "halopsa.opportunities.list",
+    "halopsa.opportunities.update",
     "halopsa.projects.create",
     "halopsa.projects.get",
     "halopsa.projects.list",
@@ -93,7 +100,8 @@
     "halopsa.tickets.get",
     "halopsa.tickets.list",
     "halopsa.tickets.update",
-    "halopsa.tickets.update_status"
+    "halopsa.tickets.update_status",
+    "halopsa.users.create"
   ],
   "runtime_files": [
     {

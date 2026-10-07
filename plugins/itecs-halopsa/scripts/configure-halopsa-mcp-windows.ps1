@@ -80,7 +80,7 @@ if ($Scopes -notcontains "read:tickets") {
 if ($Scopes -notcontains "edit:tickets") {
     Stop-Setup "HALO_SCOPE is missing edit:tickets"
 }
-if ($Scopes -contains "read:crm" -or $Scopes -contains "read:distributionlists") {
+if ($Scopes -contains "read:distributionlists") {
     Stop-Setup "HALO_SCOPE contains a prohibited broad read scope"
 }
 

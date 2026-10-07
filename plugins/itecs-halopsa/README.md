@@ -1,6 +1,6 @@
 # ITECS HaloPSA for Atlas
 
-Version 0.11.0 packages the existing 34 typed tools (21 reads and 13 writes) for macOS, Windows and Linux, including tenant metadata and the authenticated technician. Routine internal requests use existing chat authorization. Client-visible and billing changes use a single ordinary confirmation. All writes use `confirm`; no exact approval phrases are required.
+Version 0.13.0 packages 42 typed tools (23 reads and 19 writes) for macOS, Windows and Linux, including tenant metadata, the authenticated technician and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Routine internal requests use existing chat authorization. Client-visible, creation, stage and billing changes use a single ordinary confirmation. All writes use `confirm`; no exact approval phrases are required.
 
 See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Restart into a new Codex task after updating the plugin.
 
@@ -42,10 +42,29 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.tickets.create`
 - `halopsa.tickets.update`
 - `halopsa.tickets.update_status`
+- `halopsa.opportunities.list`
+- `halopsa.opportunities.create`
+- `halopsa.opportunities.update`
+- `halopsa.opportunities.execute_workflow_action`
+- `halopsa.clients.create`
+- `halopsa.users.create`
+- `halopsa.attachments.list`
+- `halopsa.attachments.upload`
 
 Ticket action reads support conversation/public filters, date windows and optional email HTML. Keep `agent_only` false to include client replies, and preserve action IDs/authorship when continuing a conversation.
 
-Technicians can request a ticket or project in ordinary chat. The agent resolves supplied names to HaloPSA IDs and asks concise follow-up questions only when required values remain missing; technicians do not compose tool payloads. Ticket and project creation require at least one category ID plus positive HaloPSA impact and urgency values.
+Technicians can request a ticket or project in ordinary chat. The agent resolves supplied names to HaloPSA IDs and asks concise follow-up questions only when required values remain missing; technicians do not compose tool payloads. Ticket and project creation require at least one category ID plus positive HaloPSA impact and urgency values. Opportunities use `halopsa.opportunities.create` instead, which needs no support classification and enforces the opportunity type's own mandatory fields.
+
+## Sales opportunity workflow
+
+The [sales opportunity workflow skill](skills/sales-opportunity-workflow/SKILL.md) records a new inquiry and its updates without the browser: prospect client (`halopsa.clients.create`), contact (`halopsa.users.create`), Project Opportunity (`halopsa.opportunities.create`), internal sales notes, cheat sheets, the approved SOW and approval evidence (`halopsa.attachments.upload`), and workflow stages (`halopsa.opportunities.execute_workflow_action`).
+
+- Previews come from live tenant reads: the opportunity type's mandatory fields and choices, the workflow's current step and transition, and field-group members. They report `ready_to_execute`, `missing` and `warnings`.
+- Duplicates are refused: an existing client name (ignoring case, punctuation, spacing and legal suffixes), an existing contact email, or an open opportunity with the same summary for the client.
+- Each write is attempted once and followed by the connector's own field-by-field `readback`. Report completion from that readback; never retry a mismatch or error.
+- Attachments are internal, limited to documents, spreadsheets, presentations, saved email and images up to 20 MiB, and refused for hidden paths. Upload requires the SHA-256 shown in the preview.
+- Workflow actions are limited to an opportunity's current workflow step, are recorded as private actions without email or time, and refuse HaloPSA system actions such as creating a child project.
+- `halopsa.tickets.list` does not return opportunities; use `halopsa.opportunities.list`.
 
 All write tools use `confirm`: omitted or false for preview, true for execution. An explicit technician request authorizes routine internal notes, specified time, assignment/field updates and Start Work. Review client-visible, creation/status and billing changes with one ordinary confirmation. Snapshot/status revalidation and independent readback remain part of execution; ambiguous writes are not automatically retried.
 
@@ -85,9 +104,9 @@ Override it per session with:
 export HALOPSA_MCP_CONFIG=/absolute/path/to/config.json
 ```
 
-Each technician uses that technician's own Automation Vault item named `GO-MCP HaloPSA <Technician> Read Write`. The setup scripts validate all six expected fields, exact agent identity, approved URLs, least-privilege ticket scopes, and OAuth before writing a config. The generated file contains only command-backed references for `HALO_CLIENT_ID`, `HALO_CLIENT_SECRET`, and `HALO_SCOPE`; it never contains resolved credentials.
+Each technician uses that technician's own Automation Vault item named `GO-MCP HaloPSA <Technician> Read Write`. The setup scripts validate all six expected fields, exact agent identity, approved URLs, ticket and optional sales scopes, and OAuth before writing a config. The generated file contains only command-backed references for `HALO_CLIENT_ID`, `HALO_CLIENT_SECRET`, and `HALO_SCOPE`; it never contains resolved credentials.
 
-Each technician must use that technician's own `GO-MCP HaloPSA <Technician> Read Write` identity so HaloPSA attribution remains individual. The credential must retain the required read permissions and `edit:tickets`. A live write test uses the technician's designated test record and authorized action with the existing preview and readback behavior.
+Each technician must use that technician's own `GO-MCP HaloPSA <Technician> Read Write` identity so HaloPSA attribution remains individual. The credential must retain the required read permissions and `edit:tickets`. The sales opportunity writes also need `read:crm` and `edit:crm` (opportunity updates, workflow actions and attachments) and `edit:customers` (client and contact creation) on both the item's `HALO_SCOPE` and the HaloPSA API application's permissions; without them HaloPSA rejects those writes. A live write test uses the technician's designated test record and authorized action with the existing preview and readback behavior.
 
 Do not commit `.env`, local config JSON, API tokens, client secrets, raw HaloPSA exports, or generated billing reports.
 
