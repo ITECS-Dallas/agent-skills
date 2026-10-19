@@ -1,7 +1,7 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.13.0",
-  "description": "ITECS HaloPSA tools for technician operations, the sales opportunity workflow, Linux Codex CLI support and billing evidence.",
+  "version": "0.14.0",
+  "description": "ITECS HaloPSA tools for technician operations, billing contracts and charge rates, compact AI-friendly reads, the sales opportunity workflow, Linux Codex CLI support and billing evidence.",
   "author": {
     "name": "ITECS-Dallas"
   },
@@ -19,14 +19,17 @@
     "itecs",
     "opportunities",
     "sales",
-    "attachments"
+    "attachments",
+    "contracts",
+    "time-entries",
+    "charge-rates"
   ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "ITECS HaloPSA",
     "shortDescription": "HaloPSA technician operations",
-    "longDescription": "42 typed tools with visible additional agents, queues, workflows, native/custom change plans, metadata and current-agent resolution, notes, time, Start Work, email, tickets, projects and contracts, plus the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Includes optional client troubleshooting and confirmed-resolution closure workflows. Runs on Linux, macOS and Windows with the existing command-backed 1Password setup.",
+    "longDescription": "46 typed tools with visible additional agents, queues, workflows, native/custom change plans, metadata and current-agent resolution, notes, time with named billing types, billing contracts on tickets and projects, Start Work, email, tickets, projects and contracts, change history, timesheet and asset reads, compact responses for AI sessions, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Includes optional client troubleshooting and confirmed-resolution closure workflows. Runs on Linux, macOS and Windows with the existing command-backed 1Password setup.",
     "developerName": "ITECS-Dallas",
     "category": "Business",
     "capabilities": [
@@ -38,6 +41,7 @@
     "defaultPrompt": [
       "Work a ticket and identify the next useful diagnostic.",
       "Assign this ticket to me and record the work I completed.",
+      "Link this ticket to its billing contract and log my time.",
       "Create a low-priority ticket from my description.",
       "Create a Project Opportunity for this new inquiry."
     ],

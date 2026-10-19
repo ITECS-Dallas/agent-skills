@@ -14,7 +14,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 - `.agents/plugins/marketplace.json` - Codex marketplace definition named `itecs-agent-skills`.
 - `plugins/portable-development-workflow/` - Codex plugin for reusable workflow skills and GO-MCP operating guidance.
 - `plugins/portable-development-workflow/skills/` - skill source folders installed into local agent runtimes.
-- `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools, ticket/project writes, the sales opportunity workflow (opportunities, prospect clients and contacts, attachments, workflow stages), per-technician macOS/Windows/Linux 1Password setup, and optional client troubleshooting with confirmed-resolution closure.
+- `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools, ticket/project writes including billing contracts and charge rates, compact AI-friendly reads, the sales opportunity workflow (opportunities, prospect clients and contacts, attachments, workflow stages), per-technician macOS/Windows/Linux 1Password setup, and optional client troubleshooting with confirmed-resolution closure.
 - `plugins/itecs-vcenter/` - Codex plugin that bundles the read-only vCenter MCP runtime and its vCenter skill.
 - `plugins/itecs-pax8/` - Codex plugin that bundles the read-only Pax8 MCP runtime and its Pax8 skill.
 - `plugins/itecs-veeam-cloud-connect/`, `plugins/itecs-sophos-central/`, `plugins/itecs-checkpoint-harmony/`, `plugins/itecs-commvault/` - additional installed source connectors for operations and usage evidence.
@@ -30,7 +30,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | Install ID | Display Name | Purpose |
 | --- | --- | --- |
 | `portable-development-workflow@itecs-agent-skills` | ITECS Agent Skills | Reusable workflow and connector-operation skills for coding agents. |
-| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled HaloPSA MCP server and technician workflows on macOS, Windows and Linux, including the sales opportunity workflow and optional client troubleshooting. |
+| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled HaloPSA MCP server and technician workflows on macOS, Windows and Linux, including billing contracts and charge rates, compact reads, the sales opportunity workflow and optional client troubleshooting. |
 | `itecs-vcenter@itecs-agent-skills` | ITECS vCenter | Bundled read-only vCenter MCP server for VM inventory, tags, hosting allocation, and billing evidence. |
 | `itecs-pax8@itecs-agent-skills` | ITECS Pax8 | Bundled read-only Pax8 MCP server for companies, subscriptions, products, invoices, and billing evidence. |
 | `itecs-veeam-cloud-connect@itecs-agent-skills` | ITECS Veeam Cloud Connect | Storage, agents, protected computers, restore points and license evidence. |
@@ -441,7 +441,25 @@ codex plugin add itecs-commvault@itecs-agent-skills
 codex plugin add itecs-billing-audit@itecs-agent-skills
 ```
 
-HaloPSA also includes `service-desk-handoff`, `service-desk-work-log` and `service-desk-client-troubleshooting` skills. Ask for a ticket briefing, describe completed work, or choose an optional client troubleshooting conversation on an existing ticket. The conversation offers the client a choice, uses relevant procedures and closes only after the client clearly confirms resolution. Billing Audit includes the current `billing-reconciliation` skill and packaged report commands. See each plugin's README for config and usage. Existing credentials and operator mapping files remain outside the packages.
+HaloPSA also includes `service-desk-handoff`, `service-desk-work-log`, `ticket-billing-readiness`, `sales-opportunity-workflow` and `service-desk-client-troubleshooting` skills. Ask for a ticket briefing, describe completed work, get a ticket ready to bill (link its contract and billing type), or choose an optional client troubleshooting conversation on an existing ticket. The conversation offers the client a choice, uses relevant procedures and closes only after the client clearly confirms resolution. Billing Audit includes the current `billing-reconciliation` skill and packaged report commands. See each plugin's README for config and usage. Existing credentials and operator mapping files remain outside the packages.
+
+## Releasing a HaloPSA connector update to the team
+
+Technicians get the connector from this repository, so a release is a pull request here plus one refresh command on each machine.
+
+1. Change and test the connector in GO-MCP (`connectors/halopsa`), then commit it. Bump `Version` in `connectors/halopsa/internal/halopsa/status.go`.
+2. Set the same `version` in `plugins/itecs-halopsa/.codex-plugin/plugin.json`, update the plugin README and the skills for any new tool or behavior, and keep the tool counts in the READMEs accurate.
+3. Build from the committed, clean GO-MCP revision, then validate:
+
+```bash
+python3 scripts/build-packages.py --plugin itecs-halopsa --source /absolute/path/to/GO-MCP
+node scripts/validate.mjs
+python3 scripts/test-packages.py --plugin itecs-halopsa
+```
+
+`test-packages.py` checks the binary hashes and embedded source revision, that the host binary's `-version` equals the plugin version, and that the actual MCP tools match `TOOL-CATALOG.json`.
+
+4. Merge to `main`. Each technician then runs `codex plugin marketplace upgrade itecs-agent-skills` (or `git pull --ff-only` in the marketplace's local clone, when `codex plugin marketplace list` shows a folder path) and `codex plugin add itecs-halopsa@itecs-agent-skills`, and restarts the Codex app. Credentials and the 1Password configuration are not touched. A technician (or Atlas) can confirm the result with `halopsa.servers.list` using `include_status: true` and `check_updates: true`.
 
 ## Maintainer package builds
 

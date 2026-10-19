@@ -1,6 +1,6 @@
 ---
 name: halopsa-mcp
-description: Use for live HaloPSA lookups and technician-requested notes, time, assignment, Start Work, email, ticket, project, contract and sales opportunity operations.
+description: Use for live HaloPSA lookups and technician-requested notes, time, billing contracts and charge rates, assignment, Start Work, email, ticket, project, contract and sales opportunity operations.
 ---
 
 # HaloPSA technician operations
@@ -15,6 +15,8 @@ Use the bundled typed tools to finish the technician's requested outcome. Reuse 
 - Review client-visible notes, outgoing email, new ticket/project creation, status changes and contract/billing changes using `confirm: false` or omitted. Show the meaningful payload and possible effects, then accept one ordinary confirmation such as “yes” or “go ahead.” Pass `confirm: true`; no exact phrases are required. Group related reviews into one clear confirmation when possible.
 - For an authorized optional client troubleshooting or routine how-to conversation, use [service-desk-client-troubleshooting](../service-desk-client-troubleshooting/SKILL.md). Its invitation, relevant replies and closure after clear client confirmation of resolution or intended task completion use the technician's existing conversation authorization; do not request that authorization again per message or at closure. Continue to inspect previews, configured effects, current records and write readback.
 - A time entry already carries a private note. Do not create a duplicate private note unless requested. Ask for elapsed time only when missing; never invent it.
+- Billable work needs the record's contract and a billing type. Follow [ticket-billing-readiness](../ticket-billing-readiness/SKILL.md): read `ticket_context.billing`, link the contract with `contract_ref` or `contract_id` on `halopsa.tickets.update` / `halopsa.projects.update`, and pass the billing type by name as `charge_rate` on the time entry. Do not use the browser for a contract link; the typed tools validate the contract against the client and read the result back.
+- Keep large reads small. Pass `compact: true` on ticket, project, contract, client and action reads; `halopsa.agents.me` already omits the agent's 2 MB language pack unless `include_full` is set. Use `halopsa.tickets.audit` for who changed a field, `halopsa.time_entries.list` to review logged time, and `halopsa.servers.list` with `include_status: true` for the connector version, the authenticated agent and which tool groups the configured scopes cover. Add `check_updates: true` to learn whether a newer plugin release exists.
 - Use the exact tenant Start Work outcome with its current snapshot. Do not substitute a status update or claim that Halo's browser timer remains running.
 - Use the dedicated email tool and exact email-capable outcome; review recipients, subject, body and configured effects together. Private/public note tools do not send email.
 - Resolve ticket/project category, impact and urgency using tenant metadata and reasonable low-priority classifications when the request supports them. Do not demand technical IDs from the technician. Opportunities need no category, impact or urgency; follow [sales-opportunity-workflow](../sales-opportunity-workflow/SKILL.md) for prospects, contacts, opportunities, sales documents and stages.
@@ -30,15 +32,15 @@ Preserve the established 1Password Automation Vault and per-technician command-b
 
 ## Available Tools
 
-- `halopsa.servers.list` - list configured HaloPSA targets without exposing credentials.
+- `halopsa.servers.list` - list configured HaloPSA targets without exposing credentials; `include_status: true` adds the connector version, the authenticated agent, configured scopes and which tool groups they cover, and `check_updates: true` adds whether a newer plugin release exists.
 - `halopsa.clients.list` - list clients with search, active/inactive, and pagination filters.
 - `halopsa.clients.get` - get one client by ID.
 - `halopsa.invoices.list` - list invoices with client, date, payment, sent, and pagination filters.
 - `halopsa.invoices.get` - get one invoice by ID.
 - `halopsa.recurring_invoices.list` - list recurring invoices with client, date, sent, ready-for-invoicing, and pagination filters.
 - `halopsa.recurring_invoices.get` - get one recurring invoice by ID.
-- `halopsa.contracts.list` - list client contracts with client, site, type, renewal, and pagination filters.
-- `halopsa.contracts.get` - get one client contract by ID.
+- `halopsa.contracts.list` - list client contracts with client, site, type, renewal, and pagination filters; each carries its Agreement Subtype and billing description labels.
+- `halopsa.contracts.get` - get one client contract by ID; detailed reads include prepay totals, used and remaining balance.
 - `halopsa.contracts.create` - preview or create one client contract with dates, type, status, billing, invoice, and rolling fields.
 - `halopsa.contracts.update` - preview or update supported contract fields after `last_modified` revalidation.
 - `halopsa.purchase_orders.list` - list purchase orders with open/closed status, supplier, client, ticket, search, and pagination filters.
@@ -46,10 +48,10 @@ Preserve the established 1Password Automation Vault and per-technician command-b
 - `halopsa.projects.list` - list projects with client, site, agent, status, milestone, team, text, date, and pagination filters.
 - `halopsa.projects.get` - get one project by ID.
 - `halopsa.projects.create` - preview or create one project with typed routing, required category/impact/urgency, dates, milestone, and budget fields.
-- `halopsa.projects.update` - update supported project fields after `last_update` revalidation.
+- `halopsa.projects.update` - update supported project fields, including the billing contract, after `last_update` revalidation.
 - `halopsa.projects.update_status` - change one project's status after current/allowed-status revalidation.
 - `halopsa.tickets.list` - list tickets with client, site, user, agent, status, priority, team, text, date, and pagination filters.
-- `halopsa.tickets.get` - get one ticket with additional agents, team/queue, workflow and native/custom change plans, optionally including recent actions/notes.
+- `halopsa.tickets.get` - get one ticket with additional agents, team/queue, workflow, native/custom change plans and billing context (linked contract, offered contracts with remaining hours, warnings), optionally including recent actions/notes. `compact: true` is about 95% smaller.
 - `halopsa.ticket_statuses.list` - list ticket statuses, optionally narrowed to an exact ticket or ticket type.
 - `halopsa.ticket_actions.list` - list ticket actions/notes for a specific ticket, optionally narrowed to conversation/public actions or a date window, with email HTML when needed. Leave `agent_only` false when reading client replies.
 - `halopsa.ticket_outcomes.list` - list tenant-configured action outcomes available for an exact ticket or explicit state.
@@ -58,9 +60,9 @@ Preserve the established 1Password Automation Vault and per-technician command-b
 - `halopsa.ticket_actions.send_email` - preview or send one ticket email through an exact email-capable outcome and ordinary confirmation. Optional `email_template_id` selects a template for this message only; custom IDs may be negative. Omit it to keep the action's default template and signature behavior.
 - `halopsa.ticket_actions.create_public_note` - add one public/client-visible note to an exact ticket after explicit approval; no email, status, time, attachment, or private-note side effects.
 - `halopsa.ticket_actions.create_private_note` - add one internal/private, non-email note to an exact ticket or project; this is the default note path.
-- `halopsa.ticket_actions.create_time_entry` - log one private, non-email time entry against an exact ticket or project.
+- `halopsa.ticket_actions.create_time_entry` - log one private, non-email time entry against an exact ticket or project; `charge_rate` resolves a billing type by name, the preview warns when no contract is linked, and the entry is read back.
 - `halopsa.tickets.create` - preview or create one ticket with explicit routing, required category/impact/urgency, and content fields; one attempt only.
-- `halopsa.tickets.update` - update supported ticket routing/content/category/parent fields after `last_update` revalidation.
+- `halopsa.tickets.update` - update supported ticket routing/content/category/parent fields and the billing contract (`contract_ref`, `contract_id` or `clear_contract`) after `last_update` revalidation; the preview shows the contract and warnings and the write is read back.
 - `halopsa.tickets.update_status` - change one exact ticket's status only after current-status revalidation and ordinary confirmation; one attempt only.
 
 - `halopsa.opportunities.list` - list the opportunity area (not returned by `halopsa.tickets.list`) by client, contact, agent, status, type and summary.
@@ -72,8 +74,16 @@ Preserve the established 1Password Automation Vault and per-technician command-b
 - `halopsa.attachments.list` - list attachments on an exact ticket, opportunity or project.
 - `halopsa.attachments.upload` - preview or upload one local sales document or image as an internal attachment, confirmed with the preview's SHA-256.
 
-- `halopsa.metadata.list` - resolve agents, teams/queues, workflows, field definitions, sites, users, ticket types, categories, priorities, charge rates, top levels and client relationships using typed filters.
-- `halopsa.agents.me` - identify the authenticated technician for my work and assignment requests.
+- `halopsa.metadata.list` - resolve agents, teams/queues, workflows, field definitions, sites, users, ticket types, categories, priorities, charge rates (named billing types with effective hourly rates), Agreement Subtype labels (`contract_subtypes`), billing descriptions, top levels, client relationships and any HaloPSA pick-list (`lookup` with `lookup_id`) using typed filters.
+- `halopsa.agents.me` - identify the authenticated technician for my work and assignment requests; identity fields only unless `include_full` is set.
+- `halopsa.tickets.audit` - list a ticket, project or opportunity's change history, newest first: who changed which field, from what, to what and when.
+- `halopsa.time_entries.list` - list an agent's logged time for a date window from the timesheet, with charge type names and totals; defaults to my time today.
+- `halopsa.assets.list` - list assets (devices and configuration items) by client, site, assigned user or type, with search. A ticket's linked assets are in `halopsa.tickets.get` with `compact: true` as `linked_assets`.
+- `halopsa.assets.get` - get one asset with its type-specific fields.
+
+## Contracts and billing
+
+A ticket or project bills against its linked contract. `ticket_context.billing` (projects: `billing`) shows `contract_linked`, the contracts HaloPSA offers with remaining hours and any warning. Link it with `contract_ref` (exact reference within the record's client) or `contract_id`; `clear_contract` unlinks. The connector refuses a contract of another client or one that is inactive, not started or expired, shows the contract it replaces in the preview, and reads the record back after the write. Linking needs only `edit:tickets`; creating or editing contract records needs `edit:contracts`. Agreement Subtype labels come from the tenant: use `subtype_label` on contract reads or metadata kind `contract_subtypes` rather than assuming a numeric mapping.
 
 ## Ticket context and change plans
 
