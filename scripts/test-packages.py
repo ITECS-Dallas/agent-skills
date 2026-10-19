@@ -6,6 +6,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import platform
 import shutil
 import subprocess
 import tempfile
@@ -28,6 +29,23 @@ def executable(path, content):
     path.chmod(0o755)
 
 
+def host_target():
+    system = platform.system().lower()
+    machine = platform.machine().lower()
+    return system + '-' + ('arm64' if machine in ('arm64', 'aarch64') else 'amd64')
+
+
+def check_connector_version(plugin, manifest, metadata):
+    """The connector reports the plugin's version, so a stale binary cannot ship."""
+    record = next((row for row in manifest['binaries'] if row['target'] == host_target()), None)
+    if record is None:
+        return
+    result = execute([str(plugin / record['path']), '-version'])
+    expected = 'halopsa-mcp ' + metadata['version']
+    check(result.returncode == 0 and result.stdout.strip() == expected,
+          'connector version %r does not match plugin %r' % (result.stdout.strip(), expected))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--plugin', help='Test one connector plugin without requiring other platforms')
@@ -46,6 +64,7 @@ def main():
             metadata = json.loads((plugin / '.codex-plugin/plugin.json').read_text())
             check(manifest['version'] == metadata['version'], 'build version: ' + entry['plugin'])
             if entry['plugin'] == 'itecs-halopsa':
+                check_connector_version(plugin, manifest, metadata)
                 check(bool(manifest.get('runtime_files')), 'missing RELAY runtime manifest')
                 runtime = plugin / 'runtime/itecs-relay'
                 actual = {str(path.relative_to(plugin)) for path in runtime.rglob('*')

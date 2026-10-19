@@ -2,6 +2,8 @@
   "plugins": {
     "itecs-halopsa": [
       "halopsa.agents.me",
+      "halopsa.assets.get",
+      "halopsa.assets.list",
       "halopsa.attachments.list",
       "halopsa.attachments.upload",
       "halopsa.clients.create",
@@ -37,11 +39,13 @@
       "halopsa.ticket_outcomes.get",
       "halopsa.ticket_outcomes.list",
       "halopsa.ticket_statuses.list",
+      "halopsa.tickets.audit",
       "halopsa.tickets.create",
       "halopsa.tickets.get",
       "halopsa.tickets.list",
       "halopsa.tickets.update",
       "halopsa.tickets.update_status",
+      "halopsa.time_entries.list",
       "halopsa.users.create"
     ],
     "itecs-vcenter": [
@@ -92,7 +96,7 @@
     ]
   },
   "source_revisions": {
-    "itecs-halopsa": "2c98c22a3f10dc4cc513666650b5ea1a4f6b85d6",
+    "itecs-halopsa": "aa51e96a4751918c8889688b69dabdeea0669424",
     "itecs-vcenter": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
     "itecs-pax8": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
     "itecs-veeam-cloud-connect": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",

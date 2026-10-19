@@ -1,8 +1,19 @@
 # ITECS HaloPSA for Atlas
 
-Version 0.13.0 packages 42 typed tools (23 reads and 19 writes) for macOS, Windows and Linux, including tenant metadata, the authenticated technician and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Routine internal requests use existing chat authorization. Client-visible, creation, stage and billing changes use a single ordinary confirmation. All writes use `confirm`; no exact approval phrases are required.
+Version 0.14.0 packages 46 typed tools (27 reads and 19 writes) for macOS, Windows and Linux, including tenant metadata, the authenticated technician, billing contracts and charge rates, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Routine internal requests use existing chat authorization. Client-visible, creation, stage and billing changes use a single ordinary confirmation. All writes use `confirm`; no exact approval phrases are required.
 
 See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Restart into a new Codex task after updating the plugin.
+
+## What changed in 0.14.0
+
+- **Contracts on tickets and projects.** `halopsa.tickets.update`, `halopsa.projects.update` and the two create tools link a record to its billing contract by `contract_ref` (the reference, matched exactly within the record's client) or `contract_id`; the update tools also take `clear_contract`. The connector refuses another client's contract and any contract that is inactive, not started or expired. Previews show the contract being linked and the one it replaces, and the write is read back. A time entry on a record with no contract draws from nothing, so link the contract first. See [ticket-billing-readiness](skills/ticket-billing-readiness/SKILL.md).
+- **Billing types by name.** `halopsa.ticket_actions.create_time_entry` takes `charge_rate` by name (`No Charge` is sent explicitly); the preview shows the resolved rate, the ticket's contract state and warnings, and the entry is read back. `halopsa.metadata.list` kind `charge_rates` returns named billing types with effective hourly rates (it used to return unnamed rate rows); `contract_subtypes`, `billing_descriptions` and `lookup` read other HaloPSA pick-lists. Contract reads add `subtype_label` and `billing_description_label`.
+- **Compact reads.** `compact: true` on ticket, project, contract, client, action and metadata reads returns the working fields without the duplicated raw payload (a detailed ticket drops by about 95%). `halopsa.agents.me` no longer returns the agent's 2 MB language pack unless `include_full` is set. Other defaults that changed: contract reads add the label fields, the `charge_rates` catalog returns named rates, and a ticket or project update that sets an id field or contract reads the record back once. No existing field was removed or renamed.
+- **Context tools.** `halopsa.tickets.audit` (who changed a field and when), `halopsa.time_entries.list` (an agent's logged time for a date window, with charge types and totals), `halopsa.assets.list` and `halopsa.assets.get`. `halopsa.tickets.list` accepts `contract_id` and `include_time_taken`; `halopsa.ticket_actions.list` accepts `time_entries_only`.
+- **Self-diagnosis.** `halopsa.servers.list` with `include_status: true` reports the connector version, the authenticated agent, the configured OAuth scopes and which tool groups they cover, so a missing scope is explained before a write fails. `check_updates: true` also says whether a newer plugin release exists.
+- **Safer closure and rate limits.** `halopsa.tickets.update_status` accepts the `expected_last_update` from a ticket read, so a new client reply stops an automatic closure even when the status is unchanged. Reads that HaloPSA rate-limits wait for its `Retry-After`.
+
+Scopes: linking a contract and logging time need `edit:tickets`. Creating or editing contract records needs `edit:contracts`, `halopsa.time_entries.list` needs `read:timesheets`, and `halopsa.assets.*` need `read:assets`. Add them to the item's `HALO_SCOPE` and the HaloPSA API application's permissions only where that technician needs them.
 
 ## Tool Surface
 
@@ -50,6 +61,10 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.users.create`
 - `halopsa.attachments.list`
 - `halopsa.attachments.upload`
+- `halopsa.tickets.audit`
+- `halopsa.time_entries.list`
+- `halopsa.assets.list`
+- `halopsa.assets.get`
 
 Ticket action reads support conversation/public filters, date windows and optional email HTML. Keep `agent_only` false to include client replies, and preserve action IDs/authorship when continuing a conversation.
 
@@ -106,7 +121,7 @@ export HALOPSA_MCP_CONFIG=/absolute/path/to/config.json
 
 Each technician uses that technician's own Automation Vault item named `GO-MCP HaloPSA <Technician> Read Write`. The setup scripts validate all six expected fields, exact agent identity, approved URLs, ticket and optional sales scopes, and OAuth before writing a config. The generated file contains only command-backed references for `HALO_CLIENT_ID`, `HALO_CLIENT_SECRET`, and `HALO_SCOPE`; it never contains resolved credentials.
 
-Each technician must use that technician's own `GO-MCP HaloPSA <Technician> Read Write` identity so HaloPSA attribution remains individual. The credential must retain the required read permissions and `edit:tickets`. The sales opportunity writes also need `read:crm` and `edit:crm` (opportunity updates, workflow actions and attachments) and `edit:customers` (client and contact creation) on both the item's `HALO_SCOPE` and the HaloPSA API application's permissions; without them HaloPSA rejects those writes. A live write test uses the technician's designated test record and authorized action with the existing preview and readback behavior.
+Each technician must use that technician's own `GO-MCP HaloPSA <Technician> Read Write` identity so HaloPSA attribution remains individual. The credential must retain the required read permissions and `edit:tickets`; `halopsa.servers.list` with `include_status: true` shows which tool groups the configured scopes cover. The sales opportunity writes also need `read:crm` and `edit:crm` (opportunity updates, workflow actions and attachments) and `edit:customers` (client and contact creation) on both the item's `HALO_SCOPE` and the HaloPSA API application's permissions; without them HaloPSA rejects those writes. A live write test uses the technician's designated test record and authorized action with the existing preview and readback behavior.
 
 Do not commit `.env`, local config JSON, API tokens, client secrets, raw HaloPSA exports, or generated billing reports.
 
@@ -177,13 +192,20 @@ Start a new Codex thread after installing so the plugin MCP tools are loaded.
 
 ## Refresh An Existing Installation
 
-After this marketplace repository is updated, reinstall the plugin so Codex refreshes its cached runtime:
+After this marketplace repository is updated, refresh the marketplace snapshot and reinstall the plugin so Codex replaces its cached runtime:
 
 ```bash
+codex plugin marketplace upgrade itecs-agent-skills
 codex plugin add itecs-halopsa@itecs-agent-skills
 ```
 
-Then restart Codex Desktop or start a new thread. Existing threads keep the tool schema that was loaded when the thread started.
+If `codex plugin marketplace list` shows `itecs-agent-skills` pointing at a folder on disk (a local clone), update that clone instead of running `marketplace upgrade`: `git -C <that folder> pull --ff-only`, then `codex plugin add itecs-halopsa@itecs-agent-skills`. A machine whose clone was never pulled keeps installing the old version.
+
+Then restart Codex Desktop or start a new thread. Existing threads keep the tool schema that was loaded when the thread started. Windows and Linux machines run the same two commands.
+
+Confirm the update from a new thread: ask Atlas to call `halopsa.servers.list` with `include_status: true` and `check_updates: true` and check that `connector_version` is the current plugin version and `update_available` is false. Without an AI session, `scripts/doctor --discover` lists the tools the installed binary exposes, and `scripts/doctor` prints the installed version. Your existing 1Password configuration is unchanged by an update; if the new tools report a missing scope, only the item's `HALO_SCOPE` and the API application's permissions need adjusting.
+
+Claude Code users who launch the connector from the newest build under `~/.codex/plugins/cache/itecs-agent-skills/itecs-halopsa/` pick up the new version after the two commands above and a restart of Claude Code.
 
 ## Local Smoke Test
 
