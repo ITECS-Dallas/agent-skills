@@ -31,5 +31,5 @@ Change potential value, target date or contact fields with `halopsa.opportunitie
 
 - An explicit technician request authorizes the requested client, contact, opportunity, document, note or workflow operation. Use the preview to resolve tenant requirements, then execute with `confirm: true` under that authorization; do not request a second confirmation. Ask only for missing required facts or an expanded action that was not requested.
 - Each write is attempted once. Report completion from the tool's `readback`. If it shows a mismatch or error, report it and read the record; never retry blindly.
-- These writes need the technician's HaloPSA credential to include `read:crm` and `edit:crm` (opportunities) and `edit:customers` (clients and contacts). A permission error means the credential or role needs updating; stop and report it.
+- These writes need the technician's HaloPSA credential to include `read:sales` and `edit:sales` (opportunities) and `edit:customers` (clients and contacts). A permission error means the credential or role needs updating; stop and report it.
 - Never put credentials, government IDs, bank or card numbers, or health records in notes or attachments.

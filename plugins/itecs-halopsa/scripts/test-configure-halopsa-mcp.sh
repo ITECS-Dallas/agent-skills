@@ -99,7 +99,7 @@ fi
 [[ ! -e "$MISMATCH_CONFIG" ]] || { printf 'mismatch config was written\n' >&2; exit 1; }
 
 SALES_CONFIG="$TEST_ROOT/sales.json"
-TEST_HALO_SCOPE="read:tickets edit:tickets read:customers edit:customers read:crm edit:crm" PATH="$FAKE_BIN:$PATH" "$CONFIGURATOR" --technician "Daniel Moran" --op-command "$FAKE_BIN/op-itecs" --config "$SALES_CONFIG" >/dev/null
+TEST_HALO_SCOPE="read:tickets edit:tickets read:customers edit:customers read:sales edit:sales" PATH="$FAKE_BIN:$PATH" "$CONFIGURATOR" --technician "Daniel Moran" --op-command "$FAKE_BIN/op-itecs" --config "$SALES_CONFIG" >/dev/null
 [[ -s "$SALES_CONFIG" ]] || { printf 'sales scope config was not written\n' >&2; exit 1; }
 
 SCOPE_CONFIG="$TEST_ROOT/scope.json"
