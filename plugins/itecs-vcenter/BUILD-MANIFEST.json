@@ -1,10 +1,10 @@
 {
   "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
-  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_revision": "690cf1c721ea045ea3c7070f93eea0b6be484f95",
   "source_dirty": false,
-  "go_toolchain": "go version go1.27.1 darwin/arm64",
+  "go_toolchain": "go version go1.27.2 darwin/arm64",
   "plugin": "itecs-vcenter",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "build_flags": [
     "-trimpath",
     "-ldflags=-s -w -buildid="
@@ -13,32 +13,32 @@
     {
       "path": "bin/vcenter-mcp-darwin-amd64",
       "target": "darwin-amd64",
-      "sha256": "92608dcf9b81657dea40e4a56bb56975cdcd28466a0f09d0f8ce269432d94b20",
-      "bytes": 16711056,
+      "sha256": "f7c5dc87bef7a8d97acf94feda54a4fb8ef3fc614584785b7c059e486f20aabd",
+      "bytes": 16886464,
       "module": "connectors/vcenter",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/vcenter-mcp-darwin-arm64",
       "target": "darwin-arm64",
-      "sha256": "5d4aeb3c7aec49053d8184718822bd02fc94063db6184bbe8cee7889ae56cd49",
-      "bytes": 15367410,
+      "sha256": "204c889337498981af0d25bc72e69e5591865bb21130c1f345046c6f2a866bbf",
+      "bytes": 15535922,
       "module": "connectors/vcenter",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/vcenter-mcp-windows-amd64.exe",
       "target": "windows-amd64",
-      "sha256": "9c3695c429e45014cebf5b5d2d78dcd8d4d7691dcf85bfbfb5036374354c7b66",
-      "bytes": 16528896,
+      "sha256": "b07b27af4694f88a7143f07af192c23242b9b5d2e1ad9996949af2a995dbe6fa",
+      "bytes": 16543232,
       "module": "connectors/vcenter",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/vcenter-mcp-windows-arm64.exe",
       "target": "windows-arm64",
-      "sha256": "c42640162f5457d15c257293a15293bf01bbdbccef40d5945d38cc29a3acca8e",
-      "bytes": 14913536,
+      "sha256": "5e88c0b31d7227ac8261f29f6996b28410773e978c177e0d0c51300fec854fc3",
+      "bytes": 14927360,
       "module": "connectors/vcenter",
       "command": "./cmd/mcp"
     }

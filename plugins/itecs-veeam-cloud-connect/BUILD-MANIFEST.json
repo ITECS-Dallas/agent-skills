@@ -1,10 +1,10 @@
 {
   "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
-  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_revision": "690cf1c721ea045ea3c7070f93eea0b6be484f95",
   "source_dirty": false,
-  "go_toolchain": "go version go1.27.1 darwin/arm64",
+  "go_toolchain": "go version go1.27.2 darwin/arm64",
   "plugin": "itecs-veeam-cloud-connect",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "build_flags": [
     "-trimpath",
     "-ldflags=-s -w -buildid="
@@ -13,32 +13,32 @@
     {
       "path": "bin/veeam-cloud-connect-mcp-darwin-amd64",
       "target": "darwin-amd64",
-      "sha256": "7d72661f5462a15ff07a09097e9b9c442528aa72a5cb39ffc6c040fa344b7200",
-      "bytes": 9009200,
+      "sha256": "d557ea8f077f7a7e723355632a457e93e046cbfca45aa028fc91779ec846f687",
+      "bytes": 9188304,
       "module": "connectors/veeam-cloud-connect",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/veeam-cloud-connect-mcp-darwin-arm64",
       "target": "darwin-arm64",
-      "sha256": "5a03df4c34bd54e59c20e90efac567a1c35b0b85d18b45bd341828642932f032",
-      "bytes": 8369170,
+      "sha256": "fe6825f3e5bd2482bff21c9561bafb9086eb619addc99266e498943819a134c2",
+      "bytes": 8520786,
       "module": "connectors/veeam-cloud-connect",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/veeam-cloud-connect-mcp-windows-amd64.exe",
       "target": "windows-amd64",
-      "sha256": "e93c00e0c36db91b640d95a1423b72b8d42d801c4d19acb8ff4d1e827fd824b6",
-      "bytes": 9059840,
+      "sha256": "8367cbcfca350e61aa26bfc82cc0a149ae654b4a5668717e1f6ef6c9b2fd99b3",
+      "bytes": 9073664,
       "module": "connectors/veeam-cloud-connect",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/veeam-cloud-connect-mcp-windows-arm64.exe",
       "target": "windows-arm64",
-      "sha256": "5e8b26e5b33faf977c170f9da9a030fafe3df433cd026516de778b03fbf898ed",
-      "bytes": 8279552,
+      "sha256": "f2736ffe90d9fb4d50098e5b7af9f9b8db5616d078c04859b8b7804a28426f4b",
+      "bytes": 8292864,
       "module": "connectors/veeam-cloud-connect",
       "command": "./cmd/mcp"
     }

@@ -1,10 +1,10 @@
 {
   "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
-  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_revision": "690cf1c721ea045ea3c7070f93eea0b6be484f95",
   "source_dirty": false,
-  "go_toolchain": "go version go1.27.1 darwin/arm64",
+  "go_toolchain": "go version go1.27.2 darwin/arm64",
   "plugin": "itecs-pax8",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "build_flags": [
     "-trimpath",
     "-ldflags=-s -w -buildid="
@@ -13,32 +13,32 @@
     {
       "path": "bin/pax8-mcp-darwin-amd64",
       "target": "darwin-amd64",
-      "sha256": "e5d58a31bd4a376b589ae72e6702218c5428a76ca77efad29195ccc63b2dcb81",
-      "bytes": 8977328,
+      "sha256": "b7e57aa9acb752531d5f92330a3e8f585ae7204e43cc3fd558929708ec466964",
+      "bytes": 9156432,
       "module": "connectors/pax8",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/pax8-mcp-darwin-arm64",
       "target": "darwin-arm64",
-      "sha256": "3ec75950efb4dff21757d572755ca4d39533b6dd157553dc562abe6230993ab9",
-      "bytes": 8316402,
+      "sha256": "0bd7ef0cd176ea775ff7e981c84d59fec8b09b1d6b5e8998c76aa5ecea0ba21c",
+      "bytes": 8484530,
       "module": "connectors/pax8",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/pax8-mcp-windows-amd64.exe",
       "target": "windows-amd64",
-      "sha256": "aff02b6ecf11d2ccad831858be88d866102c3fcfcc0f07437401811a509f6fc0",
-      "bytes": 9026048,
+      "sha256": "a834eb902c028e0d89d934bfa6a6e813e20adac58aaf63a26380b809b41a256a",
+      "bytes": 9041408,
       "module": "connectors/pax8",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/pax8-mcp-windows-arm64.exe",
       "target": "windows-arm64",
-      "sha256": "83b2d97a30dd2a9dc51a235c012ff4f85f60f2410c5901ebf21f8d30d229ddd3",
-      "bytes": 8247808,
+      "sha256": "9b8b57bf1fc28602e61c7a8cd3b541d6a9b3724e7ee519609e74f811cca19cc2",
+      "bytes": 8260608,
       "module": "connectors/pax8",
       "command": "./cmd/mcp"
     }

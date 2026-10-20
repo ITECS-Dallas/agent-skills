@@ -104,11 +104,11 @@
   },
   "source_revisions": {
     "itecs-halopsa": "bf90e3cc7a3df83f8c95885394790107db8150bb",
-    "itecs-vcenter": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
-    "itecs-pax8": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
-    "itecs-veeam-cloud-connect": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
-    "itecs-sophos-central": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
-    "itecs-checkpoint-harmony": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
-    "itecs-commvault": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195"
+    "itecs-vcenter": "690cf1c721ea045ea3c7070f93eea0b6be484f95",
+    "itecs-pax8": "690cf1c721ea045ea3c7070f93eea0b6be484f95",
+    "itecs-veeam-cloud-connect": "690cf1c721ea045ea3c7070f93eea0b6be484f95",
+    "itecs-sophos-central": "690cf1c721ea045ea3c7070f93eea0b6be484f95",
+    "itecs-checkpoint-harmony": "690cf1c721ea045ea3c7070f93eea0b6be484f95",
+    "itecs-commvault": "690cf1c721ea045ea3c7070f93eea0b6be484f95"
   }
 }

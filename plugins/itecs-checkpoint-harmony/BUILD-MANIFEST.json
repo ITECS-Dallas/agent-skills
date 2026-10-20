@@ -1,10 +1,10 @@
 {
   "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
-  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_revision": "690cf1c721ea045ea3c7070f93eea0b6be484f95",
   "source_dirty": false,
-  "go_toolchain": "go version go1.27.1 darwin/arm64",
+  "go_toolchain": "go version go1.27.2 darwin/arm64",
   "plugin": "itecs-checkpoint-harmony",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "build_flags": [
     "-trimpath",
     "-ldflags=-s -w -buildid="
@@ -13,32 +13,32 @@
     {
       "path": "bin/checkpoint-harmony-mcp-darwin-amd64",
       "target": "darwin-amd64",
-      "sha256": "494a3a3bd49ee0623b88a0f8ada706a4a0ca4edb456dcc054be1a07c81aecb17",
-      "bytes": 9098528,
+      "sha256": "16592d86211c2e8cdd6537f85c0877b8af6d55735c1c87c357fc0924e2b658fd",
+      "bytes": 9277632,
       "module": "connectors/checkpoint-harmony",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/checkpoint-harmony-mcp-darwin-arm64",
       "target": "darwin-arm64",
-      "sha256": "8a048526f6e264b81de8b93735220a0ffdaf0257b95c2b0b832008f39579131d",
-      "bytes": 8434434,
+      "sha256": "674537a280ef4217a7750aa2d6f2eef5eee58cadb39d8bad666af9a54a647e64",
+      "bytes": 8602530,
       "module": "connectors/checkpoint-harmony",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/checkpoint-harmony-mcp-windows-amd64.exe",
       "target": "windows-amd64",
-      "sha256": "eeeba89dacf92d4ddb5a753ff3a80ef5a68383096ac406290bf31056e7b500a0",
-      "bytes": 9148416,
+      "sha256": "f49a16e6c2e0ed66a45fb471f65d1ac162520ca60d46d26f9d27dca403122f90",
+      "bytes": 9162752,
       "module": "connectors/checkpoint-harmony",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/checkpoint-harmony-mcp-windows-arm64.exe",
       "target": "windows-arm64",
-      "sha256": "d97fc9fa0629925fa330a4d5bbed04c86df2ce0ee470796933ee235bbeb0cfca",
-      "bytes": 8364032,
+      "sha256": "44a76525464ecd302d7ae61d4d7e70fd8e022bd326664876344a036cad354110",
+      "bytes": 8376832,
       "module": "connectors/checkpoint-harmony",
       "command": "./cmd/mcp"
     }
