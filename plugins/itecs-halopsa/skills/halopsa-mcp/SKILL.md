@@ -147,3 +147,9 @@ If HaloPSA tools are not callable, check startup layers before checking vendor a
 3. Treat `/usr/bin/env: 'bash\r': No such file or directory` as a launcher line-ending or wrong-Bash-runtime issue, not a HaloPSA API issue.
 4. Treat `codex.exe` under `WindowsApps` returning `Access is denied` as a local Codex/PATH issue.
 5. On the ITECS Mac, confirm `/opt/homebrew/bin/op-itecs` can read the configured fields without printing their values. Stop on failure; do not fall back to plain `op`.
+
+## Release 0.16.0 write behavior
+
+Asset updates merge requested asset-type values into the current field list, preserving unrelated values during all edits. Set a specific field's value to empty to clear it. Contract `description` is the writable `note` field, not the computed `refextra` reference. Contract creation and updates, and ticket/project text, dates and budgets, return independent readback. Missing requested fields or nested values are unverified; report the result without repeating the write.
+
+Sales opportunity scopes are `read:sales` and `edit:sales`. Customer, asset and contract writes require `edit:customers`, `edit:assets` and `edit:contracts` respectively. Keep each technician's existing command-backed Vault identity and configure the matching Halo application permissions. Plugin updates do not change credentials. For a local-path marketplace, pull its clean checkout before reinstalling the plugin; the marketplace-upgrade command applies to Git-backed registrations.
