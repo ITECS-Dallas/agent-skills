@@ -1,6 +1,6 @@
 {
   "name": "itecs-vcenter",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "ITECS vCenter tools for technician operations and billing evidence.",
   "author": {
     "name": "ITECS-Dallas"
