@@ -1,8 +1,17 @@
 # ITECS HaloPSA for Atlas
 
-Version 0.14.0 packages 46 typed tools (27 reads and 19 writes) for macOS, Windows and Linux, including tenant metadata, the authenticated technician, billing contracts and charge rates, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Routine internal requests use existing chat authorization. Client-visible, creation, stage and billing changes use a single ordinary confirmation. All writes use `confirm`; no exact approval phrases are required.
+Version 0.15.0 packages 53 typed tools (27 reads and 26 writes) for macOS, Windows and Linux, including tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Routine internal requests use existing chat authorization. Client-visible, creation, stage and billing changes use a single ordinary confirmation. All writes use `confirm`; no exact approval phrases are required.
 
 See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Restart into a new Codex task after updating the plugin.
+
+## What changed in 0.15.0
+
+- **Correct time entries and notes.** `halopsa.ticket_actions.update` edits an existing action: hours, non-billable hours, billing type by name (`charge_rate`) or id, contract by reference or id, date done, note, private or public, important, travel, mileage and reviewed. HaloPSA recalculates the entry's billing when it is saved, so moving an entry to a billable rate on a pre-pay contract deducts its hours and moving it back releases them. Correct the entry instead of logging a second one. `halopsa.ticket_actions.delete` removes one action and confirms it is gone.
+- **Edit customers and assets.** `halopsa.clients.update`, `halopsa.users.update` and `halopsa.sites.update` edit clients, contacts and sites (site address lines merge into the current address, and no email is sent). `halopsa.assets.create` and `halopsa.assets.update` create and edit assets, setting asset-type fields such as a hostname or serial number by id or name.
+- **Any other field.** The edit tools and `halopsa.tickets.update`, `halopsa.projects.update` and `halopsa.contracts.update` accept `extra_fields`, a map of other HaloPSA fields by API name sent as given. Tickets, projects, clients, contacts, sites and assets also take `custom_fields` by id.
+- Every edit previews against the record's current values, writes once and reads the record back. No new refusals were added.
+
+Scopes: action edits and deletes need `edit:tickets`. Client, contact and site updates need `edit:customers`, and asset writes need `edit:assets`; `halopsa.servers.list` with `include_status: true` shows which ones the configured scope covers.
 
 ## What changed in 0.14.0
 
@@ -65,6 +74,13 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.time_entries.list`
 - `halopsa.assets.list`
 - `halopsa.assets.get`
+- `halopsa.ticket_actions.update`
+- `halopsa.ticket_actions.delete`
+- `halopsa.clients.update`
+- `halopsa.users.update`
+- `halopsa.sites.update`
+- `halopsa.assets.create`
+- `halopsa.assets.update`
 
 Ticket action reads support conversation/public filters, date windows and optional email HTML. Keep `agent_only` false to include client replies, and preserve action IDs/authorship when continuing a conversation.
 

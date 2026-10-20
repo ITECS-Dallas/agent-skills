@@ -1,7 +1,7 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.14.0",
-  "description": "ITECS HaloPSA tools for technician operations, billing contracts and charge rates, compact AI-friendly reads, the sales opportunity workflow, Linux Codex CLI support and billing evidence.",
+  "version": "0.15.0",
+  "description": "ITECS HaloPSA tools for technician operations, billing contracts and charge rates, editing time entries, notes, clients, contacts, sites and assets, compact AI-friendly reads, the sales opportunity workflow, Linux Codex CLI support and billing evidence.",
   "author": {
     "name": "ITECS-Dallas"
   },
@@ -22,14 +22,15 @@
     "attachments",
     "contracts",
     "time-entries",
-    "charge-rates"
+    "charge-rates",
+    "assets"
   ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "ITECS HaloPSA",
     "shortDescription": "HaloPSA technician operations",
-    "longDescription": "46 typed tools with visible additional agents, queues, workflows, native/custom change plans, metadata and current-agent resolution, notes, time with named billing types, billing contracts on tickets and projects, Start Work, email, tickets, projects and contracts, change history, timesheet and asset reads, compact responses for AI sessions, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Includes optional client troubleshooting and confirmed-resolution closure workflows. Runs on Linux, macOS and Windows with the existing command-backed 1Password setup.",
+    "longDescription": "53 typed tools with visible additional agents, queues, workflows, native/custom change plans, metadata and current-agent resolution, notes, time with named billing types, edits of existing time entries and notes (hours, billing type, contract, date, note, visibility) and their deletion, client, contact, site and asset edits with asset creation, any other HaloPSA field through extra_fields, billing contracts on tickets and projects, Start Work, email, tickets, projects and contracts, change history, timesheet and asset reads, compact responses for AI sessions, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Includes optional client troubleshooting and confirmed-resolution closure workflows. Runs on Linux, macOS and Windows with the existing command-backed 1Password setup.",
     "developerName": "ITECS-Dallas",
     "category": "Business",
     "capabilities": [
