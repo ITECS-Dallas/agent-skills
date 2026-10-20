@@ -1,6 +1,6 @@
 ---
 name: ticket-billing-readiness
-description: Use when a HaloPSA ticket or project must be ready to bill - link, switch or clear its contract, pick the billing type (charge rate), log billable time against the right contract, review logged time, or check remaining contract hours.
+description: Use when a HaloPSA ticket or project must be ready to bill - link, switch or clear its contract, pick the billing type (charge rate), log billable time against the right contract, correct or remove a logged time entry, review logged time, or check remaining contract hours.
 ---
 
 # Ticket billing readiness
@@ -39,7 +39,18 @@ An explicit request that names the record and the contract authorizes `confirm: 
 
 Use `halopsa.ticket_actions.create_time_entry` with the duration the technician supplied (never estimate it), the work note, and `charge_rate`. The preview shows the resolved charge rate and hourly rate and warns when the record has no contract or no charge rate; fix those first (steps 2 and 3), then confirm. The entry is read back and compared; report from the readback.
 
-## 5. Review time and explain changes
+## 5. Correct logged time
+
+Change an entry that is already logged with `halopsa.ticket_actions.update` instead of logging a second entry for the same work. Take its id from `halopsa.time_entries.list` (`action_number`) or `halopsa.ticket_actions.list` with `time_entries_only: true`. Supply only what changes:
+
+- `hours` and `nonbillable_hours` (`0` makes the whole entry billable);
+- `charge_rate` by exact name, or `charge_rate_id` (`0` is No Charge);
+- `contract_ref` or `contract_id` to bill the entry against another contract of the ticket's client (written as HaloPSA's `action_contract_id`);
+- `performed_at`, `note`, `hidden_from_user` or anything else through `extra_fields`.
+
+The preview shows each field's current value beside the new one. HaloPSA recalculates the entry's billing when it is saved: a billable rate on a pre-pay contract deducts the hours, and No Charge releases them. Read `halopsa.contracts.get` with `include_details: true` afterwards to confirm the balance. Warnings about an entry that is processed, invoiced or locked from recalculation are informational. To remove a duplicate or mistaken entry, use `halopsa.ticket_actions.delete`.
+
+## 6. Review time and explain changes
 
 - `halopsa.time_entries.list` shows an agent's logged time for a date window (default: my time today) with charge type names and totals by charge type and ticket.
 - `halopsa.ticket_actions.list` with `time_entries_only: true` shows one record's entries.
@@ -49,6 +60,6 @@ When reviewing a day or week, check each ticket that has time with step 1 and li
 
 ## Limits
 
-- Time already logged on the record may keep its previous contract after a change. Check existing entries (step 5) and tell the technician if any need billing recalculated in HaloPSA.
+- Time already logged on the record may keep its previous contract after a change. Check existing entries (step 6) and move them with `halopsa.ticket_actions.update` and `contract_ref` when they should follow the new contract.
 - The connector cannot adjust a contract's balance, issue credits or invoice. Say so rather than working around it.
-- Scopes: linking a contract and logging time need `edit:tickets`; `halopsa.time_entries.list` needs `read:timesheets`.
+- Scopes: linking a contract, logging time and correcting or deleting entries need `edit:tickets`; `halopsa.time_entries.list` needs `read:timesheets`.

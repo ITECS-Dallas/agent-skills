@@ -2,13 +2,16 @@
   "plugins": {
     "itecs-halopsa": [
       "halopsa.agents.me",
+      "halopsa.assets.create",
       "halopsa.assets.get",
       "halopsa.assets.list",
+      "halopsa.assets.update",
       "halopsa.attachments.list",
       "halopsa.attachments.upload",
       "halopsa.clients.create",
       "halopsa.clients.get",
       "halopsa.clients.list",
+      "halopsa.clients.update",
       "halopsa.contracts.create",
       "halopsa.contracts.get",
       "halopsa.contracts.list",
@@ -30,12 +33,15 @@
       "halopsa.recurring_invoices.get",
       "halopsa.recurring_invoices.list",
       "halopsa.servers.list",
+      "halopsa.sites.update",
       "halopsa.ticket_actions.create_private_note",
       "halopsa.ticket_actions.create_public_note",
       "halopsa.ticket_actions.create_time_entry",
+      "halopsa.ticket_actions.delete",
       "halopsa.ticket_actions.list",
       "halopsa.ticket_actions.send_email",
       "halopsa.ticket_actions.start_work",
+      "halopsa.ticket_actions.update",
       "halopsa.ticket_outcomes.get",
       "halopsa.ticket_outcomes.list",
       "halopsa.ticket_statuses.list",
@@ -46,7 +52,8 @@
       "halopsa.tickets.update",
       "halopsa.tickets.update_status",
       "halopsa.time_entries.list",
-      "halopsa.users.create"
+      "halopsa.users.create",
+      "halopsa.users.update"
     ],
     "itecs-vcenter": [
       "vcenter.billable_report",
@@ -96,7 +103,7 @@
     ]
   },
   "source_revisions": {
-    "itecs-halopsa": "aa51e96a4751918c8889688b69dabdeea0669424",
+    "itecs-halopsa": "39e8254ac04d9841b653180a3c6d47a69a0c6451",
     "itecs-vcenter": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
     "itecs-pax8": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
     "itecs-veeam-cloud-connect": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
