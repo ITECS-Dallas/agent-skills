@@ -1,8 +1,20 @@
 # ITECS HaloPSA for Atlas
 
-Version 0.16.0 packages 53 typed tools (27 reads and 26 writes) for macOS, Windows and Linux, including tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Routine internal requests use existing chat authorization. Client-visible, creation, stage and billing changes use a single ordinary confirmation. All writes use `confirm`; no exact approval phrases are required.
+Version 0.16.1 packages 53 typed tools (27 reads and 26 writes) for macOS, Windows and Linux, including tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Routine internal requests use existing chat authorization. Client-visible, creation, stage and billing changes use a single ordinary confirmation. All writes use `confirm`; no exact approval phrases are required.
 
 See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Restart into a new Codex task after updating the plugin.
+
+## What changed in 0.16.1
+
+On macOS, a session left open across a plugin upgrade no longer loses HaloPSA. Before this release, a session whose connector had started but not yet called HaloPSA when an upgrade landed failed every call with `tls: failed to verify certificate: SecPolicyCreateSSL error: 0` until it restarted.
+
+That error isn't a certificate problem. The upgrade deletes the previous release's folder, and the connector could then no longer build its macOS certificate policy. The connector now prepares the macOS certificate verifier when it starts, so an open session keeps working on the version it started with until you restart it.
+
+Certificate checks are unchanged, and all 53 tools work as they did in 0.16.0.
+
+Sessions already running 0.16.0 or earlier don't have the fix. Install 0.16.1 with the same commands as 0.16.0 below, then restart open sessions.
+
+If a session still reports `SecPolicyCreateSSL error: 0`, restart that session. Once a session runs the new release, `halopsa.servers.list` with `include_status: true` reports `connector_version` 0.16.1.
 
 ## What changed in 0.16.0
 

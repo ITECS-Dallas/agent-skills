@@ -147,6 +147,7 @@ If HaloPSA tools are not callable, check startup layers before checking vendor a
 3. Treat `/usr/bin/env: 'bash\r': No such file or directory` as a launcher line-ending or wrong-Bash-runtime issue, not a HaloPSA API issue.
 4. Treat `codex.exe` under `WindowsApps` returning `Access is denied` as a local Codex/PATH issue.
 5. On the ITECS Mac, confirm `/opt/homebrew/bin/op-itecs` can read the configured fields without printing their values. Stop on failure; do not fall back to plain `op`.
+6. On macOS, treat `tls: failed to verify certificate: SecPolicyCreateSSL error: 0` as a connector that outlived its deleted plugin folder, not a certificate or HaloPSA problem. Restart that session's connector. Connectors from 0.16.1 on prepare the certificate verifier at startup, so only sessions that started on 0.16.0 or earlier hit it.
 
 ## Release 0.16.0 write behavior
 
