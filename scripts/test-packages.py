@@ -119,22 +119,24 @@ def main():
             fake_path = clone / 'fake-path'
             fake_path.mkdir()
             executable(fake_path / 'uname', '#!/usr/bin/env bash\ncase "$1" in -s) echo MINGW64_NT ;; -m) echo x86_64 ;; esac\n')
-            profile = clone / 'Windows profile with spaces'
+            profile = clone / 'Windows Zoë 東京 profile with spaces'
             config_dir = profile / '.codex' / (entry['connector'] + '-mcp')
             config_dir.mkdir(parents=True)
             (config_dir / 'config.json').write_text('{}')
             executable(fake_path / 'cygpath', '#!/usr/bin/env bash\nprintf "%s\\n" "$FAKE_PROFILE"\n')
-            binary = clone / 'bin' / (entry['binary'] + '-windows-amd64.exe')
-            executable(binary, '#!/usr/bin/env bash\nprintf "%s\\n" "$@"\n')
             env = dict(os.environ, PATH=str(fake_path) + os.pathsep + os.environ['PATH'],
                        USERPROFILE='windows-fixture', FAKE_PROFILE=str(profile))
-            env.pop(entry['config_env'], None)
             launcher = clone / 'scripts' / ('run-' + entry['connector'] + '-mcp')
-            result = execute(['bash', str(launcher)], env=env)
-            check(result.returncode == 0 and str(config_dir / 'config.json') in result.stdout, 'Windows config selection: ' + result.stderr)
-            env[entry['config_env']] = str(fixture)
-            result = execute(['bash', str(launcher)], env=env)
-            check(result.returncode == 0 and result.stdout.splitlines() == ['-config', str(fixture)], 'config override selection')
+            for arch, uname_arch in [('amd64', 'x86_64'), ('arm64', 'aarch64')]:
+                executable(fake_path / 'uname', '#!/usr/bin/env bash\ncase "$1" in -s) echo MINGW64_NT ;; -m) echo ' + uname_arch + ' ;; esac\n')
+                binary = clone / 'bin' / (entry['binary'] + '-windows-' + arch + '.exe')
+                executable(binary, '#!/usr/bin/env bash\nprintf "%s\\n" "$@"\ncat\nexit 17\n')
+                env.pop(entry['config_env'], None)
+                result = execute(['bash', str(launcher), '--example', 'argument with spaces'], env=env, input='{"id":1}\n')
+                check(result.returncode == 17 and result.stdout.splitlines() == ['-config', str(config_dir / 'config.json'), '--example', 'argument with spaces', '{"id":1}'], 'Windows launcher transport: ' + arch + result.stderr)
+                env[entry['config_env']] = str(fixture)
+                result = execute(['bash', str(launcher)], env=env, input='')
+                check(result.returncode == 17 and result.stdout.splitlines() == ['-config', str(fixture)], 'Windows config override: ' + arch)
 
             # Verify both Linux architectures, config paths with spaces, protocol stdin,
             # argument forwarding and exit status without executing cross-built binaries.

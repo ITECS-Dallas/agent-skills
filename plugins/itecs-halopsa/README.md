@@ -213,8 +213,18 @@ Windows preflight:
 
 ```powershell
 where.exe bash
-bash -lc 'case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) echo "Git Bash OK: $(uname -s)" ;; *) echo "Wrong bash for ITECS plugins: $(uname -s). Move Git Bash before WSL on PATH."; exit 1 ;; esac'
+bash -c 'uname -s; uname -m'
 ```
+
+The first result must begin with `MINGW`, `MSYS` or `CYGWIN`. If it is `Linux`, `bash` resolves to WSL; put Git Bash earlier on PATH and restart Codex.
+
+For an engineering smoke test from the installed plugin directory, run:
+
+```powershell
+py -3 -X utf8 .\scripts\test-windows.py
+```
+
+Use `python -X utf8` if Python is installed without the `py` launcher. This test runs the actual Windows binary through the plugin launcher, checks all 53 tool names, and exercises default and override config paths in a temporary profile with spaces and Unicode. It uses synthetic command-backed credentials and invokes no Halo operations. It does not alter the technician's saved config or prove their live 1Password access. Python is needed for this optional engineering check, not for the Go connector itself.
 
 If startup fails with `/usr/bin/env: 'bash\r': No such file or directory`, refresh the plugin after the launcher line-ending fix and verify Git Bash is the active `bash`. That error happens before HaloPSA authentication and should not be treated as a vendor API permission issue.
 
