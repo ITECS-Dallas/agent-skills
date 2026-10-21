@@ -1,6 +1,6 @@
 # ITECS HaloPSA for Atlas
 
-Version 0.16.1 packages 53 typed tools (27 reads and 26 writes) for macOS, Windows and Linux, including tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. Routine internal requests use existing chat authorization. Client-visible, creation, stage and billing changes use a single ordinary confirmation. All writes use `confirm`; no exact approval phrases are required.
+Version 0.16.1 packages 53 typed tools (27 reads and 26 writes) for macOS, Windows and Linux, including tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
 
 See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Restart into a new Codex task after updating the plugin.
 
@@ -120,7 +120,7 @@ The [sales opportunity workflow skill](skills/sales-opportunity-workflow/SKILL.m
 - Workflow actions are limited to an opportunity's current workflow step, are recorded as private actions without email or time, and refuse HaloPSA system actions such as creating a child project.
 - `halopsa.tickets.list` does not return opportunities; use `halopsa.opportunities.list`.
 
-All write tools use `confirm`: omitted or false for preview, true for execution. An explicit technician request authorizes routine internal notes, specified time, assignment/field updates and Start Work. Review client-visible, creation/status and billing changes with one ordinary confirmation. Snapshot/status revalidation and independent readback remain part of execution; ambiguous writes are not automatically retried.
+All write tools use `confirm`: omitted or false for preview, true for an action the technician has requested. That request also covers its client-visible, creation/status and billing steps; no additional category-based confirmation is required. Previews can resolve fields without creating a user approval stage. Ask only for missing required information or an unresolved material choice. Snapshot/status revalidation and independent readback remain part of execution; reconcile ambiguous writes before retrying. Prefer typed tools when suitable, and use other available authorized routes for missing operations. Follow the workspace's authoritative workflow and sender routing, including graph-mail for Brian where configured.
 
 When a technician authorizes the optional client support conversation, that authorization covers its invitation, relevant replies, progress notes and closure after the client's clear confirmation of resolution or how-to completion. Do not request repeated technician confirmation for those actions. Offer only for a clearly simple problem or desired task with a known standard-user approach, then wait for client acceptance before giving steps. Examples include the user's own editable signature, out-of-office setup and ordinary bookmark export/import. Judge the impact as well as required privileges: destructive data/profile resets, security/sharing/sync/forwarding/mailbox-rule changes and identity recovery remain technician work. Never assume the POC has administrative access or company authorization. ATLAS is preferred but not mandatory for well-understood general technical guidance. A failed step can lead to another applicable simple user-level step. Decline, a request for a technician, exhausted suitable steps/capabilities, administrative work or an unresolved issue requiring escalation lead to a handoff; unresolved issues and no response leave the ticket open. Handoff does not itself page, reassign or change priority. This is an on-demand Codex workflow using the existing tools; it does not install a background agent or poller. The separately deployed RELAY worker admits only eligible new client email support tickets; the connector's broader tools do not expand that scope.
 
@@ -213,8 +213,18 @@ Windows preflight:
 
 ```powershell
 where.exe bash
-bash -lc 'case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) echo "Git Bash OK: $(uname -s)" ;; *) echo "Wrong bash for ITECS plugins: $(uname -s). Move Git Bash before WSL on PATH."; exit 1 ;; esac'
+bash -c 'uname -s; uname -m'
 ```
+
+The first result must begin with `MINGW`, `MSYS` or `CYGWIN`. If it is `Linux`, `bash` resolves to WSL; put Git Bash earlier on PATH and restart Codex.
+
+For an engineering smoke test from the installed plugin directory, run:
+
+```powershell
+py -3 -X utf8 .\scripts\test-windows.py
+```
+
+Use `python -X utf8` if Python is installed without the `py` launcher. This test runs the actual Windows binary through the plugin launcher, checks all 53 tool names, and exercises default and override config paths in a temporary profile with spaces and Unicode. It uses synthetic command-backed credentials and invokes no Halo operations. It does not alter the technician's saved config or prove their live 1Password access. Python is needed for this optional engineering check, not for the Go connector itself.
 
 If startup fails with `/usr/bin/env: 'bash\r': No such file or directory`, refresh the plugin after the launcher line-ending fix and verify Git Bash is the active `bash`. That error happens before HaloPSA authentication and should not be treated as a vendor API permission issue.
 

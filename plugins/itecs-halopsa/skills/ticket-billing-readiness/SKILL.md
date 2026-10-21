@@ -5,7 +5,7 @@ description: Use when a HaloPSA ticket or project must be ready to bill - link, 
 
 # Ticket billing readiness
 
-A ticket or project bills against the contract linked on it. Time logged on a record with no contract draws from nothing, and the wrong charge rate bills the wrong amount, so settle both before logging time. This skill uses only the typed HaloPSA tools; do not use the browser for contract links.
+A ticket or project bills against the contract linked on it. Time logged on a record with no contract draws from nothing, and the wrong charge rate bills the wrong amount, so settle both before logging time. Prefer the typed tools for contract links when available. If a requested operation is unavailable through them, use another available authorized route with the existing credentials and readback.
 
 ## 1. Read the billing state
 
@@ -29,7 +29,7 @@ The connector refuses a contract that belongs to another client, is inactive, ha
 
 Never guess a contract. If the request names one, use it. If it describes one ("the development contract") and exactly one eligible contract fits, use it and say which. If several fit, or none does, ask which. Creating or editing a contract record is a different operation (`halopsa.contracts.create` and `update`) and needs the `edit:contracts` scope; check with `halopsa.servers.list` and `include_status: true` before attempting it.
 
-An explicit request that names the record and the contract authorizes `confirm: true`. Otherwise show the preview and accept one ordinary confirmation.
+An explicit request to perform the billing work authorizes `confirm: true` once the contract is resolved from the request and applicable records. Ask only when the contract choice remains ambiguous; do not require the technician to repeat an already authorized action.
 
 ## 3. Choose the billing type
 
@@ -37,7 +37,7 @@ An explicit request that names the record and the contract authorizes `confirm: 
 
 ## 4. Log time
 
-Use `halopsa.ticket_actions.create_time_entry` with the duration the technician supplied (never estimate it), the work note, and `charge_rate`. The preview shows the resolved charge rate and hourly rate and warns when the record has no contract or no charge rate; fix those first (steps 2 and 3), then confirm. The entry is read back and compared; report from the readback.
+Use `halopsa.ticket_actions.create_time_entry` with the duration the technician supplied (never estimate it), the work note, and `charge_rate`. The preview shows the resolved charge rate and hourly rate and warns when the record has no contract or no charge rate; resolve those first (steps 2 and 3), then execute under the existing request. The entry is read back and compared; report from the readback.
 
 ## 5. Correct logged time
 
@@ -61,5 +61,5 @@ When reviewing a day or week, check each ticket that has time with step 1 and li
 ## Limits
 
 - Time already logged on the record may keep its previous contract after a change. Check existing entries (step 6) and move them with `halopsa.ticket_actions.update` and `contract_ref` when they should follow the new contract.
-- The connector cannot adjust a contract's balance, issue credits or invoice. Say so rather than working around it.
+- Dedicated tools for direct balance adjustments, credits and invoicing are not exposed. For such requested work, inspect the supported Halo API or another available route; do not infer an Atlas-wide restriction from a missing typed operation.
 - Scopes: linking a contract, logging time and correcting or deleting entries need `edit:tickets`; `halopsa.time_entries.list` needs `read:timesheets`.
