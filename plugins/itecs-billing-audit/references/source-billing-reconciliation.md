@@ -75,7 +75,7 @@ Reject older or malformed hosting artifacts. Do not add a compatibility fallback
 
 - Use exact bytes from the v2 vCenter contract for total, mechanical, SSD, and unknown storage.
 - Validate total bytes equal the sum of tier bytes at VM, client, and report levels.
-- Convert to configured 50 GB billing blocks and apply ceiling rounding only at the final unit boundary.
+- For each billable VM, sum disk bytes separately by tier and round each tier up to the configured 50 GB billing blocks (1 GB = 2^30 bytes, exact integer bytes); sum those per-VM blocks for the client. Never round individual disks and never re-round the client total.
 - If a client has any unknown-tier storage, block all storage actions for that client, especially decreases.
 - Do not use aggregate-only storage artifacts or a legacy `storage_gb` mapping as billing authority.
 
