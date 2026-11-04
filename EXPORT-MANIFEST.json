@@ -12,7 +12,8 @@
     "itecs-sophos-central",
     "itecs-checkpoint-harmony",
     "itecs-commvault",
-    "itecs-billing-audit"
+    "itecs-billing-audit",
+    "itecs-ncentral"
   ],
   "generated_on": "2026-09-05",
   "skills": [
