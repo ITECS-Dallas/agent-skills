@@ -1,0 +1,26 @@
+{
+  "name": "itecs-ncentral-rest",
+  "version": "0.1.0",
+  "description": "Read-only self-hosted N-central REST inventory using existing technician identities.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ITECS N-central Direct REST",
+    "shortDescription": "Self-hosted N-central, existing SSO identities",
+    "longDescription": "Native read-only customer/device inventory tools for self-hosted N-central. Uses a command-backed User-API JWT from the existing technician account. No SSO migration or duplicate login required.",
+    "developerName": "ITECS-Dallas",
+    "category": "Business",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Look up customers and devices on our self-hosted N-central server."
+    ]
+  },
+  "mcpServers": "./.mcp.json",
+  "repository": "https://github.com/ITECS-Dallas/agent-skills",
+  "homepage": "https://github.com/ITECS-Dallas/agent-skills/tree/main/plugins/itecs-ncentral-rest"
+}

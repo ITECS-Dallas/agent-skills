@@ -1,0 +1,1 @@
+{"servers":[{"id":"primary","name":"Self-hosted N-central","base_url":"https://ncentral.example.com","jwt_command":["/absolute/path/to/op-itecs","read","op://Automation Vault/N-central REST - YOUR IDENTITY/credential"],"timeout_seconds":30}]}

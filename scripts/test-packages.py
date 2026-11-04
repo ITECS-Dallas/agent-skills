@@ -170,6 +170,8 @@ def test_audit(tmp, entries):
             info = execute(['go', 'version', '-m', str(path)])
             check('vcs.revision=' + manifest['source_revision'] in info.stdout, 'audit embedded source revision: ' + str(path))
     for entry in entries:
+        if not entry.get('billing_report', True):
+            continue
         result = execute(['bash', str(audit / 'scripts/run-source-report'), entry['connector'], '-h'])
         check('-month' in result.stdout + result.stderr, 'source report help did not execute: ' + entry['connector'] + result.stderr)
     result = execute(['bash', str(audit / 'scripts/run-reconcile'), '-h'])
