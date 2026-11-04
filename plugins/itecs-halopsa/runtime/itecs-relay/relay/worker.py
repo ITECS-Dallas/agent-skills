@@ -296,6 +296,8 @@ class Worker:
     def dispatch(self, op_id, ticket_id, kind, name, arguments, before_ids):
         existing = self.store.operation(op_id)
         if existing and existing["state"] != "not_attempted":
+            if existing["state"] == "abandoned":
+                raise Uncertain("operation abandoned by operator; dispatch prohibited")
             if existing["state"] == "verified":
                 return json.loads(existing["receipt"])
             receipt = self.reconcile_operation(existing)
@@ -337,6 +339,8 @@ class Worker:
         for kind in ("email", "note"):
             op = self.store.operation(prefix + ":" + kind)
             if op and op["state"] != "not_attempted":
+                if op["state"] == "abandoned":
+                    raise Uncertain("operation abandoned by operator; dispatch prohibited")
                 receipt = json.loads(op["receipt"]) if op["state"] == "verified" else self.reconcile_operation(op)
                 if receipt:
                     self.store.receipt(op["id"], receipt)

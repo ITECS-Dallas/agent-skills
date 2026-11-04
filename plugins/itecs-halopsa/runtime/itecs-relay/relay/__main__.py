@@ -12,9 +12,9 @@ import time
 from pathlib import Path
 
 from .decision import Codex
-from .documentation import documentation_roots
+from .documentation import documentation_roots, skill_resources
 from .health import report as health_report
-from .mcp import Halo, MCP
+from .mcp import ConnectorError, Halo, MCP
 from .store import Store
 from .worker import Changed, Uncertain, Worker
 
@@ -26,6 +26,7 @@ def load_config(path):
             raise ValueError("absolute path required: " + key)
     if not Path(cfg["documentation_root"]).is_dir() or not Path(cfg["skill_path"]).is_file():
         raise ValueError("documentation or workflow skill unavailable")
+    skill_resources(cfg)
     if not Path(cfg["documentation_root"]).resolve().is_relative_to(Path(cfg["workspace"]).resolve()):
         raise ValueError("documentation_root must be inside workspace")
     if cfg.get("codex_use_legacy_landlock"):
@@ -88,7 +89,8 @@ def run_ticket(cfg, ticket_id):
         failures = row["failures"] + 1
         store.save(ticket_id, failures=failures,
                    error=type(exc).__name__, due=time.time() + min(900, 15 * 2 ** min(failures, 6)))
-        log("ticket_error", ticket_id=ticket_id, error=type(exc).__name__, failures=failures)
+        log("ticket_error", ticket_id=ticket_id, error=type(exc).__name__, failures=failures,
+            **({"connector": exc.diagnostics()} if isinstance(exc, ConnectorError) else {}))
     finally:
         if mcp:
             mcp.close()
@@ -114,38 +116,46 @@ def serve(cfg, store, ticket_id=None):
     store.set_setting("service_mode", "named_ticket" if ticket_id is not None else "intake")
     store.set_setting("service_active", "1")
     store.set_setting("service_heartbeat", str(time.time()))
-    with concurrent.futures.ThreadPoolExecutor(max_workers=cfg["workers"]) as executor:
-        while not stop.is_set():
-            store.set_setting("service_heartbeat", str(time.time()))
-            if ticket_id is None and time.monotonic() >= next_discovery:
-                mcp = None
-                try:
-                    mcp, halo = connect(cfg)
-                    count = Worker(cfg, store, halo, Codex(cfg)).discover()
-                    store.set_setting("last_discovery_success", str(time.time()))
-                    store.set_setting("discovery_error", "")
-                    log("discovery", rows=count)
-                except Exception as exc:
-                    store.set_setting("discovery_error", type(exc).__name__)
-                    log("discovery_error", error=type(exc).__name__)
-                finally:
-                    if mcp:
-                        mcp.close()
-                next_discovery = time.monotonic() + cfg["poll_seconds"]
-            inflight = {key: future for key, future in inflight.items() if not future.done()}
-            started = {key: value for key, value in started.items() if key in inflight}
-            for due_id in store.due():
-                if ticket_id is not None and due_id != ticket_id:
-                    continue
-                if len(inflight) >= cfg["workers"]:
-                    break
-                if due_id not in inflight:
-                    inflight[due_id] = executor.submit(run_ticket, cfg, due_id)
-                    started[due_id] = time.time()
-            store.set_setting("active_jobs", json.dumps(started))
-            # Refill free workers promptly; discovery and per-ticket due times keep
-            # their own poll interval instead of throttling the whole queue to two.
-            stop.wait(1)
+    # Discovery is serial: retain the verified connector and its OAuth cache
+    # between scans. Reconnect after failures; never share it with ticket workers.
+    mcp = None
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=cfg["workers"]) as executor:
+            while not stop.is_set():
+                store.set_setting("service_heartbeat", str(time.time()))
+                if ticket_id is None and time.monotonic() >= next_discovery:
+                    try:
+                        if mcp is None:
+                            mcp, halo = connect(cfg)
+                        count = Worker(cfg, store, halo, Codex(cfg)).discover()
+                        store.set_setting("last_discovery_success", str(time.time()))
+                        store.set_setting("discovery_error", "")
+                        log("discovery", rows=count)
+                    except Exception as exc:
+                        store.set_setting("discovery_error", type(exc).__name__)
+                        log("discovery_error", error=type(exc).__name__,
+                            **({"connector": exc.diagnostics()} if isinstance(exc, ConnectorError) else {}))
+                        if mcp:
+                            mcp.close()
+                            mcp = None
+                    next_discovery = time.monotonic() + cfg["poll_seconds"]
+                inflight = {key: future for key, future in inflight.items() if not future.done()}
+                started = {key: value for key, value in started.items() if key in inflight}
+                for due_id in store.due():
+                    if ticket_id is not None and due_id != ticket_id:
+                        continue
+                    if len(inflight) >= cfg["workers"]:
+                        break
+                    if due_id not in inflight:
+                        inflight[due_id] = executor.submit(run_ticket, cfg, due_id)
+                        started[due_id] = time.time()
+                store.set_setting("active_jobs", json.dumps(started))
+                # Refill free workers promptly; discovery and per-ticket due times keep
+                # their own poll interval instead of throttling the whole queue to two.
+                stop.wait(1)
+    finally:
+        if mcp:
+            mcp.close()
     store.set_setting("service_active", "0")
     store.set_setting("active_jobs", "{}")
     lock.close()

@@ -39,6 +39,9 @@ Preserve the established 1Password Automation Vault and per-technician command-b
 - `halopsa.clients.get` - get one client by ID.
 - `halopsa.invoices.list` - list invoices with client, date, payment, sent, and pagination filters.
 - `halopsa.invoices.get` - get one invoice by ID.
+- `halopsa.invoices.create` - preview or create one one-time invoice with lines, negative-price credit lines and optional `copy_from_recurring` lines. Pass an `idempotency_key` (for example `mdr-2026-10`); a rerun returns the invoice already created, and a live invoice with the same client, date and lines is reported as a `duplicate` unless `allow_duplicate` is set. It does not send or sync the invoice. Needs `edit:invoices`.
+- `halopsa.invoices.sync_to_accounting` - push one final invoice to QuickBooks Online, as the invoice screen's Sync button does. An already-synced, unchanged invoice is `already_done` unless `resync` is set. Invoices that are voided, have no QBO company, or have pending or rejected approval are refused. Needs `edit:invoices`.
+- `halopsa.invoices.approve` - approve or reject (`decision`) an invoice awaiting the connector agent's approval. Needs `edit:invoices`.
 - `halopsa.recurring_invoices.list` - list recurring invoices with client, date, sent, ready-for-invoicing, and pagination filters.
 - `halopsa.recurring_invoices.get` - get one recurring invoice by ID.
 - `halopsa.contracts.list` - list client contracts with client, site, type, renewal, and pagination filters; each carries its Agreement Subtype and billing description labels.
@@ -61,11 +64,11 @@ Preserve the established 1Password Automation Vault and per-technician command-b
 - `halopsa.ticket_actions.start_work` - preview or execute the one exact available Start Work outcome under existing task authorization with `last_update` revalidation.
 - `halopsa.ticket_actions.send_email` - preview or send one ticket email through an exact email-capable outcome under existing task authorization. Optional `email_template_id` selects a template for this message only; custom IDs may be negative. Omit it to keep the action's default template and signature behavior.
 - `halopsa.ticket_actions.create_public_note` - add one public/client-visible note to an exact ticket under the technician's existing request; no email, status, time, attachment, or private-note side effects.
-- `halopsa.ticket_actions.create_private_note` - add one internal/private, non-email note to an exact ticket or project; this is the default note path.
-- `halopsa.ticket_actions.create_time_entry` - log one private, non-email time entry against an exact ticket or project; `charge_rate` resolves a billing type by name, the preview warns when no contract is linked, and the entry is read back.
+- `halopsa.ticket_actions.create_private_note` - add one internal/private, non-email note to an exact ticket or project; this is the default note path. A note already on the ticket with the same text is returned as a `duplicate` and not posted again; never pass `allow_duplicate` unless the technician wants a second copy.
+- `halopsa.ticket_actions.create_time_entry` - log one private, non-email time entry against an exact ticket or project. `minutes` sets the duration exactly; hours are rounded to the whole minute HaloPSA stores. `charge_rate` resolves a billing type by name, and the preview warns when no contract is linked. An entry already logged for the same work (same duration at the same Date Done, or with the same note that day, by anyone) is returned as a `duplicate` and not logged again. The entry is read back with its exact minutes.
 - `halopsa.tickets.create` - preview or create one ticket with explicit routing, required category/impact/urgency, and content fields; one attempt only.
 - `halopsa.tickets.update` - update ticket routing/content/category/parent fields, the billing contract (`contract_ref`, `contract_id` or `clear_contract`), `custom_fields` and any other field through `extra_fields` after `last_update` revalidation; the preview shows the contract and warnings and the write is read back.
-- `halopsa.tickets.update_status` - change one exact ticket's status only after current-status revalidation using the existing task authorization; one attempt only.
+- `halopsa.tickets.update_status` - change one exact ticket's status only after current-status revalidation using the existing task authorization; one attempt only. A ticket already in the requested status is reported `already_done` without writing; after a change the status is read back.
 
 - `halopsa.opportunities.list` - list the opportunity area (not returned by `halopsa.tickets.list`) by client, contact, agent, status, type and summary.
 - `halopsa.opportunities.create` - preview or create one opportunity, such as a Project Opportunity, with the type's mandatory fields, contact defaults and duplicate-summary refusal; no category, impact or urgency.
