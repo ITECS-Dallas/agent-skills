@@ -71,10 +71,11 @@ def main():
         assert not list(config.parent.glob('.ncentral-config.*'))
         config.unlink()
         # The Windows executable path must be native, with JSON escaping intact.
-        executable(commands / 'cygpath', 'printf "%s\\n" "C:/Program Files/ITECS/op-itecs.exe"\n')
+        executable(commands / 'cygpath', 'case "$1" in -u) printf "%s\\n" "$FAKE_WRAPPER" ;; -m) printf "%s\\n" "C:/Program Files/ITECS/Automation/op-itecs.exe" ;; esac\n')
+        env['FAKE_WRAPPER'] = str(commands / 'op-itecs')
         setup = ['bash', str(plugin / 'scripts/configure-defaults.sh'), str(config)]
         assert run(setup + ['windows'], env).returncode == 0
-        assert json.loads(config.read_text())['servers'][0]['jwt_command'][0] == 'C:/Program Files/ITECS/op-itecs.exe'
+        assert json.loads(config.read_text())['servers'][0]['jwt_command'][0] == 'C:/Program Files/ITECS/Automation/op-itecs.exe'
         config.unlink()
         # Missing wrapper stops setup without a config or an alternate provider.
         (commands / 'op-itecs').unlink()

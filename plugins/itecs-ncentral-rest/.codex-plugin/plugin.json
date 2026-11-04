@@ -1,6 +1,6 @@
 {
   "name": "itecs-ncentral-rest",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Read-only self-hosted N-central REST inventory with automatic ITECS Automation Vault setup.",
   "author": {
     "name": "ITECS-Dallas"
