@@ -5,6 +5,9 @@ ITECS_PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 source "$ITECS_PLUGIN_DIR/scripts/runtime.sh"
 itecs_platform
 itecs_config ncentral NCENTRAL_MCP_CONFIG
+if [[ ! -e "$ITECS_CONFIG" && ! -L "$ITECS_CONFIG" && -z "${NCENTRAL_MCP_CONFIG:-}" ]]; then
+  bash "$ITECS_PLUGIN_DIR/scripts/configure-defaults.sh" "$ITECS_CONFIG" "$ITECS_OS"
+fi
 if [[ ! -f "$ITECS_CONFIG" ]]; then
   printf 'N-central MCP config not found at %s\n' "$ITECS_CONFIG" >&2
   exit 2

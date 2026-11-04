@@ -48,6 +48,15 @@ def copy_relay_runtime(source, root):
             for path in sorted(worker_dest.rglob('*')) if path.is_file()]
 
 
+def package_runtime_files(source, root, plugin):
+    if plugin == 'itecs-halopsa':
+        return copy_relay_runtime(source, root)
+    if plugin == 'itecs-ncentral-rest':
+        return [{'path': 'scripts/' + name, 'sha256': digest(root / 'scripts' / name)}
+                for name in ['run-ncentral-mcp', 'configure-defaults.sh']]
+    return []
+
+
 def build(source, module, command, destination, target):
     goos, goarch = target.split('-')
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -89,8 +98,9 @@ def build_connector(source, entry, jobs):
                 'go_toolchain':run(['go','version'],source), 'plugin':entry['plugin'], 'version':metadata['version'],
                 'build_flags':['-trimpath','-ldflags=-s -w -buildid='],
                 'binaries':sorted(records,key=lambda x:x['path']), 'tools':names}
-    if entry['plugin'] == 'itecs-halopsa':
-        manifest['runtime_files'] = copy_relay_runtime(source, root)
+    runtime_files = package_runtime_files(source, root, entry['plugin'])
+    if runtime_files:
+        manifest['runtime_files'] = runtime_files
     (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
     path = ROOT / 'TOOL-CATALOG.json'
     catalog = json.loads(path.read_text())
@@ -176,8 +186,9 @@ def main():
             manifest['resources'] = [dict(row, sha256=digest(root / row['path'])) for row in resources]
         else:
             manifest['tools'] = catalogs[plugin]
-        if plugin == 'itecs-halopsa':
-            manifest['runtime_files'] = copy_relay_runtime(source, root)
+        runtime_files = package_runtime_files(source, root, plugin)
+        if runtime_files:
+            manifest['runtime_files'] = runtime_files
         (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest, indent=2) + '\n')
     (ROOT / 'TOOL-CATALOG.json').write_text(json.dumps({'source_revision': revision, 'plugins': catalogs}, indent=2) + '\n')
     print('Built %d binaries from %s' % (len(jobs), revision), flush=True)
