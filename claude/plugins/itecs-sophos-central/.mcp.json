@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "sophos_central": {
+      "command": "bash",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/run-sophos-central-mcp"
+      ]
+    }
+  }
+}

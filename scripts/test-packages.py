@@ -162,7 +162,9 @@ def main():
             test_audit(tmp, entries)
 
         test_discovery(tmp)
-    print('Package integrity, MCP discovery, platform dispatch, setup and diagnostic tests passed.')
+    claude = execute(['python3', str(ROOT / 'scripts/build-claude-marketplace.py'), '--check'])
+    check(claude.returncode == 0, 'Claude marketplace: ' + claude.stdout + claude.stderr)
+    print('Package integrity, MCP discovery, platform dispatch, setup, diagnostic and Claude marketplace tests passed.')
 
 
 def test_audit(tmp, entries):

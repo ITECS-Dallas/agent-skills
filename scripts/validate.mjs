@@ -358,11 +358,15 @@ const supportDocumentationFiles = new Set([
 for (const file of walk(repoRoot)) {
   if (!textExtensions.has(path.extname(file))) continue;
   const rel = path.relative(repoRoot, file);
+  // claude/plugins/<name> holds generated copies of plugins/<name>
+  // (build-claude-marketplace.py --check keeps them identical), so the same
+  // per-file allowances apply.
+  const source = rel.split(path.sep).join('/').replace(/^claude\/plugins\//, 'plugins/');
   let content = fs.readFileSync(file, 'utf8').toLowerCase();
-  if (supportDocumentationFiles.has(rel.split(path.sep).join('/'))) {
+  if (supportDocumentationFiles.has(source)) {
     content = content.replaceAll(supportDocumentationPath, '');
   }
-  if (rel.split(path.sep).join('/') === 'plugins/itecs-halopsa/runtime/itecs-relay/config.example.json') {
+  if (source === 'plugins/itecs-halopsa/runtime/itecs-relay/config.example.json') {
     // These exact example roots belong to the explicitly requested Linux service.
     // The portable workflow and every other file retain the normal path check.
     for (const parts of [

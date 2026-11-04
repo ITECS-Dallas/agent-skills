@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ITECS_PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+# shellcheck source=runtime.sh
+source "$ITECS_PLUGIN_DIR/scripts/runtime.sh"
+itecs_platform
+itecs_config checkpoint-harmony CHECKPOINT_HARMONY_MCP_CONFIG
+if [[ ! -f "$ITECS_CONFIG" ]]; then
+  printf 'Check Point Harmony MCP config not found at %s\n' "$ITECS_CONFIG" >&2
+  exit 2
+fi
+exec "$ITECS_PLUGIN_DIR/bin/checkpoint-harmony-mcp-$ITECS_PLATFORM$ITECS_SUFFIX" -config "$ITECS_CONFIG" "$@"

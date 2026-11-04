@@ -198,6 +198,8 @@ def main():
         (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest, indent=2) + '\n')
     (ROOT / 'TOOL-CATALOG.json').write_text(json.dumps({'source_revision': revision, 'plugins': catalogs}, indent=2) + '\n')
     print('Built %d binaries from %s' % (len(jobs), revision), flush=True)
+    # Claude Code reads its own copy of every plugin; keep it in step.
+    subprocess.check_call(['python3', str(ROOT / 'scripts/build-claude-marketplace.py')], cwd=ROOT)
 
 
 if __name__ == '__main__':

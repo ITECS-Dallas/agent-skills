@@ -1,0 +1,26 @@
+{
+  "name": "itecs-commvault",
+  "version": "0.1.0",
+  "description": "ITECS Commvault tools for technician operations and billing evidence.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ITECS Commvault",
+    "shortDescription": "Commvault operations and usage",
+    "longDescription": "Bundled Commvault source tools for inventory, usage and operational evidence. Uses existing local command-backed configuration.",
+    "developerName": "ITECS-Dallas",
+    "category": "Business",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Look up Commvault inventory and usage for this client."
+    ]
+  },
+  "mcpServers": "./.mcp.json",
+  "repository": "https://github.com/ITECS-Dallas/agent-skills",
+  "homepage": "https://github.com/ITECS-Dallas/agent-skills/tree/main/plugins/itecs-commvault"
+}

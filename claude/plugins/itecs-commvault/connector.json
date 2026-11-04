@@ -1,0 +1,8 @@
+{
+  "connector": "commvault",
+  "plugin": "itecs-commvault",
+  "title": "Commvault",
+  "server": "commvault",
+  "config_env": "COMMVAULT_MCP_CONFIG",
+  "binary": "commvault-mcp"
+}

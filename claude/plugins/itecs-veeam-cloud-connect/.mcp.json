@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "veeam_cloud_connect": {
+      "command": "bash",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/run-veeam-cloud-connect-mcp"
+      ]
+    }
+  }
+}

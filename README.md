@@ -5,13 +5,54 @@ Source-of-truth repository for ITECS reusable agent skills and Codex plugin pack
 This repo serves two related purposes:
 
 1. Maintain reusable engineering skills for Codex, Claude, and other local agent runtimes.
-2. Publish the ITECS Codex plugin marketplace used to install grouped skills and MCP-backed business tools.
+2. Publish the ITECS plugin marketplace for Codex and Claude, used to install grouped skills and MCP-backed business tools.
+
+## Get the plugins and keep them updated
+
+This public GitHub repository is the one place the team installs and updates ITECS plugins, skills and connectors from. Connector source stays in the private GO-MCP repo; this repo ships the built packages. Credentials never live here: each connector reads its own Automation Vault configuration on your machine, and updates leave it untouched.
+
+**Add the marketplace once per machine, from GitHub.** Do not add a local folder; a local folder is what made updates confusing.
+
+```bash
+codex plugin marketplace add ITECS-Dallas/agent-skills
+```
+
+```bash
+claude plugin marketplace add ITECS-Dallas/agent-skills
+```
+
+Then install what you need, for example `codex plugin add itecs-halopsa@itecs-agent-skills` or `claude plugin install itecs-halopsa@itecs-agent-skills`.
+
+**Update** whenever a release is announced, then start a new session:
+
+```bash
+codex plugin marketplace upgrade itecs-agent-skills && codex plugin add itecs-halopsa@itecs-agent-skills
+```
+
+```bash
+claude plugin marketplace update itecs-agent-skills && claude plugin update itecs-halopsa@itecs-agent-skills
+```
+
+Confirm with `halopsa.servers.list` (`include_status: true`); `connector_version` should match the release.
+
+**Already added the marketplace as a local folder?** `codex plugin marketplace list` shows a folder path, or Claude's `claude plugin marketplace list` shows a directory. Switch once; installed plugins and credentials are kept:
+
+```bash
+codex plugin marketplace remove itecs-agent-skills && codex plugin marketplace add ITECS-Dallas/agent-skills
+```
+
+```bash
+claude plugin marketplace remove itecs-agent-skills && claude plugin marketplace add ITECS-Dallas/agent-skills
+```
+
+If an app reports a plugin as uninstalled after the switch, install it again with the commands above.
 
 Most skills should remain project-neutral. ITECS-specific connector skills belong here only when they are intended to appear in the shared ITECS plugin surface. Project-specific rules, commands, secrets, approval gates, and deployment boundaries should stay in each project's `AGENTS.md`, `CLAUDE.md`, `.cursor/rules`, or equivalent local instruction file.
 
 ## Repository Contents
 
-- `.agents/plugins/marketplace.json` - Codex marketplace definition named `itecs-agent-skills`.
+- `.agents/plugins/marketplace.json` - Codex marketplace definition named `itecs-agent-skills`; the source of truth for both apps.
+- `.claude-plugin/marketplace.json` and `claude/plugins/` - Claude Code marketplace, generated from the Codex plugins by `scripts/build-claude-marketplace.py`. Never edit `claude/` by hand.
 - `plugins/portable-development-workflow/` - Codex plugin for reusable workflow skills and GO-MCP operating guidance.
 - `plugins/portable-development-workflow/skills/` - skill source folders installed into local agent runtimes.
 - `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools, ticket/project writes including billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact AI-friendly reads, the sales opportunity workflow (opportunities, prospect clients and contacts, attachments, workflow stages), per-technician macOS/Windows/Linux 1Password setup, and optional client troubleshooting with confirmed-resolution closure.
@@ -22,6 +63,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 - `plugins/itecs-ncentral/` - optional direct connection to the official N-able read-only hosted MCP, including self-hosted N-central; requires an SSO-linked API token in the Codex host environment.
 - `TOOL-CATALOG.json` - source-revision-bound catalog of the packaged MCP tools.
 - `scripts/build-packages.py` - tests source modules and builds all platform packages with source and checksum records.
+- `scripts/build-claude-marketplace.py` - regenerates the Claude marketplace; `--check` fails when it is out of date. `build-packages.py` runs it and `test-packages.py` checks it.
 - `scripts/install.sh` - copies or symlinks portable skills into `$CODEX_HOME/skills` and `$AGENTS_HOME/skills`.
 - `scripts/validate.mjs` - validates skill frontmatter, marketplace entries, plugin metadata, required files, and portability.
 - `templates/project-skill-source-of-truth.md` - drop-in project docs for linking this repo from another project.
@@ -42,7 +84,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | `itecs-ncentral@itecs-agent-skills` | ITECS N-central | Official N-able hosted MCP for read-only device inventory, health and reporting. See [setup and authentication](plugins/itecs-ncentral/README.md). |
 | `itecs-billing-audit@itecs-agent-skills` | ITECS Billing Audit | Native Excel/JSON extraction and staged offline reconciliation. |
 
-The Codex plugin surface is repo-backed from this repository. It is not a global public marketplace publication path. Other Codex installations can install from the public GitHub URL or from an approved local clone.
+The plugin surface is served from this public repository for both Codex and Claude. It is not listed in a global plugin directory. Install from GitHub as described in "Get the plugins and keep them updated".
 
 ## Skill Catalog
 
@@ -460,9 +502,11 @@ node scripts/validate.mjs
 python3 scripts/test-packages.py --plugin itecs-halopsa
 ```
 
-`test-packages.py` checks the binary hashes and embedded source revision, that the host binary's `-version` equals the plugin version, and that the actual MCP tools match `TOOL-CATALOG.json`.
+`test-packages.py` checks the binary hashes and embedded source revision, that the host binary's `-version` equals the plugin version, that the actual MCP tools match `TOOL-CATALOG.json`, and that the generated Claude marketplace is current. `build-packages.py` regenerates the Claude marketplace itself; after changing only skills or READMEs, run `python3 scripts/build-claude-marketplace.py`.
 
-4. Merge to `main`. Each technician then runs `codex plugin marketplace upgrade itecs-agent-skills` (or `git pull --ff-only` in the marketplace's local clone, when `codex plugin marketplace list` shows a folder path) and `codex plugin add itecs-halopsa@itecs-agent-skills`, and restarts the Codex app. Credentials and the 1Password configuration are not touched. A technician (or Atlas) can confirm the result with `halopsa.servers.list` using `include_status: true` and `check_updates: true`.
+If a push of a commit that adds or moves already-published binaries (such as a new plugin's copy under `claude/plugins/`) seems stuck, push with `git -c pack.useSparse=false push`. Git's default sparse walk does not recognise binaries GitHub already has at another path and re-uploads them.
+
+4. Merge to `main`, then tag the release, for example `git tag itecs-halopsa-v0.17.0 && git push origin itecs-halopsa-v0.17.0`, and announce it. Technicians run the update commands in "Get the plugins and keep them updated" and start a new session. Credentials and the 1Password configuration are not touched. A technician (or Atlas) can confirm the result with `halopsa.servers.list` using `include_status: true` and `check_updates: true`.
 
 ## Maintainer package builds
 

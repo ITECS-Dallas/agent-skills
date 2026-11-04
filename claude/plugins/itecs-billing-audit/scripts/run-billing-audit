@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ITECS_PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+# shellcheck source=runtime.sh
+source "$ITECS_PLUGIN_DIR/scripts/runtime.sh"
+itecs_platform
+if [[ "${1:-}" == --help || "${1:-}" == -h ]]; then
+  printf 'Run with MONTH, SOURCES, AUDIT_PHASE, REPORTS_DIR, CLIENT_CROSSWALK and SERVICE_LINE_MAPPING.\nPhases: collect, mapping-review, finalize, full. Offline phases also use SOURCE_RUN_ID and RECONCILIATION_ID.\nSee README.md for examples. All existing billing-audit environment options remain available.\n'
+  exit 0
+fi
+export BILLING_AUDIT_BIN_DIR="$ITECS_PLUGIN_DIR/bin/$ITECS_PLATFORM"
+export REPORTS_DIR="${REPORTS_DIR:-$PWD/reports}"
+itecs_config halopsa HALOPSA_MCP_CONFIG
+export HALOPSA_CONFIG="${HALOPSA_CONFIG:-$ITECS_CONFIG}"
+itecs_config vcenter VCENTER_MCP_CONFIG
+export VCENTER_CONFIG="${VCENTER_CONFIG:-$ITECS_CONFIG}"
+itecs_config pax8 PAX8_MCP_CONFIG
+export PAX8_CONFIG="${PAX8_CONFIG:-$ITECS_CONFIG}"
+itecs_config veeam-cloud-connect VEEAM_CLOUD_CONNECT_MCP_CONFIG
+export VEEAM_CONFIG="${VEEAM_CONFIG:-$ITECS_CONFIG}"
+itecs_config sophos-central SOPHOS_CENTRAL_MCP_CONFIG
+export SOPHOS_CONFIG="${SOPHOS_CONFIG:-$ITECS_CONFIG}"
+itecs_config checkpoint-harmony CHECKPOINT_HARMONY_MCP_CONFIG
+export CHECKPOINT_CONFIG="${CHECKPOINT_CONFIG:-$ITECS_CONFIG}"
+exec "$ITECS_PLUGIN_DIR/scripts/billing-audit.sh" "$@"

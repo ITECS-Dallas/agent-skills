@@ -1,0 +1,8 @@
+{
+  "connector": "vcenter",
+  "plugin": "itecs-vcenter",
+  "title": "vCenter",
+  "server": "vcenter",
+  "config_env": "VCENTER_MCP_CONFIG",
+  "binary": "vcenter-mcp"
+}

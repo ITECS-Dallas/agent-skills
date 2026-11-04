@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pax8 MCP"
+  short_description: "Operate the GO-MCP Pax8 read-only billing source connector and Pax8-to-HaloPSA audit workflow."
+  default_prompt: "Use the Pax8 GO-MCP connector safely for companies, subscriptions, licenses, invoices, invoice-item evidence, and Pax8-to-HaloPSA reconciliation. Verify source docs and local config, keep operations read-only, and do not treat draft invoice items as billing truth."

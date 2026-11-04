@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "commvault": {
+      "command": "bash",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/run-commvault-mcp"
+      ]
+    }
+  }
+}

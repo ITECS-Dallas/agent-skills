@@ -1,0 +1,23 @@
+{
+  "servers": [
+    {
+      "id": "itecs-sophos-central",
+      "name": "ITECS Sophos Central Partner",
+      "token_url": "https://id.sophos.com/api/v2/oauth2/token",
+      "global_api_url": "https://api.central.sophos.com",
+      "client_id_command": [
+        "op",
+        "read",
+        "op://Automation Vault/REPLACE_WITH_ITEM/CLIENT_ID"
+      ],
+      "client_secret_command": [
+        "op",
+        "read",
+        "op://Automation Vault/REPLACE_WITH_ITEM/CLIENT_SECRET"
+      ],
+      "timeout_seconds": 30,
+      "max_attempts": 3,
+      "default_page_size": 100
+    }
+  ]
+}

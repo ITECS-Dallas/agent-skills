@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ITECS_PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+# shellcheck source=runtime.sh
+source "$ITECS_PLUGIN_DIR/scripts/runtime.sh"
+itecs_platform
+exec "$ITECS_PLUGIN_DIR/bin/$ITECS_PLATFORM/billing-reconcile$ITECS_SUFFIX" -reports-dir "$PWD/reports" "$@"

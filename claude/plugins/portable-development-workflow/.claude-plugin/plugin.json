@@ -1,0 +1,25 @@
+{
+  "name": "portable-development-workflow",
+  "version": "0.2.0",
+  "description": "ITECS agent skills for reusable development workflow and GO-MCP billing connectors.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "homepage": "https://github.com/ITECS-Dallas/agent-skills/tree/main/plugins/portable-development-workflow",
+  "repository": "https://github.com/ITECS-Dallas/agent-skills",
+  "keywords": [
+    "codex",
+    "claude",
+    "agents",
+    "skills",
+    "development",
+    "workflow",
+    "seo",
+    "audit",
+    "go-mcp",
+    "billing",
+    "halopsa",
+    "vcenter",
+    "pax8"
+  ]
+}
