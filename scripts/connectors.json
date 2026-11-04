@@ -65,5 +65,14 @@
     "binary": "ncentral-mcp",
     "additional_targets": ["linux-arm64", "linux-amd64"],
     "billing_report": false
+  },
+  {
+    "connector": "petra-security",
+    "plugin": "itecs-petra-security",
+    "title": "Petra Security",
+    "server": "petra_security",
+    "config_env": "PETRA_SECURITY_MCP_CONFIG",
+    "binary": "petra-security-mcp",
+    "billing_report": false
   }
 ]

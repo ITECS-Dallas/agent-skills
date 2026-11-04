@@ -1,0 +1,17 @@
+{
+  "servers": [
+    {
+      "id": "itecs-petra",
+      "name": "ITECS Petra Security",
+      "base_url": "https://api.petrasecurity.com",
+      "api_key_command": [
+        "/opt/homebrew/bin/op-itecs",
+        "read",
+        "op://Automation Vault/REPLACE_WITH_ITEM/credential"
+      ],
+      "timeout_seconds": 30,
+      "max_attempts": 4,
+      "max_wait_seconds": 90
+    }
+  ]
+}

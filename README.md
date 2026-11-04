@@ -59,6 +59,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 - `plugins/itecs-vcenter/` - Codex plugin that bundles the read-only vCenter MCP runtime and its vCenter skill.
 - `plugins/itecs-pax8/` - Codex plugin that bundles the read-only Pax8 MCP runtime and its Pax8 skill.
 - `plugins/itecs-veeam-cloud-connect/`, `plugins/itecs-sophos-central/`, `plugins/itecs-checkpoint-harmony/`, `plugins/itecs-commvault/` - additional installed source connectors for operations and usage evidence.
+- `plugins/itecs-petra-security/` - read-only Petra Security client and license audit for Microsoft 365 ITDR billing.
 - `plugins/itecs-billing-audit/` - self-contained source report and staged reconciliation commands, with no Go/source-checkout requirement.
 - `plugins/itecs-ncentral/` - optional direct connection to the official N-able read-only hosted MCP, including self-hosted N-central; requires an SSO-linked API token in the Codex host environment.
 - `TOOL-CATALOG.json` - source-revision-bound catalog of the packaged MCP tools.
@@ -82,6 +83,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | `itecs-commvault@itecs-agent-skills` | ITECS Commvault | Accounts and partner-level usage evidence. |
 | `itecs-ncentral-rest@itecs-agent-skills` | ITECS N-central Direct REST | Native read-only self-hosted inventory with automatic Automation Vault setup; existing SSO unchanged. [Setup](plugins/itecs-ncentral-rest/README.md). |
 | `itecs-ncentral@itecs-agent-skills` | ITECS N-central | Official N-able hosted MCP for read-only device inventory, health and reporting. See [setup and authentication](plugins/itecs-ncentral/README.md). |
+| `itecs-petra-security@itecs-agent-skills` | ITECS Petra Security | Read-only audit of which clients are on Petra Security and how many licenses each is billed for. [Setup](plugins/itecs-petra-security/README.md). |
 | `itecs-billing-audit@itecs-agent-skills` | ITECS Billing Audit | Native Excel/JSON extraction and staged offline reconciliation. |
 
 The plugin surface is served from this public repository for both Codex and Claude. It is not listed in a global plugin directory. Install from GitHub as described in "Get the plugins and keep them updated".
@@ -483,6 +485,7 @@ codex plugin add itecs-veeam-cloud-connect@itecs-agent-skills
 codex plugin add itecs-sophos-central@itecs-agent-skills
 codex plugin add itecs-checkpoint-harmony@itecs-agent-skills
 codex plugin add itecs-commvault@itecs-agent-skills
+codex plugin add itecs-petra-security@itecs-agent-skills
 codex plugin add itecs-billing-audit@itecs-agent-skills
 ```
 

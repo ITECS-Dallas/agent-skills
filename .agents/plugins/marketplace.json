@@ -135,6 +135,18 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Business"
+    },
+    {
+      "name": "itecs-petra-security",
+      "source": {
+        "source": "local",
+        "path": "./plugins/itecs-petra-security"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business"
     }
   ]
 }

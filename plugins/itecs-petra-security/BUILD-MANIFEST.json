@@ -1,0 +1,53 @@
+{
+  "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
+  "source_revision": "b2f409c7d3d905c82bebca4294981bfdeaad5c36",
+  "source_dirty": false,
+  "go_toolchain": "go version go1.27.3 darwin/arm64",
+  "plugin": "itecs-petra-security",
+  "version": "0.1.0",
+  "build_flags": [
+    "-trimpath",
+    "-ldflags=-s -w -buildid="
+  ],
+  "binaries": [
+    {
+      "path": "bin/petra-security-mcp-darwin-amd64",
+      "target": "darwin-amd64",
+      "sha256": "955cbc6fed9ee3301d86c3d01c56570d8c6463a7ce3fa6318547881100076155",
+      "bytes": 10616112,
+      "module": "connectors/petra-security",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/petra-security-mcp-darwin-arm64",
+      "target": "darwin-arm64",
+      "sha256": "afb99bf77172e4184edc26e70929e25205281d216f0d74a30e4ba6ae5a6400c9",
+      "bytes": 9864786,
+      "module": "connectors/petra-security",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/petra-security-mcp-windows-amd64.exe",
+      "target": "windows-amd64",
+      "sha256": "4f636e642d61f74f3cdd498927127f9ffb487be6d6bd79b41ade839a323f4271",
+      "bytes": 10464768,
+      "module": "connectors/petra-security",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/petra-security-mcp-windows-arm64.exe",
+      "target": "windows-arm64",
+      "sha256": "97b8b56978d5d4a6e738714f5ad5b5b105957d8b5f8635c152aa79bd13b35a87",
+      "bytes": 9590272,
+      "module": "connectors/petra-security",
+      "command": "./cmd/mcp"
+    }
+  ],
+  "tools": [
+    "petra.billable_users.get",
+    "petra.license_audit.get",
+    "petra.servers.list",
+    "petra.tenants.list",
+    "petra.usage.get"
+  ]
+}

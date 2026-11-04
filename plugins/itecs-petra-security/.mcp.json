@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "petra_security": {
+      "command": "bash",
+      "args": [
+        "./scripts/run-petra-security-mcp"
+      ],
+      "cwd": "."
+    }
+  }
+}
