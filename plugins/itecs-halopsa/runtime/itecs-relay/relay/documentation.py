@@ -32,9 +32,26 @@ def documentation_roots(config, ticket):
     return scopes
 
 
+def skill_resources(config):
+    """Validate operator-selected companion files without granting directory reads."""
+    companions = config.get("skill_resources", [])
+    if not isinstance(companions, list):
+        raise ValueError("skill_resources must be a list of absolute file paths")
+    resources = []
+    for value in [config["skill_path"], *companions]:
+        if not isinstance(value, str) or not Path(value).is_absolute():
+            raise ValueError("skill resource must be an absolute file path")
+        path = Path(value).resolve(strict=True)
+        if not path.is_file():
+            raise ValueError("skill resource must be a file")
+        if path not in resources:
+            resources.append(path)
+    return resources
+
+
 def permission_arguments(config, ticket):
-    filesystem = {":root": "deny", ":minimal": "read",
-                  str(Path(config["skill_path"]).resolve(strict=True)): "read"}
+    filesystem = {":root": "deny", ":minimal": "read"}
+    filesystem.update({str(path): "read" for path in skill_resources(config)})
     filesystem.update({str(path): "read" for path in documentation_roots(config, ticket)})
     fields = ", ".join(json.dumps(key) + " = " + json.dumps(value)
                        for key, value in filesystem.items())

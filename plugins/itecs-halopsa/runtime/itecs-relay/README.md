@@ -15,6 +15,9 @@ second Halo API client, public webhook endpoint, or separate knowledge database.
   the service does not rename or move the library.
 - New tickets are discovered every 15 seconds using Halo's `dateoccured` date
   filter. A persisted cursor and two-minute overlap recover interrupted scans.
+  The serial discovery loop retains its verified connector, OAuth token and HTTP
+  connection pool between scans. It closes the connector on failure and reconnects
+  on the next scheduled scan. Ticket workers use separate connectors.
   Conversation actions are read completely and deduplicated by ID. Two independent
   decision workers prevent one slow conversation from stopping discovery.
 - Activation starts with new intake, rather than emailing an existing backlog.
@@ -118,6 +121,16 @@ after acceptance is recovered from Halo evidence. A write whose acceptance canno
 be established enters `uncertain`; the service does not repeat that email. An
 operator can inspect Halo and use `resume` to recheck the same operation. Resume
 retains its journal and cannot erase an uncertain send or force a duplicate.
+
+An operator can explicitly retire an obsolete uncertain private note after
+reviewing the complete Halo history and current technician ownership/closure.
+Preserve the original plan, arguments, pre-write action IDs and dispatch time,
+record the review evidence and an `abandoned_without_resend` disposition with
+delivery `unconfirmed`, and atomically retire that exact operation and its stale
+ticket plan. The operation state is `abandoned`, never `verified` or
+`not_attempted`; remaining work on that abandoned plan cannot dispatch. This is
+an operator recovery action, not an automatic retry or proof that Halo rejected
+the original write. Do not apply it to an uncertain email merely to clear health.
 
 A structured `ticket_changed` rejection with `write_attempted: false` proves the
 connector rejected an email or ticket status update before POST. The worker records
@@ -254,6 +267,22 @@ support. Resolved source paths are checked against the same scopes. Directory
 redirection and source symlinks cannot grant access to another scope. Host skills,
 project instructions, user integrations and memory are excluded from decisions.
 
+When a workflow skill links to required companion files, configure
+`skill_resources` as an explicit list of their absolute file paths. Startup
+validates each file, and the decision sandbox grants only those files read access;
+it does not grant their parent directories. Omission retains the single-skill
+behavior. Install the canonical skill and companions together in a durable,
+versioned location with their relative layout intact, retaining provenance and
+hashes. Do not point a resident worker at a disposable plugin cache or replace a
+missing skill with a placeholder. Keep workflow text and all other permissions
+unchanged during path recovery.
+
+Before restarting after a path repair, inspect pending work without modifying it.
+Startup can immediately retry due tickets under the existing policy. If recovery
+prohibits those retries, leave the worker stopped and report that boundary; do not
+clear errors, move due times, change the intake cutoff or suppress work to make a
+health check pass. A stopped worker is not a healthy worker with historical errors.
+
 The legacy Landlock option cannot enforce these read scopes and is rejected.
 On Ubuntu 24.04 US1, keep the global user-namespace restriction enabled and load
 the matching distribution package's `bwrap-userns-restrict` AppArmor profile, as
@@ -277,6 +306,12 @@ check subscription login/allowance under the same account. For Halo failures,
 check vault access, requested scope and current outcome availability. Transient
 pre-write failures retain the decision and retry with a bounded delay; they remain
 visible in status. Stopping the service leaves the normal Halo queue operational.
+
+Connector journal diagnostics include a fixed failing tool/reason, recognized
+numeric HTTP status, and safe API/token transport categories such as TLS,
+response or network timeout. They omit raw vendor responses, URLs, credential
+provider output and client content. These labels do not prove that a write was
+rejected before dispatch and never grant permission to resend it.
 
 The installer also stages an independent one-minute health timer. `health` checks
 service progress, intake discovery, processing failures, uncertain writes and

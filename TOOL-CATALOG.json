@@ -16,8 +16,11 @@
       "halopsa.contracts.get",
       "halopsa.contracts.list",
       "halopsa.contracts.update",
+      "halopsa.invoices.approve",
+      "halopsa.invoices.create",
       "halopsa.invoices.get",
       "halopsa.invoices.list",
+      "halopsa.invoices.sync_to_accounting",
       "halopsa.metadata.list",
       "halopsa.opportunities.create",
       "halopsa.opportunities.execute_workflow_action",
@@ -111,7 +114,7 @@
     ]
   },
   "source_revisions": {
-    "itecs-halopsa": "d2ba9b64bdc9ad0a2369f84fe6525845aba0e77f",
+    "itecs-halopsa": "36e9d2aa966df2f113aa06c51d071c9afe718388",
     "itecs-vcenter": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
     "itecs-pax8": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
     "itecs-veeam-cloud-connect": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",

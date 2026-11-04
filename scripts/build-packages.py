@@ -26,10 +26,16 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def tool_names(source):
-    text = source.read_text()
-    return sorted(set(re.findall(r'(?:readOnlyTool|writeTool)\("([\w.]+)"', text)
-                      + re.findall(r'Name:\s*"([\w.]+)"', text)))
+def tool_names(tools_dir):
+    """Tool names registered by every non-test Go file in internal/tools."""
+    names = set()
+    for path in sorted(tools_dir.glob('*.go')):
+        if path.name.endswith('_test.go'):
+            continue
+        text = path.read_text()
+        names.update(re.findall(r'(?:readOnlyTool|writeTool)\("([\w.]+)"', text))
+        names.update(re.findall(r'Name:\s*"([\w.]+)"', text))
+    return sorted(names)
 
 
 def copy_relay_runtime(source, root):
@@ -78,7 +84,7 @@ def build_connector(source, entry, jobs):
     root = ROOT / 'plugins' / entry['plugin']
     metadata = json.loads((root / '.codex-plugin/plugin.json').read_text())
     revision = run(['git', 'rev-parse', 'HEAD'], source)
-    names = tool_names(source / module / 'internal/tools/tools.go')
+    names = tool_names(source / module / 'internal/tools')
     records = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = []
@@ -148,7 +154,7 @@ def main():
     catalogs = {}
     for entry in entries:
         module = 'connectors/' + entry['connector']
-        catalogs[entry['plugin']] = tool_names(source / module / 'internal/tools/tools.go')
+        catalogs[entry['plugin']] = tool_names(source / module / 'internal/tools')
         for target in connector_targets(entry):
             suffix = '.exe' if target.startswith('windows') else ''
             jobs.append((entry['plugin'], module, './cmd/mcp',

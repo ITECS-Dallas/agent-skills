@@ -1,8 +1,22 @@
 # ITECS HaloPSA for Atlas
 
-Version 0.16.2 packages 53 typed tools (27 reads and 26 writes) for macOS, Windows and Linux, including tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
+Version 0.17.0 packages 56 typed tools (27 reads and 29 writes) for macOS, Windows and Linux, including one-time invoice creation, invoice approval and QuickBooks Online sync, tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
 
 See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Restart into a new Codex task after updating the plugin.
+
+## What changed in 0.17.0
+
+These tools replace the Halo screens that were driven through the browser. Each one previews, writes once, and returns the record read back from HaloPSA. When nothing needs writing, it reports `already_done` or `duplicate` with the existing record instead of writing again.
+
+- **New invoice tools:**
+  - `halopsa.invoices.create` makes a one-time invoice with lines, credit lines and lines copied from a recurring invoice. Pass an `idempotency_key` such as `mdr-2026-10`: a rerun returns the invoice already created, and a matching invoice made elsewhere is reported as a duplicate.
+  - `halopsa.invoices.sync_to_accounting` pushes an invoice to QuickBooks Online, as the Sync button does. An unchanged, already-synced invoice is reported as done.
+  - `halopsa.invoices.approve` approves or rejects an invoice awaiting your approval.
+- **No double posting:** private notes and time entries are checked against the ticket's existing actions, so an entry Codex or another session already posted is not logged twice. `allow_duplicate` overrides this only when a second copy is intended.
+- **Exact time:** `minutes` sets a time entry's duration exactly. Hours are rounded to the whole minute Halo stores, and the readback checks the exact minute.
+- **Status:** `halopsa.tickets.update_status` reports a ticket already in the requested status as done and reads the status back after a change.
+
+The invoice tools need `edit:invoices` in your Vault item's `HALO_SCOPE` and in the HaloPSA API application. Every other tool works without changes. After updating, `halopsa.servers.list` with `include_status: true` should report `connector_version` 0.17.0 and the `invoices_write` group.
 
 ## What changed in 0.16.1
 
@@ -104,6 +118,9 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.sites.update`
 - `halopsa.assets.create`
 - `halopsa.assets.update`
+- `halopsa.invoices.sync_to_accounting`
+- `halopsa.invoices.create`
+- `halopsa.invoices.approve`
 
 Ticket action reads support conversation/public filters, date windows and optional email HTML. Keep `agent_only` false to include client replies, and preserve action IDs/authorship when continuing a conversation.
 
@@ -224,7 +241,7 @@ For an engineering smoke test from the installed plugin directory, run:
 py -3 -X utf8 .\scripts\test-windows.py
 ```
 
-Use `python -X utf8` if Python is installed without the `py` launcher. This test runs the actual Windows binary through the plugin launcher, checks all 53 tool names, and exercises default and override config paths in a temporary profile with spaces and Unicode. It uses synthetic command-backed credentials and invokes no Halo operations. It does not alter the technician's saved config or prove their live 1Password access. Python is needed for this optional engineering check, not for the Go connector itself.
+Use `python -X utf8` if Python is installed without the `py` launcher. This test runs the actual Windows binary through the plugin launcher, checks all 56 tool names, and exercises default and override config paths in a temporary profile with spaces and Unicode. It uses synthetic command-backed credentials and invokes no Halo operations. It does not alter the technician's saved config or prove their live 1Password access. Python is needed for this optional engineering check, not for the Go connector itself.
 
 If startup fails with `/usr/bin/env: 'bash\r': No such file or directory`, refresh the plugin after the launcher line-ending fix and verify Git Bash is the active `bash`. That error happens before HaloPSA authentication and should not be treated as a vendor API permission issue.
 
