@@ -504,6 +504,8 @@ python3 scripts/test-packages.py --plugin itecs-halopsa
 
 `test-packages.py` checks the binary hashes and embedded source revision, that the host binary's `-version` equals the plugin version, that the actual MCP tools match `TOOL-CATALOG.json`, and that the generated Claude marketplace is current. `build-packages.py` regenerates the Claude marketplace itself; after changing only skills or READMEs, run `python3 scripts/build-claude-marketplace.py`.
 
+If a push of a commit that adds or moves already-published binaries (such as a new plugin's copy under `claude/plugins/`) seems stuck, push with `git -c pack.useSparse=false push`. Git's default sparse walk does not recognise binaries GitHub already has at another path and re-uploads them.
+
 4. Merge to `main`, then tag the release, for example `git tag itecs-halopsa-v0.17.0 && git push origin itecs-halopsa-v0.17.0`, and announce it. Technicians run the update commands in "Get the plugins and keep them updated" and start a new session. Credentials and the 1Password configuration are not touched. A technician (or Atlas) can confirm the result with `halopsa.servers.list` using `include_status: true` and `check_updates: true`.
 
 ## Maintainer package builds
