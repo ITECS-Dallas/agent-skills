@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ncentral": {
+      "url": "https://api.n-able.com/mcp-read-only",
+      "bearer_token_env_var": "ITECS_NCENTRAL_API_TOKEN"
+    }
+  }
+}

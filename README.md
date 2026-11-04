@@ -19,6 +19,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 - `plugins/itecs-pax8/` - Codex plugin that bundles the read-only Pax8 MCP runtime and its Pax8 skill.
 - `plugins/itecs-veeam-cloud-connect/`, `plugins/itecs-sophos-central/`, `plugins/itecs-checkpoint-harmony/`, `plugins/itecs-commvault/` - additional installed source connectors for operations and usage evidence.
 - `plugins/itecs-billing-audit/` - self-contained source report and staged reconciliation commands, with no Go/source-checkout requirement.
+- `plugins/itecs-ncentral/` - optional direct connection to the official N-able read-only hosted MCP, including self-hosted N-central; requires an SSO-linked API token in the Codex host environment.
 - `TOOL-CATALOG.json` - source-revision-bound catalog of the packaged MCP tools.
 - `scripts/build-packages.py` - tests source modules and builds all platform packages with source and checksum records.
 - `scripts/install.sh` - copies or symlinks portable skills into `$CODEX_HOME/skills` and `$AGENTS_HOME/skills`.
@@ -37,6 +38,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | `itecs-sophos-central@itecs-agent-skills` | ITECS Sophos Central | Tenant, monthly usage, license and firewall evidence. |
 | `itecs-checkpoint-harmony@itecs-agent-skills` | ITECS Check Point Harmony | Portal tenant and usage evidence. |
 | `itecs-commvault@itecs-agent-skills` | ITECS Commvault | Accounts and partner-level usage evidence. |
+| `itecs-ncentral@itecs-agent-skills` | ITECS N-central | Official N-able hosted MCP for read-only device inventory, health and reporting. See [setup and authentication](plugins/itecs-ncentral/README.md). |
 | `itecs-billing-audit@itecs-agent-skills` | ITECS Billing Audit | Native Excel/JSON extraction and staged offline reconciliation. |
 
 The Codex plugin surface is repo-backed from this repository. It is not a global public marketplace publication path. Other Codex installations can install from the public GitHub URL or from an approved local clone.

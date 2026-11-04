@@ -248,6 +248,39 @@ for (const runtimePlugin of runtimePlugins) {
   );
 }
 
+// N-central uses the vendor-hosted MCP directly, not a bundled GO-MCP binary.
+const ncentralRoot = path.join(repoRoot, 'plugins', 'itecs-ncentral');
+const ncentralManifest = readJson(path.join(ncentralRoot, '.codex-plugin', 'plugin.json'));
+const ncentralMcp = readJson(path.join(ncentralRoot, '.mcp.json'));
+if (!manifest?.plugins?.includes('itecs-ncentral')) {
+  errors.push('export manifest missing itecs-ncentral');
+}
+if (!marketplace?.plugins?.some((entry) => entry.name === 'itecs-ncentral')) {
+  errors.push('marketplace missing itecs-ncentral');
+}
+if (ncentralManifest?.name !== 'itecs-ncentral' ||
+    ncentralManifest?.mcpServers !== './.mcp.json' ||
+    ncentralManifest?.skills !== './skills/') {
+  errors.push('itecs-ncentral: invalid plugin paths or name');
+}
+const ncentralServer = ncentralMcp?.mcpServers?.ncentral;
+if (!ncentralServer ||
+    Object.keys(ncentralMcp.mcpServers).length !== 1 ||
+    ncentralServer.url !== 'https://api.n-able.com/mcp-read-only' ||
+    ncentralServer.bearer_token_env_var !== 'ITECS_NCENTRAL_API_TOKEN' ||
+    Object.keys(ncentralServer).some((key) => !['url', 'bearer_token_env_var'].includes(key))) {
+  errors.push('itecs-ncentral: require the official read-only URL and environment-backed token only');
+}
+const ncentralSkillFile = path.join(ncentralRoot, 'skills', 'ncentral-mcp', 'SKILL.md');
+if (!fs.existsSync(path.join(ncentralRoot, 'README.md')) || !fs.existsSync(ncentralSkillFile)) {
+  errors.push('itecs-ncentral: missing README or operating skill');
+} else {
+  const frontmatter = parseFrontmatter(ncentralSkillFile);
+  if (frontmatter?.name !== 'ncentral-mcp' || !frontmatter?.description) {
+    errors.push('itecs-ncentral: invalid skill frontmatter');
+  }
+}
+
 const expectedSkills = manifest?.skills ?? [];
 const actualSkills = fs.existsSync(skillsRoot)
   ? fs.readdirSync(skillsRoot).filter((entry) => {

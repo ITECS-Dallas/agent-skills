@@ -1,0 +1,26 @@
+{
+  "name": "itecs-ncentral",
+  "version": "0.1.0",
+  "description": "Read-only N-central access through the official N-able hosted MCP service.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ITECS N-central",
+    "shortDescription": "Official N-able MCP, read-only N-central access",
+    "longDescription": "Connect to the official N-able hosted MCP service for N-central inventory, device metrics and reporting, including self-hosted N-central environments linked to your N-able SSO account. Requires an N-able API token supplied through the host environment.",
+    "developerName": "ITECS-Dallas",
+    "category": "Business",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Look up N-central device inventory and health for this client."
+    ]
+  },
+  "mcpServers": "./.mcp.json",
+  "repository": "https://github.com/ITECS-Dallas/agent-skills",
+  "homepage": "https://github.com/ITECS-Dallas/agent-skills/tree/main/plugins/itecs-ncentral"
+}
