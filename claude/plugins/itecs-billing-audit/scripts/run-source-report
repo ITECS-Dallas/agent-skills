@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ITECS_PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+# shellcheck source=runtime.sh
+source "$ITECS_PLUGIN_DIR/scripts/runtime.sh"
+itecs_platform
+if [[ $# -eq 0 || "$1" == --help || "$1" == -h ]]; then
+  printf 'Usage: run-source-report CONNECTOR [original report flags]\nConnectors: halopsa vcenter pax8 veeam-cloud-connect sophos-central checkpoint-harmony commvault\nDefaults: current month, ./reports, existing user config. Add -json-only=false for Excel.\n'
+  exit 0
+fi
+connector="$1"
+shift
+config_env="$(printf '%s_MCP_CONFIG' "$connector" | tr '[:lower:]-' '[:upper:]_')"
+itecs_config "$connector" "$config_env"
+extra=()
+case "$connector" in pax8|sophos-central) extra=(-client-mapping "") ;; esac
+exec "$ITECS_PLUGIN_DIR/bin/$ITECS_PLATFORM/$connector-billing-report$ITECS_SUFFIX" \
+  -config "$ITECS_CONFIG" -month "$(date +%Y-%m)" -out-dir "$PWD/reports" \
+  ${extra[@]+"${extra[@]}"} "$@"

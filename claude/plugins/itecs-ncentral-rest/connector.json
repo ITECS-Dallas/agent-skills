@@ -1,0 +1,13 @@
+{
+  "connector": "ncentral",
+  "plugin": "itecs-ncentral-rest",
+  "title": "N-central Direct REST",
+  "server": "ncentral_rest",
+  "config_env": "NCENTRAL_MCP_CONFIG",
+  "binary": "ncentral-mcp",
+  "additional_targets": [
+    "linux-arm64",
+    "linux-amd64"
+  ],
+  "billing_report": false
+}

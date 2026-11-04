@@ -1,0 +1,17 @@
+{
+  "servers": [
+    {
+      "id": "itecs-commvault",
+      "name": "ITECS Commvault Cloud",
+      "base_url": "https://api.metallic.io",
+      "access_token_command": [
+        "op",
+        "read",
+        "op://Automation Vault/REPLACE_WITH_ITEM/ACCESS_TOKEN"
+      ],
+      "timeout_seconds": 30,
+      "max_attempts": 3,
+      "page_size": 100
+    }
+  ]
+}

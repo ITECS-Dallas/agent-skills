@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "ncentral_rest": {
+      "command": "bash",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/run-ncentral-mcp"
+      ]
+    }
+  }
+}

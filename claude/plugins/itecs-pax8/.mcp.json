@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "pax8": {
+      "command": "bash",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/run-pax8-mcp"
+      ]
+    }
+  }
+}

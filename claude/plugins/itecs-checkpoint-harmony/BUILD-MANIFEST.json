@@ -1,0 +1,52 @@
+{
+  "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
+  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_dirty": false,
+  "go_toolchain": "go version go1.27.1 darwin/arm64",
+  "plugin": "itecs-checkpoint-harmony",
+  "version": "0.1.0",
+  "build_flags": [
+    "-trimpath",
+    "-ldflags=-s -w -buildid="
+  ],
+  "binaries": [
+    {
+      "path": "bin/checkpoint-harmony-mcp-darwin-amd64",
+      "target": "darwin-amd64",
+      "sha256": "494a3a3bd49ee0623b88a0f8ada706a4a0ca4edb456dcc054be1a07c81aecb17",
+      "bytes": 9098528,
+      "module": "connectors/checkpoint-harmony",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/checkpoint-harmony-mcp-darwin-arm64",
+      "target": "darwin-arm64",
+      "sha256": "8a048526f6e264b81de8b93735220a0ffdaf0257b95c2b0b832008f39579131d",
+      "bytes": 8434434,
+      "module": "connectors/checkpoint-harmony",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/checkpoint-harmony-mcp-windows-amd64.exe",
+      "target": "windows-amd64",
+      "sha256": "eeeba89dacf92d4ddb5a753ff3a80ef5a68383096ac406290bf31056e7b500a0",
+      "bytes": 9148416,
+      "module": "connectors/checkpoint-harmony",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/checkpoint-harmony-mcp-windows-arm64.exe",
+      "target": "windows-arm64",
+      "sha256": "d97fc9fa0629925fa330a4d5bbed04c86df2ce0ee470796933ee235bbeb0cfca",
+      "bytes": 8364032,
+      "module": "connectors/checkpoint-harmony",
+      "command": "./cmd/mcp"
+    }
+  ],
+  "tools": [
+    "checkpoint_harmony.profile.get",
+    "checkpoint_harmony.servers.list",
+    "checkpoint_harmony.tenants.list",
+    "checkpoint_harmony.usage_report.get"
+  ]
+}

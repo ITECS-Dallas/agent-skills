@@ -1,0 +1,54 @@
+{
+  "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
+  "source_revision": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+  "source_dirty": false,
+  "go_toolchain": "go version go1.27.1 darwin/arm64",
+  "plugin": "itecs-sophos-central",
+  "version": "0.1.0",
+  "build_flags": [
+    "-trimpath",
+    "-ldflags=-s -w -buildid="
+  ],
+  "binaries": [
+    {
+      "path": "bin/sophos-central-mcp-darwin-amd64",
+      "target": "darwin-amd64",
+      "sha256": "ad2393a56550108ca0e2b3fef70e6832adc7dd95686df560a10b856c7aaa0ea3",
+      "bytes": 8986768,
+      "module": "connectors/sophos-central",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/sophos-central-mcp-darwin-arm64",
+      "target": "darwin-arm64",
+      "sha256": "bdf98f8b6772867599fc62c8a0edd46b9b307d354343bf5f95a2bbb791ff7af1",
+      "bytes": 8317650,
+      "module": "connectors/sophos-central",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/sophos-central-mcp-windows-amd64.exe",
+      "target": "windows-amd64",
+      "sha256": "c34cdd5d018d472b4d522b4765f4573f11ade4616d9e78d5fe2c7fe23216cf86",
+      "bytes": 9034240,
+      "module": "connectors/sophos-central",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/sophos-central-mcp-windows-arm64.exe",
+      "target": "windows-arm64",
+      "sha256": "77c0f35cbc8444205ae31f629ba8746816b71b8b19aae792f9cd75a1d2f59543",
+      "bytes": 8256512,
+      "module": "connectors/sophos-central",
+      "command": "./cmd/mcp"
+    }
+  ],
+  "tools": [
+    "sophos_central.billing_usage.get",
+    "sophos_central.firewall_licenses.list",
+    "sophos_central.servers.list",
+    "sophos_central.tenant_licenses.get",
+    "sophos_central.tenants.list",
+    "sophos_central.whoami.get"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "connector_name": "checkpoint-harmony",
+  "servers": [
+    {
+      "id": "itecs-checkpoint-harmony",
+      "name": "ITECS Check Point Harmony",
+      "base_url": "https://cloudinfra-gw.portal.checkpoint.com",
+      "auth_url": "https://cloudinfra-gw.portal.checkpoint.com/auth/external",
+      "client_id_command": [
+        "op",
+        "read",
+        "op://Automation Vault/REPLACE_WITH_ITEM/CLIENT_ID"
+      ],
+      "access_key_command": [
+        "op",
+        "read",
+        "op://Automation Vault/REPLACE_WITH_ITEM/ACCESS_KEY"
+      ],
+      "timeout_seconds": 30,
+      "max_attempts": 3
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "servers": [
+    {
+      "id": "vspc",
+      "name": "VSPC",
+      "base_url": "https://vspc.example.com:1280/api/v3",
+      "api_version": "3.6.2",
+      "api_key_command": [
+        "op",
+        "read",
+        "op://Automation Vault/REPLACE_WITH_ITEM/API_KEY"
+      ],
+      "insecure_skip_verify": false,
+      "timeout_seconds": 30,
+      "default_page_size": 500
+    }
+  ]
+}

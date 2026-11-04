@@ -1,0 +1,170 @@
+{
+  "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
+  "source_revision": "36e9d2aa966df2f113aa06c51d071c9afe718388",
+  "source_dirty": false,
+  "go_toolchain": "go version go1.27.3 darwin/arm64",
+  "plugin": "itecs-halopsa",
+  "version": "0.17.0",
+  "build_flags": [
+    "-trimpath",
+    "-ldflags=-s -w -buildid="
+  ],
+  "binaries": [
+    {
+      "path": "bin/halopsa-mcp-darwin-amd64",
+      "target": "darwin-amd64",
+      "sha256": "40a5347c4341b7434339aa54d5415dd836a1974fc0c56c03b2d927684bfec2cb",
+      "bytes": 10923248,
+      "module": "connectors/halopsa",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/halopsa-mcp-darwin-arm64",
+      "target": "darwin-arm64",
+      "sha256": "ffdbfaef5eb3e311a50aaa949e45862c8334392393ceefb9d0449e77e87bb3dd",
+      "bytes": 10062866,
+      "module": "connectors/halopsa",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/halopsa-mcp-linux-amd64",
+      "target": "linux-amd64",
+      "sha256": "ea937e8ab958aa6b1842757afe147c04d81db9168b744ecdfecde6dd544a67f7",
+      "bytes": 10502268,
+      "module": "connectors/halopsa",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/halopsa-mcp-linux-arm64",
+      "target": "linux-arm64",
+      "sha256": "c2f624ac9387b7f41942394af6a44ab5066ef752838c941e4c5d04b860e11086",
+      "bytes": 9633916,
+      "module": "connectors/halopsa",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/halopsa-mcp-windows-amd64.exe",
+      "target": "windows-amd64",
+      "sha256": "3f5ddb5c8ea72fcfbdd31ced623267c8f2358047f22e60f3b283bf3ff60f7eda",
+      "bytes": 10787840,
+      "module": "connectors/halopsa",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/halopsa-mcp-windows-arm64.exe",
+      "target": "windows-arm64",
+      "sha256": "ead5c134b27579233bc9160ea86c1adef430234ad00c7196d8a182834ecff423",
+      "bytes": 9810944,
+      "module": "connectors/halopsa",
+      "command": "./cmd/mcp"
+    }
+  ],
+  "tools": [
+    "halopsa.agents.me",
+    "halopsa.assets.create",
+    "halopsa.assets.get",
+    "halopsa.assets.list",
+    "halopsa.assets.update",
+    "halopsa.attachments.list",
+    "halopsa.attachments.upload",
+    "halopsa.clients.create",
+    "halopsa.clients.get",
+    "halopsa.clients.list",
+    "halopsa.clients.update",
+    "halopsa.contracts.create",
+    "halopsa.contracts.get",
+    "halopsa.contracts.list",
+    "halopsa.contracts.update",
+    "halopsa.invoices.approve",
+    "halopsa.invoices.create",
+    "halopsa.invoices.get",
+    "halopsa.invoices.list",
+    "halopsa.invoices.sync_to_accounting",
+    "halopsa.metadata.list",
+    "halopsa.opportunities.create",
+    "halopsa.opportunities.execute_workflow_action",
+    "halopsa.opportunities.list",
+    "halopsa.opportunities.update",
+    "halopsa.projects.create",
+    "halopsa.projects.get",
+    "halopsa.projects.list",
+    "halopsa.projects.update",
+    "halopsa.projects.update_status",
+    "halopsa.purchase_orders.get",
+    "halopsa.purchase_orders.list",
+    "halopsa.recurring_invoices.get",
+    "halopsa.recurring_invoices.list",
+    "halopsa.servers.list",
+    "halopsa.sites.update",
+    "halopsa.ticket_actions.create_private_note",
+    "halopsa.ticket_actions.create_public_note",
+    "halopsa.ticket_actions.create_time_entry",
+    "halopsa.ticket_actions.delete",
+    "halopsa.ticket_actions.list",
+    "halopsa.ticket_actions.send_email",
+    "halopsa.ticket_actions.start_work",
+    "halopsa.ticket_actions.update",
+    "halopsa.ticket_outcomes.get",
+    "halopsa.ticket_outcomes.list",
+    "halopsa.ticket_statuses.list",
+    "halopsa.tickets.audit",
+    "halopsa.tickets.create",
+    "halopsa.tickets.get",
+    "halopsa.tickets.list",
+    "halopsa.tickets.update",
+    "halopsa.tickets.update_status",
+    "halopsa.time_entries.list",
+    "halopsa.users.create",
+    "halopsa.users.update"
+  ],
+  "runtime_files": [
+    {
+      "path": "runtime/itecs-relay/README.md",
+      "sha256": "d73cb3e6b5db981f49bc997c30cc9f686ae196ea4f353472d7511ab25056dc1e"
+    },
+    {
+      "path": "runtime/itecs-relay/config.example.json",
+      "sha256": "204b33adc32282100c3217028b0c9411869cfd91851b9382e8a7c6d109c830d1"
+    },
+    {
+      "path": "runtime/itecs-relay/install-user-service.sh",
+      "sha256": "238db7add3801207b17d866e018edbeb0dc578c0e8ba80963049f1117617afc9"
+    },
+    {
+      "path": "runtime/itecs-relay/relay/__init__.py",
+      "sha256": "98b941d6949bf08247ab5d07d26df3938d097da8a96b18e002951f3ba237a7c9"
+    },
+    {
+      "path": "runtime/itecs-relay/relay/__main__.py",
+      "sha256": "fbe29c065c55aed817081ee9dfeaa70ad62c85e2aac4708b48df84e1d01e6d4d"
+    },
+    {
+      "path": "runtime/itecs-relay/relay/decision.py",
+      "sha256": "1546e256c9d9f1cb30df95f98fddb79eebd755e79cac0bed16d1f9c1f78fefae"
+    },
+    {
+      "path": "runtime/itecs-relay/relay/documentation.py",
+      "sha256": "d17b5d594de565497b69e5b5f230575388f9dbb0628a461514b5eb5d1297b203"
+    },
+    {
+      "path": "runtime/itecs-relay/relay/health.py",
+      "sha256": "a54fedcf40a2dff200d88a9fe9d79ca2226457e3e76c453cda859eaf205cb111"
+    },
+    {
+      "path": "runtime/itecs-relay/relay/mcp.py",
+      "sha256": "a1a54fd46d3ab3ee8a474a9fcb4dc408cd9caca9ffffa21544facf810cfebf13"
+    },
+    {
+      "path": "runtime/itecs-relay/relay/notify_smtp.py",
+      "sha256": "f8ca7b11c81423ecdef30b8d6cf418691b8f9d37db427d6041eeced2939281fa"
+    },
+    {
+      "path": "runtime/itecs-relay/relay/store.py",
+      "sha256": "71665d98464237aa1f86991d927d58060ee3f2748d7af049404f9c60da886e91"
+    },
+    {
+      "path": "runtime/itecs-relay/relay/worker.py",
+      "sha256": "7bff7035af0c0b949edff8553597f50c89a8e286cfa5aca05a2949822c0e732e"
+    }
+  ]
+}

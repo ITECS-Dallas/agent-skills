@@ -1,0 +1,9 @@
+{
+  "name": "itecs-billing-audit",
+  "version": "0.1.1",
+  "description": "Packaged ITECS source reports and staged monthly billing reconciliation.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "repository": "https://github.com/ITECS-Dallas/agent-skills"
+}

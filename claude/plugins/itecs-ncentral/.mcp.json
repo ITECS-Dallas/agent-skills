@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ncentral": {
+      "type": "http",
+      "url": "https://api.n-able.com/mcp-read-only",
+      "headers": {
+        "Authorization": "Bearer ${ITECS_NCENTRAL_API_TOKEN}"
+      }
+    }
+  }
+}
