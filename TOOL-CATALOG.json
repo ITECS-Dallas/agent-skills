@@ -100,6 +100,14 @@
       "commvault.billing_snapshot.get",
       "commvault.servers.list",
       "commvault.usage_summary.get"
+    ],
+    "itecs-ncentral-rest": [
+      "ncentral_rest.customers.list",
+      "ncentral_rest.devices.get",
+      "ncentral_rest.devices.list",
+      "ncentral_rest.inventory.summary",
+      "ncentral_rest.org_units.list",
+      "ncentral_rest.servers.list"
     ]
   },
   "source_revisions": {
@@ -109,6 +117,7 @@
     "itecs-veeam-cloud-connect": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
     "itecs-sophos-central": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
     "itecs-checkpoint-harmony": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
-    "itecs-commvault": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195"
+    "itecs-commvault": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
+    "itecs-ncentral-rest": "47551af7b6b95eb786ce6cd9009a5c44387f7ca7"
   }
 }

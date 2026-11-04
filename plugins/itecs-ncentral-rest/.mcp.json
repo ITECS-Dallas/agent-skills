@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ncentral_rest": {
+      "command": "bash",
+      "args": [
+        "./scripts/run-ncentral-mcp"
+      ],
+      "cwd": "."
+    }
+  }
+}

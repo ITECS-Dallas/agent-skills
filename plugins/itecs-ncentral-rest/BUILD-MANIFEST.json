@@ -1,0 +1,70 @@
+{
+  "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
+  "source_revision": "47551af7b6b95eb786ce6cd9009a5c44387f7ca7",
+  "source_dirty": false,
+  "go_toolchain": "go version go1.27.3 darwin/arm64",
+  "plugin": "itecs-ncentral-rest",
+  "version": "0.1.0",
+  "build_flags": [
+    "-trimpath",
+    "-ldflags=-s -w -buildid="
+  ],
+  "binaries": [
+    {
+      "path": "bin/ncentral-mcp-darwin-amd64",
+      "target": "darwin-amd64",
+      "sha256": "030b3b0ac722d19b73f7cbb439346616e59c33f1573d438903c678802fe05b74",
+      "bytes": 9127504,
+      "module": "connectors/ncentral",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/ncentral-mcp-darwin-arm64",
+      "target": "darwin-arm64",
+      "sha256": "d5416f05debf5469d9066f2452b070c5c9efb72c0528c2cf84bdc5f565b0db5f",
+      "bytes": 8467762,
+      "module": "connectors/ncentral",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/ncentral-mcp-linux-amd64",
+      "target": "linux-amd64",
+      "sha256": "ee93dba6e20315a503270e75d331220f09fa46966c0f41b586097d070c21f801",
+      "bytes": 8761468,
+      "module": "connectors/ncentral",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/ncentral-mcp-linux-arm64",
+      "target": "linux-arm64",
+      "sha256": "315e37f06f41bae30df82e78b962327454377be84e3449c49c443cc89ecdd352",
+      "bytes": 8126588,
+      "module": "connectors/ncentral",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/ncentral-mcp-windows-amd64.exe",
+      "target": "windows-amd64",
+      "sha256": "ecef4878c902cc013d6f4fc37dfebb929ae59a7fb55b0f803ec46e77c0517c2a",
+      "bytes": 9011200,
+      "module": "connectors/ncentral",
+      "command": "./cmd/mcp"
+    },
+    {
+      "path": "bin/ncentral-mcp-windows-arm64.exe",
+      "target": "windows-arm64",
+      "sha256": "2aee9086b96dd86c45642c3a82a36a8a9d1c74f3e25996c86b520cbe8a92453c",
+      "bytes": 8237056,
+      "module": "connectors/ncentral",
+      "command": "./cmd/mcp"
+    }
+  ],
+  "tools": [
+    "ncentral_rest.customers.list",
+    "ncentral_rest.devices.get",
+    "ncentral_rest.devices.list",
+    "ncentral_rest.inventory.summary",
+    "ncentral_rest.org_units.list",
+    "ncentral_rest.servers.list"
+  ]
+}

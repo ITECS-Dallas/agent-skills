@@ -143,7 +143,7 @@ def main():
             suffix = '.exe' if target.startswith('windows') else ''
             jobs.append((entry['plugin'], module, './cmd/mcp',
                          ROOT / 'plugins' / entry['plugin'] / 'bin' / (entry['binary'] + '-' + target + suffix), target))
-        for target in TARGETS:
+        for target in TARGETS if entry.get('billing_report', True) else ():
             suffix = '.exe' if target.startswith('windows') else ''
             jobs.append(('itecs-billing-audit', module, './cmd/billing-report',
                          audit / 'bin' / target / (entry['connector'] + '-billing-report' + suffix), target))

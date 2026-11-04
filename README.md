@@ -38,6 +38,7 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | `itecs-sophos-central@itecs-agent-skills` | ITECS Sophos Central | Tenant, monthly usage, license and firewall evidence. |
 | `itecs-checkpoint-harmony@itecs-agent-skills` | ITECS Check Point Harmony | Portal tenant and usage evidence. |
 | `itecs-commvault@itecs-agent-skills` | ITECS Commvault | Accounts and partner-level usage evidence. |
+| `itecs-ncentral-rest@itecs-agent-skills` | ITECS N-central Direct REST | Native read-only self-hosted inventory using existing technician identities. [Setup](plugins/itecs-ncentral-rest/README.md). |
 | `itecs-ncentral@itecs-agent-skills` | ITECS N-central | Official N-able hosted MCP for read-only device inventory, health and reporting. See [setup and authentication](plugins/itecs-ncentral/README.md). |
 | `itecs-billing-audit@itecs-agent-skills` | ITECS Billing Audit | Native Excel/JSON extraction and staged offline reconciliation. |
 
