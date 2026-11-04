@@ -1,0 +1,26 @@
+{
+  "name": "itecs-petra-security",
+  "version": "0.1.0",
+  "description": "ITECS Petra Security tools to audit which clients are on Petra and how many licenses each is billed for, with the monthly license evidence for billing reconciliation.",
+  "author": {
+    "name": "ITECS-Dallas"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ITECS Petra Security",
+    "shortDescription": "Petra client and license audit",
+    "longDescription": "Bundled read-only Petra Security tools: client tenants, license usage, billable users and a per-client license audit for billing. Uses the existing local command-backed configuration.",
+    "developerName": "ITECS-Dallas",
+    "category": "Business",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Audit which clients are on Petra Security and how many licenses each is billed for this month."
+    ]
+  },
+  "mcpServers": "./.mcp.json",
+  "repository": "https://github.com/ITECS-Dallas/agent-skills",
+  "homepage": "https://github.com/ITECS-Dallas/agent-skills/tree/main/plugins/itecs-petra-security"
+}

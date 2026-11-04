@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "petra_security": {
+      "command": "bash",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/run-petra-security-mcp"
+      ]
+    }
+  }
+}

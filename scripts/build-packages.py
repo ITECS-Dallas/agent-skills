@@ -129,6 +129,7 @@ def main():
         if entry is None:
             parser.error('unknown connector plugin: ' + args.plugin)
         build_connector(source, entry, args.jobs)
+        subprocess.check_call(['python3', str(ROOT / 'scripts/build-claude-marketplace.py')], cwd=ROOT)
         return
     revision = run(['git', 'rev-parse', 'HEAD'], source)
     dirty = bool(run(['git', 'status', '--porcelain'], source))

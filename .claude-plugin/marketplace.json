@@ -83,6 +83,13 @@
       "description": "Read-only self-hosted N-central REST inventory with automatic ITECS Automation Vault setup.",
       "version": "0.1.1",
       "category": "Business"
+    },
+    {
+      "name": "itecs-petra-security",
+      "source": "./claude/plugins/itecs-petra-security",
+      "description": "ITECS Petra Security tools to audit which clients are on Petra and how many licenses each is billed for, with the monthly license evidence for billing reconciliation.",
+      "version": "0.1.0",
+      "category": "Business"
     }
   ]
 }

@@ -1,0 +1,8 @@
+{
+  "connector": "petra-security",
+  "plugin": "itecs-petra-security",
+  "title": "Petra Security",
+  "server": "petra_security",
+  "config_env": "PETRA_SECURITY_MCP_CONFIG",
+  "binary": "petra-security-mcp"
+}
