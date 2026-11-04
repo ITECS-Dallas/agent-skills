@@ -4,7 +4,7 @@
   "source_dirty": false,
   "go_toolchain": "go version go1.27.3 darwin/arm64",
   "plugin": "itecs-ncentral-rest",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "build_flags": [
     "-trimpath",
     "-ldflags=-s -w -buildid="
@@ -66,5 +66,15 @@
     "ncentral_rest.inventory.summary",
     "ncentral_rest.org_units.list",
     "ncentral_rest.servers.list"
+  ],
+  "runtime_files": [
+    {
+      "path": "scripts/run-ncentral-mcp",
+      "sha256": "a20d5a8d37e43467b8759099535582f198c645cc09e9fd34dbb5548849f07828"
+    },
+    {
+      "path": "scripts/configure-defaults.sh",
+      "sha256": "310e9a9d0cf276c1026187561477249afb0b0c82f9d604e38a8b6ebc8201d459"
+    }
   ]
 }

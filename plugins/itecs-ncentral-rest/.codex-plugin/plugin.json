@@ -1,7 +1,7 @@
 {
   "name": "itecs-ncentral-rest",
-  "version": "0.1.0",
-  "description": "Read-only self-hosted N-central REST inventory using existing technician identities.",
+  "version": "0.1.1",
+  "description": "Read-only self-hosted N-central REST inventory with automatic ITECS Automation Vault setup.",
   "author": {
     "name": "ITECS-Dallas"
   },
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "ITECS N-central Direct REST",
     "shortDescription": "Self-hosted N-central, existing SSO identities",
-    "longDescription": "Native read-only customer/device inventory tools for self-hosted N-central. Uses a command-backed User-API JWT from the existing technician account. No SSO migration or duplicate login required.",
+    "longDescription": "Native read-only customer/device inventory for self-hosted N-central. Automatically uses the ITECS Automation Vault API reader through op-itecs. Existing SSO is unchanged; custom per-user configurations are preserved.",
     "developerName": "ITECS-Dallas",
     "category": "Business",
     "capabilities": [

@@ -112,6 +112,11 @@ def main():
                     check(setup.returncode == 0, script + ': ' + setup.stdout + setup.stderr)
                     print(setup.stdout.strip(), flush=True)
 
+            if entry['plugin'] == 'itecs-ncentral-rest':
+                setup = execute(['python3', str(ROOT / 'scripts/test-ncentral-autosetup.py')])
+                check(setup.returncode == 0, 'N-central automatic setup: ' + setup.stdout + setup.stderr)
+                print(setup.stdout.strip(), flush=True)
+
             # Simulate Windows path and binary selection without executing a Windows binary.
             clone = tmp / entry['plugin']
             shutil.copytree(plugin / 'scripts', clone / 'scripts')

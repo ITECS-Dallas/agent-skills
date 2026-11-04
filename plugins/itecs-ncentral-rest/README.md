@@ -1,6 +1,6 @@
 # N-central Direct REST MCP
 
-Read-only access to a self-hosted N-central server using the official REST API and official MCP Go SDK. The connector never changes SSO providers, users, roles, devices or scripts. Each technician uses a User-API JWT from their existing N-central account; an Entra/SSO account does not need a duplicate local identity. REST token authentication is separate from interactive Entra SSO.
+Read-only access to a self-hosted N-central server using the official REST API and official MCP Go SDK. The connector never changes SSO providers, users, roles, devices or scripts. Automatic ITECS setup uses the existing Automation Vault API reader; custom per-technician User-API JWTs are also supported. Entra/SSO accounts do not need duplicate local identities. REST token authentication is separate from interactive Entra SSO.
 
 ## Tools
 
@@ -13,17 +13,19 @@ Read-only access to a self-hosted N-central server using the official REST API a
 
 The only POST route is `/api/auth/authenticate`, which exchanges a User-API JWT for a short-lived access token. All data routes are fixed GET endpoints. There is no generic HTTP, script, remote-control, mutation or write-mode tool. Redirects are rejected. Auth tokens are kept in memory per configured server. Expired access tokens are re-exchanged; one data HTTP 401 permits one reauthentication, while 403, 429 and server errors are surfaced without retries. Source warnings, malformed records, inconsistent counts, duplicate IDs and changed pagination totals fail closed. Collections are live reads, not atomic snapshots or billing artifacts.
 
-## Configure
+## Automatic ITECS configuration
 
-Store non-secret runtime configuration at `~/.codex/ncentral-mcp/config.json`. Copy `config.example.json`, set the server's HTTPS origin, and use a credential command with an absolute executable path. On the authorized ITECS macOS host, the command is:
+On first start after installation, the launcher creates `~/.codex/ncentral-mcp/config.json` automatically if no configuration exists. No per-machine N-central setup command is required. The non-secret file points to `https://manage.itecsonline.com` and the existing `N-central REST - Existing API Reader` item in `Automation Vault` (`op://Automation Vault/h6b4ek24qjuqdjjrvrtagfsnme/credential`). Its permissions are owner-only on POSIX hosts. No token value is read during setup or written to disk.
 
-```json
-["/opt/homebrew/bin/op-itecs", "read", "op://Automation Vault/N-central REST - YOUR IDENTITY/credential"]
-```
+Each machine must already have its approved, prompt-free `op-itecs` wrapper and a machine service account with read access to that vault item. macOS uses `/opt/homebrew/bin/op-itecs`; Linux and Windows resolve an executable named `op-itecs` on PATH and record its absolute path (Windows requires a wrapper executable usable by native Go processes). This plugin does not provision 1Password service accounts or copy their credentials between machines. Missing wrapper, denied vault access, an expired token or an API failure is reported without trying another credential source.
 
-The reference is an example. Store the technician's existing User-API JWT in a concealed `credential` field in an approved Automation Vault item. API tokens are generated from the existing user's API Access tab. Never store an Entra password, JWT or access token in config, source, `.env`, shell arguments, reports or chat. Stop on an `op-itecs` failure; do not use alternate credential sources. Other hosts require their approved absolute wrapper executable path. For Windows JSON, forward slashes avoid backslash escaping. The plugin uses bundled native binaries, so technicians do not need Go.
+The default uses the shared API reader's N-central role/access-group scope; it does not impersonate the signed-in technician. Existing Entra/SSO accounts are unchanged. The connector restricts every data operation to read-only REST routes even if the API account has broader permissions.
 
-A valid token proves authentication, not complete fleet coverage. API results are limited to the source user's roles and access groups. Keep individual technician identity and scope; do not distribute another technician's token. The connector enforces read-only routes even when a token's account has broader permissions.
+### Custom configurations
+
+Existing configuration files are preserved, including custom per-technician credentials and server scope. `NCENTRAL_MCP_CONFIG` selects an explicit config; a missing explicit path fails instead of creating defaults. To use a different server or a technician's own existing User-API JWT, copy `config.example.json`, set the HTTPS origin, and use an approved absolute credential command referencing the concealed `credential` field in Automation Vault. Never put JWTs, Entra passwords or access tokens in configuration, `.env`, source, logs or chat.
+
+A valid token proves authentication, not complete fleet coverage. Compare the expected customer/device scope with the console. Do not treat missing access as an empty fleet.
 
 ## Install from marketplace
 
@@ -32,7 +34,7 @@ codex plugin marketplace upgrade itecs-agent-skills
 codex plugin add itecs-ncentral-rest@itecs-agent-skills
 ```
 
-Start a new chat after installation. This plugin uses `ncentral_rest`; the separately available `itecs-ncentral` plugin uses the official hosted GraphQL MCP and has different identity prerequisites. Neither path is an automatic fallback for the other. Do not enable the hosted plugin for a direct-REST setup unless it is independently configured and needed.
+Start a new chat after installation. The first MCP launch performs the automatic setup above. This plugin uses `ncentral_rest`; the separately available `itecs-ncentral` plugin uses the official hosted GraphQL MCP and has different identity prerequisites. Neither path is an automatic fallback for the other. Do not enable the hosted plugin for a direct-REST setup unless it is independently configured and needed.
 
 ## Build and validate
 
