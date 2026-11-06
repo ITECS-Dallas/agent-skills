@@ -1,8 +1,20 @@
 # ITECS HaloPSA for Atlas
 
-Version 0.17.0 packages 56 typed tools (27 reads and 29 writes) for macOS, Windows and Linux, including one-time invoice creation, invoice approval and QuickBooks Online sync, tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
+Version 0.18.0 packages 56 typed tools (27 reads and 29 writes) for macOS, Windows and Linux, including one-time invoice creation, invoice approval and QuickBooks Online sync, tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
 
 See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Restart into a new Codex task after updating the plugin.
+
+## What changed in 0.18.0
+
+A time entry can now bill to a contract other than its ticket's. Before, every entry took the ticket's linked contract, so infrastructure work logged on a ticket linked to a development contract landed on the development contract and had to be moved by hand.
+
+- **Choose the entry's contract:** `halopsa.ticket_actions.create_time_entry` accepts `contract_ref` (for example `MSPCUST-ISM`) or `contract_id` to bill the entry to another contract of the ticket's client, or `clear_contract` to bill it to no contract, for example migration work on No Charge. A contract of another client, or one that is inactive, expired or not started, is refused. Without these parameters the entry bills to the ticket's contract as before.
+- **The preview shows both contracts:** the entry's contract beside the ticket's, in `context.contract` and in the preview text. It warns when they differ and when the charge rate is limited to a different contract (for example a `[DEVOPS]` rate on a ticket linked to a development contract).
+- **Verified:** the readback checks the entry's contract. If HaloPSA stores a different contract on create, the connector sets it with one update of the new entry and reports it as `contract_correction`. A contract HaloPSA won't store is reported, not retried.
+- **Contract-limited charge rates resolve by name:** HaloPSA's charge rate list leaves out rates limited to a contract, such as `[DEVOPS]`. The connector now also reads the list for the entry's and ticket's contracts.
+- **Moving an entry:** `halopsa.ticket_actions.update` accepts `clear_contract` and checks a contract against the ticket's client.
+
+No configuration change. After updating, `halopsa.servers.list` with `include_status: true` should report `connector_version` 0.18.0.
 
 ## What changed in 0.17.0
 
