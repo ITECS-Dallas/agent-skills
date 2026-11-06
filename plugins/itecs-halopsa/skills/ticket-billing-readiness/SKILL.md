@@ -39,13 +39,15 @@ An explicit request to perform the billing work authorizes `confirm: true` once 
 
 Use `halopsa.ticket_actions.create_time_entry` with the duration the technician supplied (never estimate it), the work note, and `charge_rate`. The preview shows the resolved charge rate and hourly rate and warns when the record has no contract or no charge rate; resolve those first (steps 2 and 3), then execute under the existing request. The entry is read back and compared; report from the readback.
 
+The entry bills to the ticket's linked contract unless you name another. Pick the contract by the kind of work, not by the ticket. When a client has separate contracts, for example infrastructure on an MSP contract, development on a development contract, and migration on No Charge with no contract, pass `contract_ref` or `contract_id` for the entry's contract, or `clear_contract: true` for no contract. The contract must belong to the ticket's client and be active. Show the technician the preview's contract summary, which names the entry's contract beside the ticket's, and act on its warnings. A charge rate limited to a different contract (for example a `[DEVOPS]` rate on a ticket linked to the development contract) means the entry is on the wrong contract or has the wrong rate. The readback verifies the contract. If HaloPSA ignored it on create, `result.contract_correction` reports the one update that set it.
+
 ## 5. Correct logged time
 
 Change an entry that is already logged with `halopsa.ticket_actions.update` instead of logging a second entry for the same work. Take its id from `halopsa.time_entries.list` (`action_number`) or `halopsa.ticket_actions.list` with `time_entries_only: true`. Supply only what changes:
 
 - `hours` and `nonbillable_hours` (`0` makes the whole entry billable);
 - `charge_rate` by exact name, or `charge_rate_id` (`0` is No Charge);
-- `contract_ref` or `contract_id` to bill the entry against another contract of the ticket's client (written as HaloPSA's `action_contract_id`);
+- `contract_ref` or `contract_id` to bill the entry against another contract of the ticket's client, or `clear_contract: true` for no contract (written as HaloPSA's `action_contract_id`; a contract of another client or an inactive one is refused);
 - `performed_at`, `note`, `hidden_from_user` or anything else through `extra_fields`.
 
 The preview shows each field's current value beside the new one. HaloPSA recalculates the entry's billing when it is saved: a billable rate on a pre-pay contract deducts the hours, and No Charge releases them. Read `halopsa.contracts.get` with `include_details: true` afterwards to confirm the balance. Warnings about an entry that is processed, invoiced or locked from recalculation are informational. To remove a duplicate or mistaken entry, use `halopsa.ticket_actions.delete`.
