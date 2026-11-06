@@ -4,7 +4,7 @@
   "source_dirty": false,
   "go_toolchain": "go version go1.27.3 darwin/arm64",
   "plugin": "itecs-ncentral-rest",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "build_flags": [
     "-trimpath",
     "-ldflags=-s -w -buildid="
@@ -74,7 +74,7 @@
     },
     {
       "path": "scripts/configure-defaults.sh",
-      "sha256": "310e9a9d0cf276c1026187561477249afb0b0c82f9d604e38a8b6ebc8201d459"
+      "sha256": "81c0ffa02305c8372d4afcef6eb862cd995b408a22eef24b280fd5f69301df36"
     }
   ]
 }
