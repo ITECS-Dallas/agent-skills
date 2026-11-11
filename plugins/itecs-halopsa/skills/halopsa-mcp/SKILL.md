@@ -1,11 +1,13 @@
 ---
 name: halopsa-mcp
-description: Use when finding live HaloPSA records, creating a ticket, or performing a direct technician action such as assignment, Start Work, status, email, invoices, contracts, or client, contact, site and asset edits.
+description: Use when finding live HaloPSA records, creating a ticket, or performing a direct technician action such as assignment, Start Work, resolving or closing tickets, status, email, invoices, contracts, or client, contact, site and asset edits.
 ---
 
 # HaloPSA technician operations
 
 Use the installed `halopsa.*` tools and reuse the exact record and facts already supplied. To create a ticket, start with `halopsa.tickets.create` using the facts supplied. Resolve only missing tenant fields or routing. Read back the created ticket with `halopsa.tickets.get`, `compact: true` and `include_actions: false`. Add `ticketidonly: true` when an existence check is sufficient. For a ticket lookup or update requiring the current record, start with `halopsa.tickets.get` and `compact: true`. Start a project lookup with `halopsa.projects.get`, a search without an ID with the relevant `.list` tool, and an identified direct action with its typed tool when the required inputs are known.
+
+For a workflow Resolve or Close request, read the current ticket with `compact: true` and `include_actions: false`, then use `halopsa.ticket_actions.resolve` with the note, latest `expected_last_update` and explicit `email_user` choice. Set `close: true` for a Close request. Report the actual status from readback, including pending client confirmation. See [native ticket closure](references/operations.md#native-ticket-closure) for the action details.
 
 Use `confirm: true` for the requested write. Use a preview when requested or needed to resolve inputs or effects. Ask only for required facts or a material choice the request and available records cannot resolve. Preserve draft requests, sender routing, snapshot requirements and readback. Reconcile an ambiguous write before any retry.
 

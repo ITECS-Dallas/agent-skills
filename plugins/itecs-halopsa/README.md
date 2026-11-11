@@ -1,8 +1,15 @@
 # ITECS HaloPSA for Atlas
 
-Version 0.18.1 packages 56 typed tools (27 reads and 29 writes) for macOS, Windows and Linux, including one-time invoice creation, invoice approval and QuickBooks Online sync, tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
+Version 0.18.2 packages 57 typed tools (27 reads and 30 writes) for macOS, Windows and Linux, including one-time invoice creation, invoice approval and QuickBooks Online sync, tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
 
 See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Start a new Codex or Claude Code session after updating the plugin.
+
+## What changed in 0.18.2
+
+- **Native ticket Resolve and Close.** `halopsa.ticket_actions.resolve` uses the current workflow action, resolution note and the technician’s explicit Email User choice. Report the action and resulting ticket status from readback, including pending client confirmation.
+- **New time entries.** The technician skills ask which rate to use when a request leaves it unspecified, wait for the answer before posting, and verify the exact rate saved in HaloPSA.
+
+Existing 1Password-backed settings are reused. Verify `connector_version: 0.18.2` in a new session.
 
 ## What changed in 0.18.1
 
@@ -112,6 +119,7 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.ticket_outcomes.list`
 - `halopsa.ticket_outcomes.get`
 - `halopsa.ticket_actions.start_work`
+- `halopsa.ticket_actions.resolve`
 - `halopsa.ticket_actions.send_email`
 - `halopsa.ticket_actions.create_public_note`
 - `halopsa.ticket_actions.create_private_note`
@@ -163,7 +171,7 @@ When a technician authorizes the optional client support conversation, that auth
 
 `Start Work` resolves exactly one currently available tenant outcome named `Start Work` and posts that outcome through `/Actions`; it never substitutes a generic status update. Outcome metadata can disclose configured status, assignment, workflow, email, billing, and timer effects. Halo's continuously running browser timer is UI state, so the connector does not claim that it remains open. Explicit time logging is supported through `halopsa.ticket_actions.create_time_entry`.
 
-Ticket email uses one exact email-capable configured outcome and `confirm: true` for the authorized execution. It does not write directly to Halo's outgoing-email queue.
+Ticket email uses one exact email-capable configured outcome and `confirm: true` for the authorized execution. It does not write directly to Halo's outgoing-email queue. For the Resolve or Close workflow action and its Email User choice, see [native ticket closure](skills/halopsa-mcp/references/operations.md#native-ticket-closure).
 
 For additional agents, the assigned queue, co-managed workflows or change-request
 plans, use `halopsa.tickets.get` with its normal detailed response. Read
@@ -269,7 +277,7 @@ For an engineering smoke test from the installed plugin directory, run:
 py -3 -X utf8 .\scripts\test-windows.py
 ```
 
-Use `python -X utf8` if Python is installed without the `py` launcher. Run it from either host’s installed plugin directory. It runs the Windows binary through that host’s launcher, checks all 56 tool names and exercises default and override config paths in a temporary profile with spaces and Unicode. It uses synthetic command-backed credentials and invokes no Halo operations. It does not alter the technician's saved config or prove their live 1Password access. Python is needed for this optional engineering check, not for the Go connector itself.
+Use `python -X utf8` if Python is installed without the `py` launcher. Run it from either host’s installed plugin directory. It runs the Windows binary through that host’s launcher, checks all tool names in the package manifest and exercises default and override config paths in a temporary profile with spaces and Unicode. It uses synthetic command-backed credentials and invokes no Halo operations. It does not alter the technician's saved config or prove their live 1Password access. Python is needed for this optional engineering check, not for the Go connector itself.
 
 If startup reports `/usr/bin/env: 'bash\r': No such file or directory` or `pipefail` as an invalid option, update the plugin and verify the versioned package's launcher uses LF. Both marketplace paths preserve LF from 0.18.1.
 

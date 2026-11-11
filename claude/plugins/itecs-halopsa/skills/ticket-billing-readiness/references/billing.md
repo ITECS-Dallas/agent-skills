@@ -28,13 +28,13 @@ An explicit request to perform the billing work authorizes `confirm: true` once 
 
 ## 3. Choose the billing type
 
-Pass the exact named `charge_rate` directly to the time tool. Use `halopsa.metadata.list` with kind `charge_rates` only to discover a missing rate, review the effective hourly rate, or resolve ambiguity. Supply `search`, `client_id` and `contract_id` when applicable so contract-limited named rates are included. For “level one,” search for the applicable `Level 1` or `Lvl 1` label within the relevant contract’s rates and use the exact returned name. Use `No Charge` when that is the intended rate. Ask if the correct rate remains unresolved.
+Pass the exact named `charge_rate` directly to the time tool. If the technician did not specify a rate for new time, ask which rate to use and wait before posting. Use `halopsa.metadata.list` with kind `charge_rates` to present relevant choices, review the effective hourly rate, or resolve shorthand or ambiguity. Supply `search`, `client_id` and `contract_id` when applicable so contract-limited named rates are included. For “level one,” search for the applicable `Level 1` or `Lvl 1` label within the relevant contract’s rates and use the exact returned name. Use `No Charge` when the technician selects it. Ask if a supplied rate remains ambiguous.
 
 ## 4. Log time
 
 Use `halopsa.ticket_actions.create_time_entry` with the supplied duration, work note and named `charge_rate`. Pass `contract_ref` or `contract_id` when this entry should bill to another active contract of the ticket's client. Pass `clear_contract: true` when it should bill to no contract. Otherwise the entry inherits the record's contract. A missing record link does not prevent use of an explicit entry contract. A rate limited to another contract needs the correct entry-level contract or a different rate.
 
-Use a preview if it helps choose inputs or inspect effects. The preview shows the entry's contract beside the ticket's and flags a rate that belongs to a different contract. The readback verifies the duration, rate and entry contract. If HaloPSA ignored the contract on create, `result.contract_correction` reports the one update the connector attempted to set it. Report the verified result and any unresolved discrepancy.
+Use a preview if it helps choose inputs or inspect effects. The preview shows the entry's contract beside the ticket's and flags a rate that belongs to a different contract. Check that `result.readback.matched` contains `chargerate` and that the stored ID in `result.readback.record.chargerate` matches the resolved `result.charge_rate_id` for the selected name. Verify the duration and entry contract from the same readback. If the rate evidence is missing or differs, report it as unverified. If HaloPSA ignored the contract on create, `result.contract_correction` reports the one update the connector attempted to set it. Report the verified result and any unresolved discrepancy.
 
 ## 5. Correct logged time
 

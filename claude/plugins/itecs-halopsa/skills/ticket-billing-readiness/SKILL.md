@@ -5,7 +5,7 @@ description: Use when setting a HaloPSA ticket or project contract, choosing a c
 
 # Ticket billing readiness
 
-- For a new time entry, start with `halopsa.ticket_actions.create_time_entry`. Pass the named `charge_rate` and the intended entry `contract_ref`, `contract_id` or `clear_contract` directly when supplied. A record-level contract change is a separate request.
+- For new time with no specified rate, ask which rate to use and wait for the answer. Use `halopsa.ticket_actions.create_time_entry` with the exact `charge_rate` and the intended entry `contract_ref`, `contract_id` or `clear_contract` when supplied. A record-level contract change is a separate request. Verify the saved rate from readback.
 - For a requested record link, start with `halopsa.tickets.get` or `halopsa.projects.get` for the current snapshot. For an identified existing action, use `halopsa.ticket_actions.update` or `delete`. For an unknown action on a known ticket, use `halopsa.ticket_actions.list` with `time_entries_only: true` and `compact: true`. Use `halopsa.time_entries.list` for timesheet context and `halopsa.contracts.get` for a prepay balance.
 - Use `halopsa.metadata.list` with `kind: charge_rates` when choosing or resolving a rate. For shorthand such as “level one,” search the applicable `Level 1` or `Lvl 1` label with the relevant `contract_id` and use the exact returned name.
 
