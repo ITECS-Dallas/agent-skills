@@ -5,7 +5,7 @@ description: Use when finding live HaloPSA records, creating a ticket, or perfor
 
 # HaloPSA technician operations
 
-Use the installed `halopsa.*` tools and reuse the exact record and facts already supplied. To create a ticket, start with `halopsa.tickets.create` using the facts supplied. Resolve only missing tenant fields or routing. For a ticket lookup or update requiring the current record, start with `halopsa.tickets.get` and `compact: true`. Start a project lookup with `halopsa.projects.get`, a search without an ID with the relevant `.list` tool, and an identified direct action with its typed tool when the required inputs are known.
+Use the installed `halopsa.*` tools and reuse the exact record and facts already supplied. To create a ticket, start with `halopsa.tickets.create` using the facts supplied. Resolve only missing tenant fields or routing. Read back the created ticket with `halopsa.tickets.get`, `compact: true` and `include_actions: false`. Add `ticketidonly: true` when an existence check is sufficient. For a ticket lookup or update requiring the current record, start with `halopsa.tickets.get` and `compact: true`. Start a project lookup with `halopsa.projects.get`, a search without an ID with the relevant `.list` tool, and an identified direct action with its typed tool when the required inputs are known.
 
 Use `confirm: true` for the requested write. Use a preview when requested or needed to resolve inputs or effects. Ask only for required facts or a material choice the request and available records cannot resolve. Preserve draft requests, sender routing, snapshot requirements and readback. Reconcile an ambiguous write before any retry.
 
