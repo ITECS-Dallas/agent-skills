@@ -11,6 +11,8 @@ import subprocess
 import sys
 import tempfile
 
+# Leave the installed package untouched while importing its discovery helper.
+sys.dont_write_bytecode = True
 from doctor import discover
 
 
@@ -39,11 +41,6 @@ def main():
     try:
         with tempfile.TemporaryDirectory(prefix="Atlas Zoë Tech ") as temp:
             scratch = Path(temp)
-            plugin = scratch / "Halo plugin"
-            shutil.copytree(root / "scripts", plugin / "scripts", ignore=shutil.ignore_patterns("__pycache__"))
-            (plugin / "bin").mkdir()
-            for row in windows_binaries:
-                shutil.copy2(root / row["path"], plugin / row["path"])
             profile = scratch / "Windows profile"
             config = profile / ".codex/halopsa-mcp/config.json"
             config.parent.mkdir(parents=True)
@@ -58,10 +55,10 @@ def main():
             os.environ["USERPROFILE"] = str(profile)
             os.environ.pop("HALOPSA_MCP_CONFIG", None)
             # Match the host's shipped stdio invocation, including an absolute Claude plugin path.
-            args = [arg.replace("${CLAUDE_PLUGIN_ROOT}", str(plugin)) for arg in server["args"]]
+            args = [arg.replace("${CLAUDE_PLUGIN_ROOT}", str(root)) for arg in server["args"]]
             previous_cwd = Path.cwd()
             try:
-                os.chdir(plugin / server["cwd"] if "cwd" in server else scratch)
+                os.chdir(root / server["cwd"] if "cwd" in server else scratch)
                 command = [bash, *args]
                 version = run(command + ["-version"])
                 if version != "halopsa-mcp " + manifest["version"]:
