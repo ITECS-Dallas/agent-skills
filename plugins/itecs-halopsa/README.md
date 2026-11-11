@@ -150,6 +150,8 @@ The bundled MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.invoices.create`
 - `halopsa.invoices.approve`
 
+Exact ticket reads accept ITECS references such as `ITECS-0095045`. For a status change, native closure, screenshot upload, or a standalone email to the designated contact, see [ticket actions](skills/halopsa-mcp/references/ticket-actions.md).
+
 Ticket action reads support conversation/public filters, date windows and optional email HTML. Keep `agent_only` false to include client replies, and preserve action IDs/authorship when continuing a conversation.
 
 Technicians can request a ticket or project in ordinary chat. The agent resolves supplied names to HaloPSA IDs and asks concise follow-up questions only when required values remain missing; technicians do not compose tool payloads. Ticket and project creation require at least one category ID plus positive HaloPSA impact and urgency values. Opportunities use `halopsa.opportunities.create` instead, which needs no support classification and enforces the opportunity type's own mandatory fields.
@@ -269,7 +271,7 @@ where.exe bash
 bash -c 'uname -s; uname -m'
 ```
 
-The `uname -s` result should start with `MINGW`, `MSYS` or `CYGWIN`. If it reports `Linux`, `bash` resolves to WSL. Put Git Bash earlier on `PATH` and restart the plugin host.
+The `uname -s` result should start with `MINGW`, `MSYS` or `CYGWIN`. If it reports `Linux`, `bash` resolves to WSL. Put Git Bash earlier on `PATH` and restart the plugin host. A workstation with the existing Codex Git Bash pin uses the launcher configured outside the versioned plugin cache. Keep that override in place during upgrades and confirm that a fresh session discovers HaloPSA tools through it.
 
 For an engineering smoke test from the installed plugin directory, run:
 

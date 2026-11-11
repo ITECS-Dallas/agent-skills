@@ -1,6 +1,6 @@
 {
   "source_repository": "https://github.com/ITECS-Dallas/GO-MCP",
-  "source_revision": "f43f6a7377add1ed01a3375ada5656d5721a6c7e",
+  "source_revision": "810cfe92342fb4c40051653d904b9c68ff5bdbb4",
   "source_dirty": false,
   "go_toolchain": "go version go1.27.4 darwin/arm64",
   "plugin": "itecs-halopsa",
@@ -13,48 +13,48 @@
     {
       "path": "bin/halopsa-mcp-darwin-amd64",
       "target": "darwin-amd64",
-      "sha256": "5c414d9b49aa5a8cb68a1acb18149fd1b72f398fc82830873bc483971138c3b9",
-      "bytes": 11002256,
+      "sha256": "8204e91463bd750e06fdf9e358b1122a329145b6793648c28680ad7f1780127b",
+      "bytes": 11060032,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-darwin-arm64",
       "target": "darwin-arm64",
-      "sha256": "f3d183247b6a89ad6e923271f54eaa7e63b8f2138a9b71f798d6c0b30015ab69",
-      "bytes": 10146610,
+      "sha256": "78fb623a760a9cdd2aa2e484a34ee14ac78cb76860259299a623eae39e999d2a",
+      "bytes": 10196610,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-linux-amd64",
       "target": "linux-amd64",
-      "sha256": "8d59214a46b6b8a3f76a2283a5ed4d8118ed3fa50b5d7971eb780affee15c936",
-      "bytes": 10580092,
+      "sha256": "cbb98916e92b3cbc0bd0c1977700605a59df3820a8c0462be397f680519fc1e7",
+      "bytes": 10633340,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-linux-arm64",
       "target": "linux-arm64",
-      "sha256": "f13899a836e555c38279536a5bde1a583955893bf435728bb558eda94170233c",
-      "bytes": 9699452,
+      "sha256": "768ec4d5aa21c56bf9075e9d886c000a449b1666bf8718c0c1b66ca43124c635",
+      "bytes": 9764988,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-windows-amd64.exe",
       "target": "windows-amd64",
-      "sha256": "d5f7a70ca8a3703d8614ec3077a1e9f3f1207eceaf8204a49f5a18aac4ca5418",
-      "bytes": 10867712,
+      "sha256": "551a7f6aec7b222e068b708fc2ee2213c4d8dd05f788f09fe5606914c8e92db4",
+      "bytes": 10923008,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     },
     {
       "path": "bin/halopsa-mcp-windows-arm64.exe",
       "target": "windows-arm64",
-      "sha256": "e739bcef4f40c1970e86a7c40ebae24e78ccb487956c12f7f8884f95c23b3513",
-      "bytes": 9881600,
+      "sha256": "09da1fc789f091dabfba372b8e3137cfeec44cb428e83a2f4cbeca88796af9a2",
+      "bytes": 9931776,
       "module": "connectors/halopsa",
       "command": "./cmd/mcp"
     }

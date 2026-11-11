@@ -2,18 +2,11 @@
 
 Use `halopsa.agents.me` when the authenticated technician must be resolved and `halopsa.metadata.list` for unknown names or IDs. Reuse resolved metadata and use `compact: true` where supported. Pass additional standard fields by their API names in `extra_fields` and custom fields by ID in `custom_fields` when the tool supports them.
 
-- For an exact Start Work request, pass the ticket's `last_update` as `expected_last_update` to `halopsa.ticket_actions.start_work`. It resolves the exact available tenant outcome. The continuously running Halo browser timer is separate.
-- For Halo-native email, use `halopsa.ticket_actions.send_email` with the exact email-capable outcome, checking recipients and configured effects. Follow the active workspace's sender route when it designates one. Use the email tool for sending and the note tools for recording.
+- For status, Start Work, closure, screenshot uploads and ticket contact email, use [ticket actions](ticket-actions.md).
 - For ticket or project creation, resolve category, impact and urgency with tenant metadata and the facts supplied. The sales opportunity workflow has its own tenant fields and preview.
 - Where required, send the current `last_update` or status and report from readback. `structuredContent.error.code: "ticket_changed"` and `write_attempted: false` on ticket email or status prove rejection before the write. Refresh and reconcile under the existing authorization. Ambiguous transport or post-write results require readback before any retry.
 - If a typed tool cannot perform the requested operation, use another authorized route that supports it with the existing credentials and permissions.
 - For an entry's billing contract and charge rate, see [ticket billing](../../ticket-billing-readiness/SKILL.md). To link the record itself, use the ticket or project update tool only when that record-level change is requested.
-
-## Native ticket closure
-
-For a technician’s Resolve or Close request, use the current ticket’s `last_update` as `expected_last_update` in `halopsa.ticket_actions.resolve`. Supply the work-completed `note` and the technician’s `email_user` choice. If the choice is absent, ask whether to email the user and wait for the answer. Set `close: true` for an explicit Close request. Halo uses the exact Close action when available and follows native Resolve when the current workflow only offers Resolve. Supply `resolution_category` if the action requires it and the ticket does not have one. Execute the authorized action with `confirm: true`.
-
-Report the applied `outcome_name` and actual status from `operation.result.ticket_readback`. When `operation.result.pending_customer_confirmation` is true, report that the ticket is pending client confirmation. Use `action_readback` to verify the stored note and `email_user_recorded` for the action’s email evidence. Inbox delivery requires separate evidence. If the action outcome is uncertain, read back the ticket and its action before any retry.
 
 ## Tool details
 
@@ -46,7 +39,7 @@ Report the applied `outcome_name` and actual status from `operation.result.ticke
 - `halopsa.ticket_outcomes.get` - get one configured outcome and its effects, optionally resolved for an exact ticket.
 - `halopsa.ticket_actions.start_work` - preview or execute the one exact available Start Work outcome under existing task authorization with `last_update` revalidation.
 - `halopsa.ticket_actions.resolve` - run the native workflow Resolve or Close action with the resolution note and explicit Email User choice, then verify the action and resulting ticket status.
-- `halopsa.ticket_actions.send_email` - preview or send one ticket email through an exact email-capable outcome under existing task authorization. Optional `email_template_id` selects a template for this message only; custom IDs may be negative. Omit it to keep the action's default template and signature behavior.
+- `halopsa.ticket_actions.send_email` - preview or send one ticket email. Omit `to` and `outcome_id` for the designated contact through Email User. Optional `email_template_id` selects a template for this message only; custom IDs may be negative. Omit it to keep the action's default template and signature behavior.
 - `halopsa.ticket_actions.create_public_note` - add one public/client-visible note to an exact ticket under the technician's existing request; no email, status, time, attachment, or private-note side effects.
 - `halopsa.ticket_actions.create_private_note` - add one internal/private, non-email note to an exact ticket or project; this is the default note path. A note already on the ticket with the same text is returned as a `duplicate` and not posted again; never pass `allow_duplicate` unless the technician wants a second copy.
 - `halopsa.ticket_actions.create_time_entry` - log one private, non-email time entry against an exact ticket or project. `minutes` sets the duration exactly; hours are rounded to the whole minute HaloPSA stores. `charge_rate` resolves a billing type by name, including rates limited to the entry's contract. Ask for a missing rate and wait before posting new time. The entry bills to the ticket's linked contract unless `contract_ref` or `contract_id` names another contract of the ticket's client, or `clear_contract` bills it to no contract. The preview shows the entry's contract beside the ticket's and warns when no contract is linked, when the entry's contract differs from the ticket's, or when the charge rate is limited to a different contract. An entry already logged for the same work (same duration at the same Date Done, or with the same note that day, by anyone) is returned as a `duplicate` and not logged again. Verify the saved rate, exact minutes and chosen contract from readback. If HaloPSA ignored the contract on create, one update sets it and `contract_correction` reports it.
@@ -61,7 +54,7 @@ Report the applied `outcome_name` and actual status from `operation.result.ticke
 - `halopsa.clients.create` - preview or create one client with top level, relationship such as Prospect, website, reference, explicit accounting-integration exclusion and main site address; duplicate names are refused.
 - `halopsa.users.create` - preview or create one client contact without a welcome or portal email; an existing email is refused.
 - `halopsa.attachments.list` - list attachments on an exact ticket, opportunity or project.
-- `halopsa.attachments.upload` - preview or upload one local sales document or image as an internal attachment, confirmed with the preview's SHA-256.
+- `halopsa.attachments.upload` - preview or upload a local file, including a screenshot, as an internal attachment. Pass the preview’s SHA-256 when uploading.
 
 - `halopsa.metadata.list` - resolve agents, teams/queues, workflows, field definitions, sites, users, ticket types, categories, priorities, charge rates (named billing types with effective hourly rates), Agreement Subtype labels (`contract_subtypes`), billing descriptions, top levels, client relationships and any HaloPSA pick-list (`lookup` with `lookup_id`) using typed filters.
 - `halopsa.agents.me` - identify the authenticated technician for my work and assignment requests; identity fields only unless `include_full` is set.
