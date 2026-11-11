@@ -23,7 +23,7 @@ claude plugin marketplace add ITECS-Dallas/agent-skills
 
 Then install what you need, for example `codex plugin add itecs-halopsa@itecs-agent-skills` or `claude plugin install itecs-halopsa@itecs-agent-skills`.
 
-**Update** whenever a release is announced, then start a new session:
+**Update** whenever a release is announced. Before updating HaloPSA in Codex on Windows 11, quit Codex Desktop if open and close Codex CLI sessions running HaloPSA. Run the Codex update commands from a separate PowerShell terminal, then start a new Codex session. See [HaloPSA’s Windows update troubleshooting](plugins/itecs-halopsa/README.md#refresh-an-existing-installation) if Codex reports a cache backup error.
 
 ```bash
 codex plugin marketplace upgrade itecs-agent-skills
@@ -382,9 +382,11 @@ enabled = true
 
 Each runtime connector plugin launches through Bash and dispatches to the bundled macOS or Windows binary for the current machine.
 
+Before refreshing HaloPSA in Codex on Windows, quit Codex Desktop if open and close Codex CLI sessions running HaloPSA. Run the update from a separate PowerShell terminal.
+
 To refresh from a local filesystem marketplace after this repo changes:
 
-```bash
+```powershell
 codex plugin add portable-development-workflow@itecs-agent-skills
 codex plugin add itecs-halopsa@itecs-agent-skills
 codex plugin add itecs-vcenter@itecs-agent-skills
@@ -393,7 +395,7 @@ codex plugin add itecs-pax8@itecs-agent-skills
 
 For a Git-backed marketplace source, update the marketplace snapshot first, then reinstall the plugin entries:
 
-```bash
+```powershell
 codex plugin marketplace upgrade itecs-agent-skills
 codex plugin add portable-development-workflow@itecs-agent-skills
 codex plugin add itecs-halopsa@itecs-agent-skills

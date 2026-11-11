@@ -295,6 +295,8 @@ Run the platform setup above on a fresh machine. Both hosts use the same command
 
 ## Refresh an existing installation
 
+Before updating HaloPSA in Codex on Windows 11, quit Codex Desktop if open and close Codex CLI sessions running HaloPSA. Run the Codex update commands from a separate PowerShell terminal. Windows can lock the bundled connector executable while a session uses it.
+
 Codex:
 
 ```bash
@@ -311,7 +313,9 @@ claude plugin update itecs-halopsa@itecs-agent-skills
 
 If the marketplace list points to a local folder, pull that checkout before updating the plugin or switch to the [GitHub registration](https://github.com/ITECS-Dallas/agent-skills#get-the-plugins-and-keep-them-updated). Claude Code's marketplace includes the native plugin manifest and launcher.
 
-Restart Claude Code or start a fresh Codex session. Call `halopsa.servers.list` with `include_status: true` to verify the connector version, authenticated agent and scope coverage. Use `check_updates: true` to compare with the published marketplace. The optional `scripts/doctor --discover` checks the package's MCP tool surface, and `scripts/doctor` reports the local package version. Marketplace updates preserve the external 1Password configuration.
+If Codex reports `failed to back up plugin cache entry: Access is denied. (os error 5)` during `codex plugin add`, close any remaining sessions running the HaloPSA connector and retry `codex plugin add itecs-halopsa@itecs-agent-skills` from PowerShell. Keep the existing HaloPSA config and 1Password setup. If a Claude Code update independently reports a cache or file lock while a session is using HaloPSA, close the affected Claude Code app or session and retry from PowerShell.
+
+Once the update succeeds, start a new Codex or Claude Code session. Call `halopsa.servers.list` with `include_status: true` to verify the connector version, authenticated agent and scope coverage. Use `check_updates: true` to compare with the published marketplace. The optional `scripts/doctor --discover` checks the package's MCP tool surface, and `scripts/doctor` reports the local package version. Marketplace updates preserve the external 1Password configuration.
 
 ## Local Smoke Test
 
