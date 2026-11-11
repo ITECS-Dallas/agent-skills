@@ -5,7 +5,8 @@
       "args": [
         "./scripts/run-halopsa-mcp"
       ],
-      "cwd": "."
+      "cwd": ".",
+      "env_vars": ["HALOPSA_MCP_CONFIG"]
     }
   }
 }

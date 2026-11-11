@@ -1,16 +1,10 @@
 ---
 name: service-desk-handoff
-description: Use when preparing a technician shift handoff, ticket briefing, or next-action summary from HaloPSA tickets or projects.
+description: Use when summarizing HaloPSA tickets or projects for a technician briefing, shift handoff or next-action review.
 ---
 
 # Service-desk handoff
 
-Resolve the supplied ticket/project IDs, technician, client or queue using the installed HaloPSA lookup tools. Read each relevant record and its recent actions; page through additional actions when needed to establish the latest work and open questions.
+Start with `halopsa.tickets.get` or `halopsa.projects.get` for known IDs. Use the relevant `.list` tool for a queue or search. Read the recent actions with `halopsa.ticket_actions.list`, paging when the handoff needs more history. Use `compact: true` where available.
 
-Produce a concise entry per ticket: ID and summary, client, owner/team, current status, latest meaningful work with time, unresolved question or dependency, and concrete next action. Separate recorded facts from a proposed next step. Include the ticket link when a verified URL is available.
-
-Include the billing state when time was worked: the linked contract (or that none is linked, from `ticket_context.billing`) and the billing types used. Pass `compact: true` on ticket and action reads to keep large queues readable.
-
-Use the requested time window; when omitted, focus on current work and recent actions. Ask only for a missing scope that cannot be resolved from the conversation or live records. Preparing a handoff does not require writing back to HaloPSA. If the user asks to record it, use the runtime HaloPSA skill and the existing note tool behavior.
-
-For an optional [client troubleshooting conversation](../service-desk-client-troubleshooting/SKILL.md), include the client's choice, steps actually attempted and their results, documentation or general technical knowledge basis, latest client action, last question sent, and why the ticket remains open or who confirmed resolution. A failed diagnostic may lead to another applicable simple user-level step. A declined conversation, request for a technician, exhausted suitable steps/capabilities, administrative work, unresolved escalation or no response calls for an open-ticket handoff; it does not establish resolution.
+Follow the [handoff fields](references/handoff.md) for the summary and billing or client-conversation evidence. Write to HaloPSA when the user requests that action.

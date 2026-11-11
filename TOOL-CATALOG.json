@@ -42,6 +42,7 @@
       "halopsa.ticket_actions.create_time_entry",
       "halopsa.ticket_actions.delete",
       "halopsa.ticket_actions.list",
+      "halopsa.ticket_actions.resolve",
       "halopsa.ticket_actions.send_email",
       "halopsa.ticket_actions.start_work",
       "halopsa.ticket_actions.update",
@@ -121,7 +122,7 @@
     ]
   },
   "source_revisions": {
-    "itecs-halopsa": "c5aeeeb521f54be24208936ce582f77d88047498",
+    "itecs-halopsa": "810cfe92342fb4c40051653d904b9c68ff5bdbb4",
     "itecs-vcenter": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
     "itecs-pax8": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",
     "itecs-veeam-cloud-connect": "8ff4ef9516c301b5bb47ec7811ebe78fead0d195",

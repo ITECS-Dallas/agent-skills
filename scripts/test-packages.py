@@ -111,6 +111,7 @@ def main():
                     setup = execute(['bash', str(plugin / 'scripts' / script)])
                     check(setup.returncode == 0, script + ': ' + setup.stdout + setup.stderr)
                     print(setup.stdout.strip(), flush=True)
+                test_halopsa_checkout(tmp)
 
             if entry['plugin'] == 'itecs-ncentral-rest':
                 setup = execute(['python3', str(ROOT / 'scripts/test-ncentral-autosetup.py')])
@@ -165,6 +166,41 @@ def main():
     claude = execute(['python3', str(ROOT / 'scripts/build-claude-marketplace.py'), '--check'])
     check(claude.returncode == 0, 'Claude marketplace: ' + claude.stdout + claude.stderr)
     print('Package integrity, MCP discovery, platform dispatch, setup, diagnostic and Claude marketplace tests passed.')
+
+
+def test_halopsa_checkout(tmp):
+    """Simulate a Windows Git checkout of both marketplace launchers."""
+    repo = tmp / 'windows-checkout'
+    repo.mkdir()
+    shutil.copy2(ROOT / '.gitattributes', repo / '.gitattributes')
+    launchers = []
+    for base in ('plugins', 'claude/plugins'):
+        root = Path(base) / 'itecs-halopsa'
+        server = json.loads((ROOT / root / '.mcp.json').read_text())['mcpServers']['halopsa']
+        if base == 'plugins':
+            check(server.get('env_vars') == ['HALOPSA_MCP_CONFIG'], 'Codex must forward the HaloPSA config override')
+        else:
+            check('env_vars' not in server, 'Claude manifest contains a Codex-only environment field')
+        launcher = root / 'scripts/run-halopsa-mcp'
+        launchers.append(launcher)
+        for path in (launcher, root / 'scripts/runtime.sh'):
+            (repo / path).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / path, repo / path)
+
+    git = ['git', '-c', 'core.autocrlf=true']
+    for command in (['init', '--quiet'], ['add', '--all']):
+        result = execute(git + command, cwd=repo)
+        check(result.returncode == 0, 'Windows checkout fixture: ' + result.stderr)
+    checkout = tmp / 'windows-cache'
+    result = execute(git + ['checkout-index', '--all', '--prefix=' + checkout.as_posix() + '/'], cwd=repo)
+    check(result.returncode == 0, 'Windows checkout fixture: ' + result.stderr)
+    env = dict(os.environ, HALOPSA_MCP_CONFIG=str(tmp / 'missing-halo-config.json'))
+    for launcher in launchers:
+        path = checkout / launcher
+        check(b'\r\n' not in path.read_bytes(), 'Windows checkout converted launcher to CRLF: ' + str(launcher))
+        result = execute(['bash', str(path)], env=env)
+        check(result.returncode == 2 and 'HaloPSA MCP config not found' in result.stderr,
+              'Windows checkout launcher did not reach config lookup: ' + str(launcher) + result.stderr)
 
 
 def test_audit(tmp, entries):

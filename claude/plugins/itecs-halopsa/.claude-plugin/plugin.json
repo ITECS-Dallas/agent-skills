@@ -1,6 +1,6 @@
 {
   "name": "itecs-halopsa",
-  "version": "0.18.0",
+  "version": "0.18.2",
   "description": "ITECS HaloPSA tools for technician operations, one-time invoices, invoice approval and QuickBooks Online sync, billing contracts and charge rates, editing time entries, notes, clients, contacts, sites and assets, compact AI-friendly reads, the sales opportunity workflow, Linux Codex CLI support and billing evidence.",
   "author": {
     "name": "ITECS-Dallas"
