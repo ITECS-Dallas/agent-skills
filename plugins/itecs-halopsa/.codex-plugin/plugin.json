@@ -40,11 +40,9 @@
     ],
     "websiteURL": "https://github.com/ITECS-Dallas/agent-skills",
     "defaultPrompt": [
-      "Work a ticket and identify the next useful diagnostic.",
-      "Assign this ticket to me and record the work I completed.",
-      "Link this ticket to its billing contract and log my time.",
       "Create a low-priority ticket from my description.",
-      "Create a Project Opportunity for this new inquiry."
+      "Correct my existing time entry to the Level 1 rate for its contract.",
+      "Work a ticket and identify the next useful diagnostic."
     ],
     "brandColor": "#2563EB",
     "screenshots": []
