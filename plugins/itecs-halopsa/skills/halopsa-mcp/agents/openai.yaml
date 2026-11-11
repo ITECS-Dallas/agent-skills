@@ -1,12 +1,12 @@
 interface:
   display_name: "ITECS HaloPSA MCP"
-  short_description: "Use HaloPSA lookups and guarded ticket writes."
+  short_description: "Find and update HaloPSA records and run technician actions."
   brand_color: "#2563EB"
-  default_prompt: "Use the ITECS HaloPSA MCP tools for live lookups or an explicitly approved write on one exact ticket."
+  default_prompt: "Use $halopsa-mcp for the requested live lookup or technician action."
 
 dependencies:
   tools:
     - type: "mcp"
       value: "halopsa"
-      description: "Bundled ITECS HaloPSA read tools and guarded exact-ticket writes"
+      description: "Bundled ITECS HaloPSA technician tools"
       transport: "stdio"

@@ -351,8 +351,7 @@ const supportDocumentationFiles = new Set([
   'plugins/itecs-halopsa/README.md',
   'plugins/itecs-halopsa/docs/linux-support-agent.md',
   'plugins/itecs-halopsa/runtime/itecs-relay/README.md',
-  'plugins/itecs-halopsa/skills/halopsa-mcp/SKILL.md',
-  'plugins/itecs-halopsa/skills/service-desk-client-troubleshooting/SKILL.md'
+  'plugins/itecs-halopsa/skills/service-desk-client-troubleshooting/references/conversation.md'
 ]);
 
 for (const file of walk(repoRoot)) {

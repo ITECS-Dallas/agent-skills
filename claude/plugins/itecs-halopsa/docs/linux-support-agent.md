@@ -35,7 +35,7 @@ For optional local diagnostics and tool discovery:
 ./scripts/doctor --discover
 ```
 
-Discovery should expose 34 tools, including `halopsa.agents.me`, metadata, ticket/actions, email and status operations. Discovery alone does not prove HaloPSA authentication; in a new Codex session, request `halopsa.agents.me` and read the intended ticket to verify runtime access and identity.
+Version 0.18.1 exposes 56 tools, including `halopsa.agents.me`, metadata, ticket/actions, email and status operations. Discovery alone does not prove HaloPSA authentication; in a new Codex session, request `halopsa.agents.me` and read the intended ticket to verify runtime access and identity.
 
 ## Start or resume support work
 

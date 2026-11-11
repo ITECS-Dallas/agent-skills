@@ -42,7 +42,8 @@ def claude_servers(mcp_file):
             servers[name] = server
             continue
         args = ['${CLAUDE_PLUGIN_ROOT}/' + a[2:] if a.startswith('./') else a for a in cfg.get('args', [])]
-        servers[name] = {**{k: v for k, v in cfg.items() if k != 'cwd'}, 'args': args}
+        # Claude starts stdio servers with the parent environment. env_vars is a Codex-only allowlist.
+        servers[name] = {**{k: v for k, v in cfg.items() if k not in {'cwd', 'env_vars'}}, 'args': args}
     return {'mcpServers': servers}
 
 

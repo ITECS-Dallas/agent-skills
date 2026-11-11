@@ -26,23 +26,27 @@ Then install what you need, for example `codex plugin add itecs-halopsa@itecs-ag
 **Update** whenever a release is announced, then start a new session:
 
 ```bash
-codex plugin marketplace upgrade itecs-agent-skills && codex plugin add itecs-halopsa@itecs-agent-skills
+codex plugin marketplace upgrade itecs-agent-skills
+codex plugin add itecs-halopsa@itecs-agent-skills
 ```
 
 ```bash
-claude plugin marketplace update itecs-agent-skills && claude plugin update itecs-halopsa@itecs-agent-skills
+claude plugin marketplace update itecs-agent-skills
+claude plugin update itecs-halopsa@itecs-agent-skills
 ```
 
-Confirm with `halopsa.servers.list` (`include_status: true`); `connector_version` should match the release.
+Confirm the loaded release with `halopsa.servers.list` and `include_status: true`. Update `portable-development-workflow@itecs-agent-skills` with the same host-specific command to load the renamed `halopsa-billing-development` skill.
 
 **Already added the marketplace as a local folder?** `codex plugin marketplace list` shows a folder path, or Claude's `claude plugin marketplace list` shows a directory. Switch once; installed plugins and credentials are kept:
 
 ```bash
-codex plugin marketplace remove itecs-agent-skills && codex plugin marketplace add ITECS-Dallas/agent-skills
+codex plugin marketplace remove itecs-agent-skills
+codex plugin marketplace add ITECS-Dallas/agent-skills
 ```
 
 ```bash
-claude plugin marketplace remove itecs-agent-skills && claude plugin marketplace add ITECS-Dallas/agent-skills
+claude plugin marketplace remove itecs-agent-skills
+claude plugin marketplace add ITECS-Dallas/agent-skills
 ```
 
 If an app reports a plugin as uninstalled after the switch, install it again with the commands above.
@@ -96,7 +100,7 @@ The plugin surface is served from this public repository for both Codex and Clau
 | `seo-audit` | Audits and improves technical SEO, metadata, schema, local search, content, public crawlability, and AI visibility. |
 | `frontend-app-dev` | Frontend app work with typed contracts, server-only secret handling, route handlers, rendering, and performance guardrails. |
 | `grill-me` | Decision-tree interview flow for ambiguous plans, remediation paths, workflow changes, and implementation scope. |
-| `halopsa-mcp` | Operate the GO-MCP HaloPSA read-only billing connector and recurring-invoice audit workflow. |
+| `halopsa-billing-development` | Develop GO-MCP HaloPSA source extraction and recurring-invoice evidence. |
 | `backend-api-dev` | Backend API work with contract-first routing, schema/data changes, auth, service boundaries, and generation checks. |
 | `backend-boundary-testing` | Focused seam tests for frontend-to-backend, auth, proxy, parser, and HTTP contract changes. |
 | `branch-and-pr-discipline` | Branch, commit, push, and PR hygiene. |
@@ -134,7 +138,7 @@ Install skills for Codex and agent runtimes:
 ./scripts/install.sh --target both --mode symlink
 ```
 
-Use `--mode copy` if the target runtime cannot follow symlinks. Use `--force` to replace existing installed skill folders with the same names.
+Use `--mode copy` if the target runtime cannot follow symlinks. Use `--force` to replace existing installed skill folders with the same names. The portable HaloPSA skill is now `halopsa-billing-development`. If you previously installed the portable `halopsa-mcp` as a standalone skill, remove that old standalone copy or link after confirming its source. The live ITECS HaloPSA plugin still supplies `halopsa-mcp`.
 
 ## Attach Skills To A Project
 
@@ -269,13 +273,13 @@ The skill install above exposes individual skill folders. The plugin install reg
 - `itecs-vcenter@itecs-agent-skills` for live read-only vCenter MCP tools.
 - `itecs-pax8@itecs-agent-skills` for live read-only Pax8 MCP tools.
 
-Add this repo as a local filesystem marketplace when the machine already has a clone:
+For local development against a checkout, add that folder as a local marketplace:
 
 ```bash
 codex plugin marketplace add ~/Github/agent-skills
 ```
 
-Or add it from GitHub on another Codex installation:
+Team installations register the GitHub marketplace:
 
 ```bash
 codex plugin marketplace add git@github.com:ITECS-Dallas/agent-skills.git --ref main
@@ -319,7 +323,7 @@ Restart Codex Desktop after editing config.
 
 ### Windows 11 PowerShell Setup
 
-Use this path on a Windows 11 workstation when the goal is to install the ITECS skills plugin and read-only GO-MCP connector plugins from the repo-backed marketplace without cloning the repo first.
+Use these steps to install the ITECS skills and connector plugins in Codex from the GitHub marketplace. For native Claude Code, use the marketplace commands above and the same [Windows HaloPSA setup](plugins/itecs-halopsa/README.md#windows-11-setup).
 
 Prerequisites:
 
@@ -418,7 +422,7 @@ Current bundled binaries target:
 
 Windows 11 machines require Git Bash/MSYS/Cygwin Bash available as `bash` on `PATH` because Codex starts each connector through its plugin launcher script. WSL Bash is not supported for these launchers.
 
-Configure the HaloPSA plugin from its installed directory. The setup validates the exact per-technician Automation Vault item, ticket scopes, agent identity, approved URLs, and live OAuth before writing command references only:
+Configure the HaloPSA plugin from its installed directory. Codex and Claude Code use the same external HaloPSA config. The setup validates the exact per-technician Automation Vault item, ticket scopes, agent identity, approved URLs, and live OAuth before writing command references only:
 
 ```bash
 ./scripts/configure-halopsa-mcp-macos.sh --technician "Exact Technician Name"
@@ -433,7 +437,7 @@ Known Windows launcher failures:
 | Symptom | Likely Cause | Fix |
 | --- | --- | --- |
 | `bash` resolves to `Linux` or WSL | WSL Bash is ahead of Git Bash on `PATH` | Move Git for Windows Bash ahead of WSL paths, then restart Codex Desktop. |
-| `/usr/bin/env: 'bash\r': No such file or directory` | Launcher was checked out with CRLF line endings or run through the wrong Bash runtime | Refresh this plugin after the `.gitattributes` line-ending fix and verify Git Bash is the active `bash`. |
+| Bash reports `bash\r` or an invalid `pipefail` option | Launcher contains Windows CRLF line endings | Refresh the HaloPSA plugin to 0.18.1 or later and verify the cached launcher uses LF. |
 | `codex.exe` under `WindowsApps` returns `Access is denied` | Windows app execution alias/shim is taking precedence over the user-local Codex binary | Use the Codex Desktop-supported binary path or correct the user `PATH`, then restart the terminal and Codex. |
 
 Default local config paths:

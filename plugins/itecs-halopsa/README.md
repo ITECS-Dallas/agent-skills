@@ -1,8 +1,16 @@
 # ITECS HaloPSA for Atlas
 
-Version 0.18.0 packages 56 typed tools (27 reads and 29 writes) for macOS, Windows and Linux, including one-time invoice creation, invoice approval and QuickBooks Online sync, tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
+Version 0.18.1 packages 56 typed tools (27 reads and 29 writes) for macOS, Windows and Linux, including one-time invoice creation, invoice approval and QuickBooks Online sync, tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
 
-See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Restart into a new Codex task after updating the plugin.
+See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Start a new Codex or Claude Code session after updating the plugin.
+
+## What changed in 0.18.1
+
+- **Named billing rates.** Pass an exact `charge_rate` directly when it is known. For discovery, `halopsa.metadata.list` with `kind: charge_rates` and a `contract_id` includes rates limited to that contract. Supply an entry-level `contract_ref`, `contract_id` or `clear_contract` to change where that entry bills.
+- **Windows and custom configuration.** Native Claude Code packages preserve Bash launcher line endings on Windows. Codex forwards `HALOPSA_MCP_CONFIG` to the HaloPSA server when set in the host environment.
+- **Technician skills.** Skill entry points identify the first tool for the task and link to the detailed procedures. The portable source-extraction skill is now `halopsa-billing-development` in ITECS Agent Skills 0.2.1.
+
+Existing 1Password-backed settings are reused. Verify `connector_version: 0.18.1` in a new session.
 
 ## What changed in 0.18.0
 
@@ -64,7 +72,7 @@ Scopes: action edits and deletes need `edit:tickets`. Client, contact and site u
 
 ## What changed in 0.14.0
 
-- **Contracts on tickets and projects.** `halopsa.tickets.update`, `halopsa.projects.update` and the two create tools link a record to its billing contract by `contract_ref` (the reference, matched exactly within the record's client) or `contract_id`; the update tools also take `clear_contract`. The connector refuses another client's contract and any contract that is inactive, not started or expired. Previews show the contract being linked and the one it replaces, and the write is read back. A time entry on a record with no contract draws from nothing, so link the contract first. See [ticket-billing-readiness](skills/ticket-billing-readiness/SKILL.md).
+- **Contracts on tickets and projects.** `halopsa.tickets.update`, `halopsa.projects.update` and the two create tools link a record to its billing contract by `contract_ref` (the reference, matched exactly within the record's client) or `contract_id`; the update tools also take `clear_contract`. The connector refuses another client's contract and any contract that is inactive, not started or expired. Previews show the contract being linked and the one it replaces, and the write is read back. At the time, a time entry inherited the record's linked contract. See [ticket-billing-readiness](skills/ticket-billing-readiness/SKILL.md).
 - **Billing types by name.** `halopsa.ticket_actions.create_time_entry` takes `charge_rate` by name (`No Charge` is sent explicitly); the preview shows the resolved rate, the ticket's contract state and warnings, and the entry is read back. `halopsa.metadata.list` kind `charge_rates` returns named billing types with effective hourly rates (it used to return unnamed rate rows); `contract_subtypes`, `billing_descriptions` and `lookup` read other HaloPSA pick-lists. Contract reads add `subtype_label` and `billing_description_label`.
 - **Compact reads.** `compact: true` on ticket, project, contract, client, action and metadata reads returns the working fields without the duplicated raw payload (a detailed ticket drops by about 95%). `halopsa.agents.me` no longer returns the agent's 2 MB language pack unless `include_full` is set. Other defaults that changed: contract reads add the label fields, the `charge_rates` catalog returns named rates, and a ticket or project update that sets an id field or contract reads the record back once. No existing field was removed or renamed.
 - **Context tools.** `halopsa.tickets.audit` (who changed a field and when), `halopsa.time_entries.list` (an agent's logged time for a date window, with charge types and totals), `halopsa.assets.list` and `halopsa.assets.get`. `halopsa.tickets.list` accepts `contract_id` and `include_time_taken`; `halopsa.ticket_actions.list` accepts `time_entries_only`.
@@ -181,11 +189,19 @@ The launcher uses this config path by default:
 ~/.codex/halopsa-mcp/config.json
 ```
 
-Override it per session with:
+Set `HALOPSA_MCP_CONFIG` in the environment that starts Codex or Claude Code to use another config file. For macOS or Linux:
 
 ```bash
 export HALOPSA_MCP_CONFIG=/absolute/path/to/config.json
 ```
+
+For Windows PowerShell:
+
+```powershell
+$env:HALOPSA_MCP_CONFIG = 'C:/path/to/config.json'
+```
+
+Launch the host from that environment. Restart the host if it was already running.
 
 Each technician uses that technician's own Automation Vault item named `GO-MCP HaloPSA <Technician> Read Write`. The setup scripts validate all six expected fields, exact agent identity, approved URLs, ticket and optional sales scopes, and OAuth before writing a config. The generated file contains only command-backed references for `HALO_CLIENT_ID`, `HALO_CLIENT_SECRET`, and `HALO_SCOPE`; it never contains resolved credentials.
 
@@ -245,7 +261,7 @@ where.exe bash
 bash -c 'uname -s; uname -m'
 ```
 
-The first result must begin with `MINGW`, `MSYS` or `CYGWIN`. If it is `Linux`, `bash` resolves to WSL; put Git Bash earlier on PATH and restart Codex.
+The `uname -s` result should start with `MINGW`, `MSYS` or `CYGWIN`. If it reports `Linux`, `bash` resolves to WSL. Put Git Bash earlier on `PATH` and restart the plugin host.
 
 For an engineering smoke test from the installed plugin directory, run:
 
@@ -253,37 +269,49 @@ For an engineering smoke test from the installed plugin directory, run:
 py -3 -X utf8 .\scripts\test-windows.py
 ```
 
-Use `python -X utf8` if Python is installed without the `py` launcher. This test runs the actual Windows binary through the plugin launcher, checks all 56 tool names, and exercises default and override config paths in a temporary profile with spaces and Unicode. It uses synthetic command-backed credentials and invokes no Halo operations. It does not alter the technician's saved config or prove their live 1Password access. Python is needed for this optional engineering check, not for the Go connector itself.
+Use `python -X utf8` if Python is installed without the `py` launcher. Run it from either host’s installed plugin directory. It runs the Windows binary through that host’s launcher, checks all 56 tool names and exercises default and override config paths in a temporary profile with spaces and Unicode. It uses synthetic command-backed credentials and invokes no Halo operations. It does not alter the technician's saved config or prove their live 1Password access. Python is needed for this optional engineering check, not for the Go connector itself.
 
-If startup fails with `/usr/bin/env: 'bash\r': No such file or directory`, refresh the plugin after the launcher line-ending fix and verify Git Bash is the active `bash`. That error happens before HaloPSA authentication and should not be treated as a vendor API permission issue.
+If startup reports `/usr/bin/env: 'bash\r': No such file or directory` or `pipefail` as an invalid option, update the plugin and verify the versioned package's launcher uses LF. Both marketplace paths preserve LF from 0.18.1.
 
 ## Install From The ITECS Marketplace
 
-For another Codex installation:
+Register the GitHub marketplace once and install the plugin. The commands work on macOS, Linux and Windows 11.
+
+Codex:
 
 ```bash
-codex plugin marketplace add https://github.com/ITECS-Dallas/agent-skills.git --ref main
+codex plugin marketplace add ITECS-Dallas/agent-skills
 codex plugin add itecs-halopsa@itecs-agent-skills
 ```
 
-Start a new Codex thread after installing so the plugin MCP tools are loaded.
+Claude Code:
 
-## Refresh An Existing Installation
+```bash
+claude plugin marketplace add ITECS-Dallas/agent-skills
+claude plugin install itecs-halopsa@itecs-agent-skills
+```
 
-After this marketplace repository is updated, refresh the marketplace snapshot and reinstall the plugin so Codex replaces its cached runtime:
+Run the platform setup above on a fresh machine. Both hosts use the same command-backed config. Start a new session after setup.
+
+## Refresh an existing installation
+
+Codex:
 
 ```bash
 codex plugin marketplace upgrade itecs-agent-skills
 codex plugin add itecs-halopsa@itecs-agent-skills
 ```
 
-If `codex plugin marketplace list` shows `itecs-agent-skills` pointing at a folder on disk (a local clone), update that clone instead of running `marketplace upgrade`: `git -C <that folder> pull --ff-only`, then `codex plugin add itecs-halopsa@itecs-agent-skills`. A machine whose clone was never pulled keeps installing the old version.
+Claude Code:
 
-Then restart Codex Desktop or start a new thread. Existing threads keep the tool schema that was loaded when the thread started. Windows and Linux machines run the same two commands.
+```bash
+claude plugin marketplace update itecs-agent-skills
+claude plugin update itecs-halopsa@itecs-agent-skills
+```
 
-Confirm the update from a new thread: ask Atlas to call `halopsa.servers.list` with `include_status: true` and `check_updates: true` and check that `connector_version` is the current plugin version and `update_available` is false. Without an AI session, `scripts/doctor --discover` lists the tools the installed binary exposes, and `scripts/doctor` prints the installed version. Your existing 1Password configuration is unchanged by an update; if the new tools report a missing scope, only the item's `HALO_SCOPE` and the API application's permissions need adjusting.
+If the marketplace list points to a local folder, pull that checkout before updating the plugin or switch to the [GitHub registration](https://github.com/ITECS-Dallas/agent-skills#get-the-plugins-and-keep-them-updated). Claude Code's marketplace includes the native plugin manifest and launcher.
 
-Claude Code users who launch the connector from the newest build under `~/.codex/plugins/cache/itecs-agent-skills/itecs-halopsa/` pick up the new version after the two commands above and a restart of Claude Code.
+Restart Claude Code or start a fresh Codex session. Call `halopsa.servers.list` with `include_status: true` to verify the connector version, authenticated agent and scope coverage. Use `check_updates: true` to compare with the published marketplace. The optional `scripts/doctor --discover` checks the package's MCP tool surface, and `scripts/doctor` reports the local package version. Marketplace updates preserve the external 1Password configuration.
 
 ## Local Smoke Test
 

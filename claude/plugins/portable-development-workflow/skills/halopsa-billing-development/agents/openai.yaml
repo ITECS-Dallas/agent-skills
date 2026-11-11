@@ -1,0 +1,4 @@
+interface:
+  display_name: "HaloPSA Billing Development"
+  short_description: "Develop HaloPSA extraction and recurring-invoice evidence."
+  default_prompt: "Use $halopsa-billing-development to trace HaloPSA recurring-invoice evidence from extraction to reconciliation."

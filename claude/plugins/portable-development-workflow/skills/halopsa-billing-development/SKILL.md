@@ -1,6 +1,6 @@
 ---
-name: halopsa-mcp
-description: Use when developing GO-MCP HaloPSA source extraction or working with recurring-invoice artifacts and billing reconciliation. Live service-desk operations use the installed ITECS HaloPSA runtime skill.
+name: halopsa-billing-development
+description: Use when developing GO-MCP HaloPSA source extraction, recurring-invoice evidence, or the HaloPSA input to billing reconciliation.
 ---
 
 # HaloPSA source and billing workflow

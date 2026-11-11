@@ -24,7 +24,8 @@ def main():
         raise SystemExit("Run this check with native Windows Python on the test workstation.")
     root = Path(__file__).resolve().parents[1]
     manifest = json.loads((root / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
-    bash = shutil.which("bash")
+    server = json.loads((root / ".mcp.json").read_text(encoding="utf-8"))["mcpServers"]["halopsa"]
+    bash = shutil.which(server["command"])
     if not bash:
         raise SystemExit("Git Bash is not on PATH. Restart the terminal after installing it.")
     shell_os = run([bash, "-c", "uname -s"])
@@ -56,11 +57,12 @@ def main():
             }]}), encoding="utf-8")
             os.environ["USERPROFILE"] = str(profile)
             os.environ.pop("HALOPSA_MCP_CONFIG", None)
-            # Exercise the same relative Bash invocation as .mcp.json, from a spaced path.
+            # Match the host's shipped stdio invocation, including an absolute Claude plugin path.
+            args = [arg.replace("${CLAUDE_PLUGIN_ROOT}", str(plugin)) for arg in server["args"]]
             previous_cwd = Path.cwd()
             try:
-                os.chdir(plugin)
-                command = [bash, "./scripts/run-halopsa-mcp"]
+                os.chdir(plugin / server["cwd"] if "cwd" in server else scratch)
+                command = [bash, *args]
                 version = run(command + ["-version"])
                 if version != "halopsa-mcp " + manifest["version"]:
                     raise RuntimeError("Launcher version mismatch: " + version)
@@ -83,6 +85,7 @@ def main():
                 os.environ[key] = value
     print(json.dumps({"result": "passed", "windows": platform.platform(),
                       "python_arch": platform.machine(), "bash_platform": shell_os,
+                      "mcp_host": "codex" if "cwd" in server else "claude",
                       "connector_version": manifest["version"], "tools": len(expected),
                       "config_cases": ["USERPROFILE", "HALOPSA_MCP_CONFIG"],
                       "live_credentials_tested": False, "live_halo_requests": False}, indent=2))
