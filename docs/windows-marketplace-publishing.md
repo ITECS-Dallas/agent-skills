@@ -21,7 +21,9 @@ Build the reviewable catalog and deterministic compressed assets:
 python scripts/build-distribution.py --output C:/staging/itecs-marketplace-release --release-url https://github.com/ITECS-Dallas/agent-skills/releases/download/REVIEWED-IMMUTABLE-TAG
 ```
 
-The output contains `catalog/`, `assets/`, `RELEASE-ASSETS.json` and `DISTRIBUTION.json`. Nothing is published by this command. Every input executable must match its existing source build manifest before compression. A catalog has no vendor executables; it carries each executable's size/SHA-256 and the compressed asset's size/SHA-256 in `RUNTIME.tsv`. Codex and Claude retain their existing marketplace name, plugin IDs, skills and external config paths.
+The output contains `catalog/`, `assets/`, `RELEASE-ASSETS.json` and `DISTRIBUTION.json`. Nothing is published by this command. Every input executable and sealed runtime resource must match its existing source build manifest before publication. A catalog has no vendor executables; it carries each executable's size/SHA-256 and the compressed asset's size/SHA-256 in `RUNTIME.tsv`. Codex and Claude retain their existing marketplace name, plugin IDs, skills and external config paths.
+
+Publish the catalog and assets from the **same build output**. Gzip bytes are repeatable for a given compressor version, but different zlib versions can produce different compressed hashes/sizes for identical native bytes. The output records its zlib version. Other operating systems must consume the published catalog's hashes, not recompress and substitute a newly generated manifest when testing that release.
 
 Only tracked source files enter the catalog, so an ignored local `.env` or scratch file cannot be copied into publication. When seeding the new repository from Windows, stage the catalog and restore the executable index bits from the emitted `EXECUTABLES.txt` before committing:
 

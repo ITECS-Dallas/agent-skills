@@ -33,9 +33,11 @@ def main():
         native = plugin / 'bin/native'
         payload = b'synthetic test bytes, not a shipped executable\n'
         native.write_bytes(payload)
-        (plugin / 'scripts/launch.sh').write_text('#!/bin/sh\nexit 0\n', encoding='utf-8')
+        launcher = plugin / 'scripts/launch.sh'
+        launcher.write_text('#!/bin/sh\nexit 0\n', encoding='utf-8', newline='\n')
         (plugin / 'BUILD-MANIFEST.json').write_text(json.dumps({'binaries': [{'path': 'bin/native',
-            'sha256': hashlib.sha256(payload).hexdigest(), 'bytes': len(payload), 'target': 'fixture'}]}))
+            'sha256': hashlib.sha256(payload).hexdigest(), 'bytes': len(payload), 'target': 'fixture'}],
+            'runtime_files': [{'path': 'scripts/launch.sh', 'sha256': hashlib.sha256(launcher.read_bytes()).hexdigest()}]}))
         (plugin / '.env').write_text('SYNTHETIC_DO_NOT_PUBLISH=1\n', encoding='utf-8')
         subprocess.run(['git', 'add', '.'], cwd=source, check=True)
         subprocess.run(['git', 'update-index', '--chmod=+x', 'plugins/fixture/scripts/launch.sh'], cwd=source, check=True)
@@ -54,6 +56,16 @@ def main():
         one, two = next((first / 'assets').iterdir()), next((second / 'assets').iterdir())
         assert one.read_bytes() == two.read_bytes()
         assert gzip.decompress(one.read_bytes()) == payload
+        original = launcher.read_bytes()
+        launcher.write_bytes(b'changed after runtime resource sealing')
+        try:
+            module.build(scratch / 'unsealed-runtime', url)
+        except ValueError as error:
+            assert 'unsealed runtime resource' in str(error)
+        else:
+            raise AssertionError('unsealed runtime resource accepted')
+        assert not (scratch / 'unsealed-runtime/DISTRIBUTION.json').exists()
+        launcher.write_bytes(original)
         for index, bad_url in enumerate(('http://github.com/example/runtime/releases/download/v1',
                                          'https://user:credential@github.com/example/runtime/releases/download/v1')):
             try:

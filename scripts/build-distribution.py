@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import zlib
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -54,6 +55,9 @@ def build(output, release_url):
         if not manifest_path.is_file():
             continue
         manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+        for resource in manifest.get('runtime_files', []) + manifest.get('resources', []):
+            if digest(source / resource['path']) != resource['sha256']:
+                raise ValueError('unsealed runtime resource: ' + str(source / resource['path']))
         identity = json.loads((source / '.codex-plugin/plugin.json').read_text(encoding='utf-8'))
         rows = ['\t'.join(('@package', identity['name'], identity['version']))]
         seen = set()
@@ -85,7 +89,7 @@ def build(output, release_url):
     (output / 'RELEASE-ASSETS.json').write_text(json.dumps(records, indent=2) + '\n', encoding='utf-8', newline='\n')
     size = sum(p.stat().st_size for p in catalog.rglob('*') if p.is_file())
     summary = {'catalog_bytes': size, 'asset_count': len(records), 'asset_bytes': sum(r['compressed_bytes'] for r in records),
-               'release_url': release_url, 'published': False}
+               'release_url': release_url, 'published': False, 'gzip_zlib_version': zlib.ZLIB_RUNTIME_VERSION}
     (output / 'DISTRIBUTION.json').write_text(json.dumps(summary, indent=2) + '\n', encoding='utf-8', newline='\n')
     (output / 'EXECUTABLES.txt').write_text('\n'.join(executable_paths) + '\n', encoding='utf-8', newline='\n')
     print(json.dumps(summary), flush=True)
