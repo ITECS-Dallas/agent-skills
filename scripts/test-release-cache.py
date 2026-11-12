@@ -88,7 +88,10 @@ def main():
             # ignores CURL_CA_BUNDLE. Never modify OS trust.
             tools = scratch / 'tools'
             tools.mkdir()
-            (tools / '.curlrc').write_text('cacert = ' + json.dumps(cert.as_posix(), ensure_ascii=False) + '\n', encoding='utf-8', newline='\n')
+            # A relative ASCII certificate name also works with Windows curl
+            # builds that decode config-file paths using the ANSI code page.
+            (tools / '.curlrc').write_text('cacert = "itecs-test-ca.pem"\n', encoding='utf-8', newline='\n')
+            shutil.copy2(cert, package / 'itecs-test-ca.pem')
             config = scratch / 'config.json'
             credential = [sys.executable, '-c', "print('synthetic-release-test')"]
             config.write_text(json.dumps({'servers': [{'id': 'fixture', 'base_url': 'https://127.0.0.1:1/api',
@@ -148,6 +151,10 @@ def main():
             state['fail'] = False
             all_catalog = scratch / 'all-catalog'
             shutil.copytree(args.distribution / 'catalog', all_catalog)
+            for base in ('plugins', 'claude/plugins'):
+                for root in (all_catalog / base).iterdir():
+                    if root.is_dir():
+                        shutil.copy2(cert, root / 'itecs-test-ca.pem')
             for manifest in all_catalog.rglob('RUNTIME.tsv'):
                 rewritten = []
                 for row in manifest.read_text(encoding='utf-8').splitlines():
