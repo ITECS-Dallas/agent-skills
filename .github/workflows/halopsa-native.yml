@@ -1,0 +1,57 @@
+name: HaloPSA native packages
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/itecs-halopsa/**'
+      - 'claude/plugins/itecs-halopsa/**'
+      - 'scripts/build-packages.py'
+      - 'scripts/build-claude-marketplace.py'
+      - 'scripts/validate.mjs'
+      - '.gitattributes'
+      - '.github/workflows/halopsa-native.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'plugins/itecs-halopsa/**'
+      - 'claude/plugins/itecs-halopsa/**'
+      - '.github/workflows/halopsa-native.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: Packaged HaloPSA (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-15, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate marketplace
+        run: node scripts/validate.mjs
+      - name: Verify generated Claude packages
+        run: python -X utf8 scripts/build-claude-marketplace.py --check
+      - name: Codex native binary and launcher
+        run: python -X utf8 plugins/itecs-halopsa/scripts/test-windows.py
+      - name: Claude native binary and launcher
+        run: python -X utf8 claude/plugins/itecs-halopsa/scripts/test-windows.py
+      - name: Native Windows managed-wrapper setup
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: ./plugins/itecs-halopsa/scripts/test-configure-halopsa-mcp-windows.ps1
+      - name: Unix setup and launcher regressions
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash plugins/itecs-halopsa/scripts/test-configure-halopsa-mcp-macos.sh
+          bash plugins/itecs-halopsa/scripts/test-configure-halopsa-mcp-linux.sh
+          bash plugins/itecs-halopsa/scripts/test-run-halopsa-mcp.sh

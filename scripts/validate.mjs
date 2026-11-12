@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pluginRoot = path.join(repoRoot, 'plugins', 'portable-development-workflow');
 const skillsRoot = path.join(pluginRoot, 'skills');
 const marketplacePath = path.join(repoRoot, '.agents', 'plugins', 'marketplace.json');
@@ -33,14 +34,14 @@ function walk(dir) {
 
 function parseFrontmatter(file) {
   const content = fs.readFileSync(file, 'utf8');
-  const match = content.match(/^---\n([\s\S]*?)\n---\n/);
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
   if (!match) {
     errors.push(`missing yaml frontmatter: ${path.relative(repoRoot, file)}`);
     return null;
   }
 
   const fields = {};
-  for (const line of match[1].split('\n')) {
+  for (const line of match[1].split(/\r?\n/)) {
     const field = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
     if (!field) continue;
     fields[field[1]] = field[2].replace(/^["']|["']$/g, '').trim();
@@ -202,7 +203,7 @@ for (const runtimePlugin of runtimePlugins) {
     const file = path.join(runtimePluginRoot, relativeExecutable);
     if (!fs.existsSync(file)) continue;
     const executable = (fs.statSync(file).mode & 0o111) !== 0;
-    if (!executable) {
+    if (process.platform !== 'win32' && !executable) {
       errors.push(`${runtimePlugin.name} file must be executable: ${relativeExecutable}`);
     }
   }
@@ -220,7 +221,7 @@ for (const runtimePlugin of runtimePlugins) {
       const file = path.join(runtimePluginRoot, relativeExecutable);
       if (!fs.existsSync(file)) continue;
       const executable = (fs.statSync(file).mode & 0o111) !== 0;
-      if (!executable) {
+      if (process.platform !== 'win32' && !executable) {
         errors.push(`${runtimePlugin.name} file must be executable: ${relativeExecutable}`);
       }
     }

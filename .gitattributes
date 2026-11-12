@@ -6,3 +6,10 @@ plugins/*/scripts/* text eol=lf
 claude/plugins/*/scripts/* text eol=lf
 plugins/*/bin/* binary
 *.exe binary
+# Runtime hashes describe the same text bytes on Windows and Unix checkouts.
+plugins/itecs-halopsa/runtime/** text eol=lf
+claude/plugins/itecs-halopsa/runtime/** text eol=lf
+# Generated JSON is written with LF and compared byte-for-byte on every OS.
+.claude-plugin/*.json text eol=lf
+claude/plugins/*/.claude-plugin/*.json text eol=lf
+claude/plugins/*/.mcp.json text eol=lf

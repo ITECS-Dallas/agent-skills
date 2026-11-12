@@ -431,7 +431,7 @@ Configure the HaloPSA plugin from its installed directory. Codex and Claude Code
 ```
 
 ```powershell
-.\scripts\configure-halopsa-mcp-windows.ps1 -TechnicianName "Exact Technician Name" -ItecsAccount "ITECS-1PASSWORD-ACCOUNT-SHORTHAND"
+.\scripts\configure-halopsa-mcp-windows.ps1 -TechnicianName "Exact Technician Name"
 ```
 
 Known Windows launcher failures:
