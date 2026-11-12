@@ -70,7 +70,7 @@
   "runtime_files": [
     {
       "path": "scripts/run-ncentral-mcp",
-      "sha256": "a20d5a8d37e43467b8759099535582f198c645cc09e9fd34dbb5548849f07828"
+      "sha256": "6788cb42b01a14c6cf20f6cf53c47447ed152c60f904d9cff21e1c696c40cc82"
     },
     {
       "path": "scripts/configure-defaults.sh",
