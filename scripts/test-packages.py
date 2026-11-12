@@ -121,6 +121,7 @@ def main():
             # Simulate Windows path and binary selection without executing a Windows binary.
             clone = tmp / entry['plugin']
             shutil.copytree(plugin / 'scripts', clone / 'scripts')
+            shutil.copy2(plugin / 'runtime-mode', clone / 'runtime-mode')
             (clone / 'bin').mkdir()
             fake_path = clone / 'fake-path'
             fake_path.mkdir()
@@ -183,7 +184,7 @@ def test_halopsa_checkout(tmp):
             check('env_vars' not in server, 'Claude manifest contains a Codex-only environment field')
         launcher = root / 'scripts/run-halopsa-mcp'
         launchers.append(launcher)
-        for path in (launcher, root / 'scripts/runtime.sh'):
+        for path in (launcher, root / 'scripts/runtime.sh', root / 'scripts/cache.sh', root / 'runtime-mode'):
             (repo / path).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / path, repo / path)
 

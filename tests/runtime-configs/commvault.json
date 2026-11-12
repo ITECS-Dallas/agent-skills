@@ -1,0 +1,15 @@
+{
+  "servers": [
+    {
+      "id": "itecs-commvault",
+      "name": "ITECS Commvault Cloud",
+      "base_url": "https://127.0.0.1:1",
+      "access_token_command": [
+        "synthetic-command"
+      ],
+      "timeout_seconds": 30,
+      "max_attempts": 3,
+      "page_size": 100
+    }
+  ]
+}

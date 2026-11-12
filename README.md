@@ -2,6 +2,8 @@
 
 Source-of-truth repository for ITECS reusable agent skills and Codex plugin packaging.
 
+Windows launcher and publishing remediation is documented in [the dated publishing runbook](docs/windows-marketplace-publishing.md). Stdio connectors now use Git's own shell instead of a bare Windows `bash` lookup. The lightweight catalog builder prepares binary-free publication without rewriting this repository's existing history; switching existing users requires the reviewed production cutover described there.
+
 This repo serves two related purposes:
 
 1. Maintain reusable engineering skills for Codex, Claude, and other local agent runtimes.
@@ -328,7 +330,7 @@ Use these steps to install the ITECS skills and connector plugins in Codex from 
 Prerequisites:
 
 - Codex Desktop or Codex CLI installed.
-- Git for Windows installed, including Git Bash available as `bash` on `PATH`.
+- Git for Windows installed, with `git` available on PATH. Updated connector manifests select its own shell; the Windows `bash` PATH order does not control startup.
 - Network access to `https://github.com/ITECS-Dallas/agent-skills`.
 - GitHub HTTPS authentication already working for Git.
 
@@ -422,7 +424,7 @@ Current bundled binaries target:
 - `windows-arm64.exe`
 - `windows-amd64.exe`
 
-Windows 11 machines require Git Bash/MSYS/Cygwin Bash available as `bash` on `PATH` because Codex starts each connector through its plugin launcher script. WSL Bash is not supported for these launchers.
+Windows 11 machines require Git for Windows available as `git` on PATH. Both hosts dispatch the packaged launcher through Git's own `/bin/bash`, so a WSL `bash.exe` earlier on PATH is not selected. Existing configs remain under the Windows USERPROFILE, including when used from Claude Code.
 
 Configure the HaloPSA plugin from its installed directory. Codex and Claude Code use the same external HaloPSA config. The setup validates the exact per-technician Automation Vault item, ticket scopes, agent identity, approved URLs, and live OAuth before writing command references only:
 
@@ -438,7 +440,7 @@ Known Windows launcher failures:
 
 | Symptom | Likely Cause | Fix |
 | --- | --- | --- |
-| `bash` resolves to `Linux` or WSL | WSL Bash is ahead of Git Bash on `PATH` | Move Git for Windows Bash ahead of WSL paths, then restart Codex Desktop. |
+| An older release starts WSL | The older manifest uses a bare `bash` command | Install the reviewed launcher update; current manifests use Git's own shell without changing PATH. |
 | Bash reports `bash\r` or an invalid `pipefail` option | Launcher contains Windows CRLF line endings | Refresh the HaloPSA plugin to 0.18.1 or later and verify the cached launcher uses LF. |
 | `codex.exe` under `WindowsApps` returns `Access is denied` | Windows app execution alias/shim is taking precedence over the user-local Codex binary | Use the Codex Desktop-supported binary path or correct the user `PATH`, then restart the terminal and Codex. |
 

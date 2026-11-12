@@ -1,0 +1,16 @@
+{
+  "servers": [
+    {
+      "id": "cloudsp",
+      "name": "ITECS CloudSP VSPC",
+      "base_url": "https://127.0.0.1:1",
+      "api_version": "3.6.2",
+      "api_key_command": [
+        "synthetic-command"
+      ],
+      "insecure_skip_verify": true,
+      "timeout_seconds": 30,
+      "default_page_size": 500
+    }
+  ]
+}

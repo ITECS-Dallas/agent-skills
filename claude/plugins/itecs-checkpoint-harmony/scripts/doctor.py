@@ -6,14 +6,15 @@ import os
 from pathlib import Path
 import platform
 import queue
+import re
 import subprocess
 import threading
 import time
 
 
-def discover(command, timeout):
+def discover(command, timeout, cwd=None, env=None):
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                               stderr=subprocess.DEVNULL, text=True, bufsize=1)
+                               stderr=subprocess.DEVNULL, text=True, encoding='utf-8', bufsize=1, cwd=cwd, env=env)
     messages = queue.Queue()
 
     def read():
@@ -79,6 +80,7 @@ def discover(command, timeout):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--discover', action='store_true')
+    parser.add_argument('--prepare', action='store_true', help='Download verified runtime assets without vendor access')
     parser.add_argument('--timeout', type=float, default=30)
     parser.add_argument('--config', type=Path, help='Use this existing connector config')
     args = parser.parse_args()
@@ -86,13 +88,21 @@ def main():
     manifest = json.loads((root / '.codex-plugin/plugin.json').read_text())
     result = {'plugin': manifest['name'], 'version': manifest['version'],
               'platform': platform.system() + '-' + platform.machine()}
+    mode_path = root / 'runtime-mode'
+    mode = mode_path.read_text().strip() if mode_path.exists() else None
+    result['runtime_mode'] = mode
+    if args.prepare:
+        alias = 'alias.itecs-launch=!f() { if [ -n "$GIT_PREFIX" ]; then cd "$GIT_PREFIX" || exit; fi; exec /bin/bash "$@"; }; f'
+        prepared = subprocess.run(['git', '-c', alias, 'itecs-launch', str(root / 'scripts/prepare-runtime')], timeout=180)
+        result['preparation'] = 'ok' if prepared.returncode == 0 else 'failed'
     build = root / 'BUILD-MANIFEST.json'
     if build.exists():
         data = json.loads(build.read_text())
         result['source_revision'] = data.get('source_revision')
         result['source_dirty'] = data.get('source_dirty')
-        result['missing_binaries'] = [item['path'] for item in data['binaries']
-                                      if not (root / item['path']).is_file()]
+        if mode != 'release':
+            result['missing_binaries'] = [item['path'] for item in data['binaries']
+                                          if not (root / item['path']).is_file()]
     connector = root / 'connector.json'
     if connector.exists():
         data = json.loads(connector.read_text())
@@ -101,20 +111,33 @@ def main():
         result['config_path'] = str(config)
         result['config_exists'] = config.is_file()
         if args.discover:
-            command = [str(root / 'bin' / (data['binary'] + '-' +
-                ('windows' if os.name == 'nt' else 'darwin' if platform.system() == 'Darwin' else 'linux') + '-' +
-                ('arm64' if platform.machine().lower() in ('arm64', 'aarch64') else 'amd64') +
-                ('.exe' if os.name == 'nt' else ''))), '-config', str(config)]
+            server = json.loads((root / '.mcp.json').read_text(encoding='utf-8'))['mcpServers'][data['server']]
+            command = [server['command'], *server.get('args', [])]
+            command = [arg.replace('${CLAUDE_PLUGIN_ROOT}', str(root)) for arg in command]
+            env = dict(os.environ, **{data['config_env']: str(config)})
             try:
-                result['tools'] = discover(command, args.timeout)
+                if not config.is_file():
+                    raise RuntimeError('missing config')
+                result['tools'] = discover(command, args.timeout, cwd=root, env=env)
                 result['tool_count'] = len(result['tools'])
                 result['discovery'] = 'ok'
             except (OSError, RuntimeError, TimeoutError, KeyError, BrokenPipeError):
-                result['discovery'] = 'failed; inspect config and launcher startup locally'
+                result['discovery'] = 'failed; create the external config first or run this doctor with --prepare before restarting the host'
+    elif (root / '.mcp.json').is_file():
+        servers = json.loads((root / '.mcp.json').read_text(encoding='utf-8'))['mcpServers']
+        variables = set()
+        for server in servers.values():
+            variables.update(re.findall(r'\$\{([A-Z_][A-Z0-9_]*)\}', json.dumps(server)))
+            if server.get('bearer_token_env_var'):
+                variables.add(server['bearer_token_env_var'])
+        result['required_auth_environment'] = {key: bool(os.environ.get(key)) for key in sorted(variables)}
+        result['live_auth_verified'] = False
+        if any(not present for present in result['required_auth_environment'].values()):
+            result['discovery'] = 'failed; supply the required token in the host environment before launch; no credential value was read or printed'
     elif args.discover:
         result['discovery'] = 'This command package has no MCP server; use its report and audit commands.'
     print(json.dumps(result, indent=2))
-    return 1 if str(result.get('discovery', '')).startswith('failed') else 0
+    return 1 if str(result.get('discovery', '')).startswith('failed') or result.get('preparation') == 'failed' else 0
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 {
   "name": "itecs-petra-security",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ITECS Petra Security tools to audit which clients are on Petra and how many licenses each is billed for, with the monthly license evidence for billing reconciliation.",
   "author": {
     "name": "ITECS-Dallas"

@@ -1,0 +1,15 @@
+{
+  "servers": [
+    {
+      "id": "itecs-petra",
+      "name": "ITECS Petra Security",
+      "base_url": "https://127.0.0.1:1",
+      "api_key_command": [
+        "synthetic-command"
+      ],
+      "timeout_seconds": 30,
+      "max_attempts": 4,
+      "max_wait_seconds": 90
+    }
+  ]
+}

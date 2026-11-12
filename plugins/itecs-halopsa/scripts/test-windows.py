@@ -27,12 +27,9 @@ def main():
     root = Path(__file__).resolve().parents[1]
     manifest = json.loads((root / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
     server = json.loads((root / ".mcp.json").read_text(encoding="utf-8"))["mcpServers"]["halopsa"]
-    bash = shutil.which(server["command"])
-    if not bash:
-        raise SystemExit("Git Bash is not on PATH. Restart the terminal after installing it.")
-    shell_os = run([bash, "-c", "uname -s"])
-    if native_os == "windows" and not shell_os.startswith(("MINGW", "MSYS", "CYGWIN")):
-        raise SystemExit("The selected bash is not Git Bash/MSYS/Cygwin: " + shell_os)
+    launcher = server['command'].replace('${CLAUDE_PLUGIN_ROOT}', str(root))
+    if launcher.startswith('./'):
+        launcher = str(root / launcher[2:])
     for row in manifest["binaries"]:
         if hashlib.sha256((root / row["path"]).read_bytes()).hexdigest() != row["sha256"]:
             raise RuntimeError("Binary hash mismatch: " + row["path"])
@@ -58,7 +55,7 @@ def main():
             previous_cwd = Path.cwd()
             try:
                 os.chdir(root / server["cwd"] if "cwd" in server else scratch)
-                command = [bash, *args]
+                command = [launcher, *args]
                 version = run(command + ["-version"])
                 if version != "halopsa-mcp " + manifest["version"]:
                     raise RuntimeError("Launcher version mismatch: " + version)
@@ -80,7 +77,7 @@ def main():
             else:
                 os.environ[key] = value
     print(json.dumps({"result": "passed", "platform": platform.platform(),
-                      "python_arch": platform.machine(), "bash_platform": shell_os,
+                      "python_arch": platform.machine(), "launcher": "native dispatcher",
                       "mcp_host": "codex" if "cwd" in server else "claude",
                       "connector_version": manifest["version"], "tools": len(expected),
                       "config_cases": [profile_variable, "HALOPSA_MCP_CONFIG"],

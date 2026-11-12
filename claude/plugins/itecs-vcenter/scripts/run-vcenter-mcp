@@ -9,4 +9,5 @@ if [[ ! -f "$ITECS_CONFIG" ]]; then
   printf 'vCenter MCP config not found at %s\n' "$ITECS_CONFIG" >&2
   exit 2
 fi
-exec "$ITECS_PLUGIN_DIR/bin/vcenter-mcp-$ITECS_PLATFORM$ITECS_SUFFIX" -config "$ITECS_CONFIG" "$@"
+binary="$(itecs_binary "bin/vcenter-mcp-$ITECS_PLATFORM$ITECS_SUFFIX")"
+exec "$binary" -config "$ITECS_CONFIG" "$@"

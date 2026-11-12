@@ -153,11 +153,11 @@ for (const runtimePlugin of runtimePlugins) {
     if (!server) {
       errors.push(`${runtimePlugin.name}: .mcp.json missing mcpServers.${runtimePlugin.serverName}`);
     } else {
-      if (server.command !== 'bash') {
-        errors.push(`${runtimePlugin.name}: ${runtimePlugin.serverName} server command must be bash`);
+      if (server.command !== 'git') {
+        errors.push(`${runtimePlugin.name}: ${runtimePlugin.serverName} must use Git's native shell dispatcher`);
       }
-      if (!Array.isArray(server.args) || server.args[0] !== `./scripts/${runtimePlugin.script}`) {
-        errors.push(`${runtimePlugin.name}: ${runtimePlugin.serverName} server args must start with ./scripts/${runtimePlugin.script}`);
+      if (!Array.isArray(server.args) || server.args[0] !== '-c' || server.args[2] !== 'itecs-launch' || server.args[3] !== `./scripts/${runtimePlugin.script}`) {
+        errors.push(`${runtimePlugin.name}: ${runtimePlugin.serverName} must dispatch its packaged script through Git`);
       }
       if (server.cwd !== '.') {
         errors.push(`${runtimePlugin.name}: ${runtimePlugin.serverName} server cwd must be .`);

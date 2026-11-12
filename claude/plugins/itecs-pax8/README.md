@@ -39,7 +39,7 @@ Bundled MCP binaries are included for:
 - Windows 11 x64: `windows-amd64.exe`
 - Windows 11 ARM64: `windows-arm64.exe`
 
-The plugin launcher is a Bash script. Windows 11 machines need Git Bash/MSYS/Cygwin Bash available as `bash` on `PATH`. WSL Bash is not supported for this launcher.
+The launcher uses Git's own `/bin/bash`. Windows requires Git for Windows available as `git` on PATH; a WSL `bash.exe` earlier on PATH is not selected. Bare-shell checks below apply to older manifests, not the current dispatch path.
 
 Windows preflight:
 

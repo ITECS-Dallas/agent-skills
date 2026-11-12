@@ -1,0 +1,20 @@
+{
+  "servers": [
+    {
+      "id": "itecs-pax8",
+      "name": "ITECS Pax8",
+      "base_url": "https://127.0.0.1:1",
+      "token_url": "https://127.0.0.1:1",
+      "audience": "https://api.pax8.com",
+      "client_id_command": [
+        "synthetic-command"
+      ],
+      "client_secret_command": [
+        "synthetic-command"
+      ],
+      "timeout_seconds": 30,
+      "max_attempts": 3,
+      "default_page_size": 200
+    }
+  ]
+}

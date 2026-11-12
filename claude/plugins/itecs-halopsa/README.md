@@ -261,7 +261,7 @@ Bundled MCP binaries are included for:
 - Windows 11 x64: `windows-amd64.exe`
 - Windows 11 ARM64: `windows-arm64.exe`
 
-The plugin launcher is a Bash script. Windows 11 machines need Git Bash/MSYS/Cygwin Bash available as `bash` on `PATH`; it resolves the default config from `%USERPROFILE%` so PowerShell setup and Git Bash startup use the same file. WSL Bash is not supported for this launcher.
+The plugin launcher uses Git's own `/bin/bash`. Windows 11 machines need Git for Windows available as `git` on PATH; a WSL `bash.exe` earlier on PATH is not selected. It resolves the default config from `%USERPROFILE%`, so PowerShell setup and both hosts use the same file.
 
 Windows preflight:
 
@@ -270,7 +270,7 @@ where.exe bash
 bash -c 'uname -s; uname -m'
 ```
 
-The `uname -s` result should start with `MINGW`, `MSYS` or `CYGWIN`. If it reports `Linux`, `bash` resolves to WSL. Put Git Bash earlier on `PATH` and restart the plugin host. A workstation with the existing Codex Git Bash pin uses the launcher configured outside the versioned plugin cache. Keep that override in place during upgrades and confirm that a fresh session discovers HaloPSA tools through it.
+These bare-shell commands diagnose older installations only. Updated manifests dispatch through Git's own shell and need no plugin-cache edits or PATH reordering. Preserve an existing workstation override until a fresh session has verified the reviewed release; the package does not rewrite host settings.
 
 For an engineering smoke test from the installed plugin directory, run:
 

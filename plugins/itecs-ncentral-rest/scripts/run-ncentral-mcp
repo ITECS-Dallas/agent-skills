@@ -12,4 +12,5 @@ if [[ ! -f "$ITECS_CONFIG" ]]; then
   printf 'N-central MCP config not found at %s\n' "$ITECS_CONFIG" >&2
   exit 2
 fi
-exec "$ITECS_PLUGIN_DIR/bin/ncentral-mcp-$ITECS_PLATFORM$ITECS_SUFFIX" -config "$ITECS_CONFIG" "$@"
+binary="$(itecs_binary "bin/ncentral-mcp-$ITECS_PLATFORM$ITECS_SUFFIX")"
+exec "$binary" -config "$ITECS_CONFIG" "$@"

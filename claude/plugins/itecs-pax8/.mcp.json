@@ -1,8 +1,11 @@
 {
   "mcpServers": {
     "pax8": {
-      "command": "bash",
+      "command": "git",
       "args": [
+        "-c",
+        "alias.itecs-launch=!f() { if [ -n \"$GIT_PREFIX\" ]; then cd \"$GIT_PREFIX\" || exit; fi; exec /bin/bash \"$@\"; }; f",
+        "itecs-launch",
         "${CLAUDE_PLUGIN_ROOT}/scripts/run-pax8-mcp"
       ]
     }

@@ -1,0 +1,22 @@
+{
+  "servers": [
+    {
+      "id": "itecs-halopsa",
+      "name": "ITECS HaloPSA",
+      "base_url": "https://127.0.0.1:1",
+      "token_url": "https://127.0.0.1:1",
+      "client_id_command": [
+        "synthetic-command"
+      ],
+      "client_secret_command": [
+        "synthetic-command"
+      ],
+      "scope_command": [
+        "synthetic-command"
+      ],
+      "timeout_seconds": 30,
+      "max_attempts": 3,
+      "default_page_size": 25
+    }
+  ]
+}

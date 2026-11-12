@@ -30,3 +30,6 @@ itecs_config() {
   local connector="$1" override="$2"
   ITECS_CONFIG="${!override:-$ITECS_USER_DIR/.codex/$connector-mcp/config.json}"
 }
+
+# Package-local runtime transport; release mode uses the sealed asset cache.
+source "$ITECS_PLUGIN_DIR/scripts/cache.sh"

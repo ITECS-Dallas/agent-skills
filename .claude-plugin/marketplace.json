@@ -25,70 +25,70 @@
       "name": "itecs-vcenter",
       "source": "./claude/plugins/itecs-vcenter",
       "description": "ITECS vCenter tools for technician operations and billing evidence.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "category": "Business"
     },
     {
       "name": "itecs-pax8",
       "source": "./claude/plugins/itecs-pax8",
       "description": "ITECS Pax8 tools for technician operations and billing evidence.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "category": "Business"
     },
     {
       "name": "itecs-veeam-cloud-connect",
       "source": "./claude/plugins/itecs-veeam-cloud-connect",
       "description": "ITECS Veeam Cloud Connect tools for technician operations and billing evidence.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "Business"
     },
     {
       "name": "itecs-sophos-central",
       "source": "./claude/plugins/itecs-sophos-central",
       "description": "ITECS Sophos Central tools for technician operations and billing evidence.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "Business"
     },
     {
       "name": "itecs-checkpoint-harmony",
       "source": "./claude/plugins/itecs-checkpoint-harmony",
       "description": "ITECS Check Point Harmony tools for technician operations and billing evidence.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "Business"
     },
     {
       "name": "itecs-commvault",
       "source": "./claude/plugins/itecs-commvault",
       "description": "ITECS Commvault tools for technician operations and billing evidence.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "Business"
     },
     {
       "name": "itecs-billing-audit",
       "source": "./claude/plugins/itecs-billing-audit",
       "description": "Packaged ITECS source reports and staged monthly billing reconciliation.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "category": "Business"
     },
     {
       "name": "itecs-ncentral",
       "source": "./claude/plugins/itecs-ncentral",
       "description": "Read-only N-central access through the official N-able hosted MCP service.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "Business"
     },
     {
       "name": "itecs-ncentral-rest",
       "source": "./claude/plugins/itecs-ncentral-rest",
       "description": "Read-only self-hosted N-central REST inventory with automatic ITECS Automation Vault setup.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "category": "Business"
     },
     {
       "name": "itecs-petra-security",
       "source": "./claude/plugins/itecs-petra-security",
       "description": "ITECS Petra Security tools to audit which clients are on Petra and how many licenses each is billed for, with the monthly license evidence for billing reconciliation.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "Business"
     }
   ]

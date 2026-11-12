@@ -1,6 +1,6 @@
 {
   "name": "itecs-sophos-central",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ITECS Sophos Central tools for technician operations and billing evidence.",
   "author": {
     "name": "ITECS-Dallas"

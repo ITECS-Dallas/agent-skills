@@ -2,6 +2,7 @@
 # a plugin host starts the Bash wrapper and can surface as `/usr/bin/env: 'bash\r'`.
 *.sh text eol=lf
 scripts/* text eol=lf
+scripts/templates/* text eol=lf
 plugins/*/scripts/* text eol=lf
 claude/plugins/*/scripts/* text eol=lf
 plugins/*/bin/* binary
@@ -13,3 +14,7 @@ claude/plugins/itecs-halopsa/runtime/** text eol=lf
 .claude-plugin/*.json text eol=lf
 claude/plugins/*/.claude-plugin/*.json text eol=lf
 claude/plugins/*/.mcp.json text eol=lf
+plugins/*/runtime-mode text eol=lf
+claude/plugins/*/runtime-mode text eol=lf
+plugins/*/RUNTIME.tsv text eol=lf
+claude/plugins/*/RUNTIME.tsv text eol=lf

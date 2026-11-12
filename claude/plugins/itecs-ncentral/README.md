@@ -20,6 +20,8 @@ Install the option only on machines that need it. Use the global marketplace; do
 
 ## Authentication
 
+The Claude package contains an environment-variable reference, not a fixed bearer token. If `ITECS_NCENTRAL_API_TOKEN` is absent from the process that starts Claude, the reference cannot provide valid authentication. Run `python scripts/doctor.py` from the installed package to check required variable presence without printing values or contacting N-able. Supplying the variable in a separate terminal does not update an already-running desktop app. Do not remove the header and assume OAuth will work: N-able's current documentation still prescribes the SSO-linked API token below.
+
 Create an API token at [N-able API Token Management](https://n-able.app/api-token-management), using the N-able SSO identity whose customer access is intended. Tokens inherit that identity's permissions. Store the token in the approved 1Password Automation Vault through the authorized vault workflow. No token or vault item is provisioned by this package.
 
 The plugin reads `ITECS_NCENTRAL_API_TOKEN` from the **Codex host process environment**. Keep token values out of plugin/config files, shell profiles, command arguments, logs and chat. Do not use secret-bearing `.env` files. For example, on the authorized ITECS macOS host, after storing the token in the example item/field below, launch Codex CLI in a subshell:

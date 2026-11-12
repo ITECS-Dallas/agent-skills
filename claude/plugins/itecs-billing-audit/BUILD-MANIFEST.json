@@ -4,7 +4,7 @@
   "source_dirty": false,
   "go_toolchain": "go version go1.27.3 darwin/arm64",
   "plugin": "itecs-billing-audit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "build_flags": [
     "-trimpath",
     "-ldflags=-s -w -buildid="

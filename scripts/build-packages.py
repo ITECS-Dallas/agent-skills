@@ -102,8 +102,9 @@ def build_connector(source, entry, jobs):
             record['path'] = Path(record['path']).relative_to(root).as_posix()
             records.append(record)
             print('Built ' + record['path'], flush=True)
-    for name in ['runtime.sh', 'doctor.py']:
+    for name in ['runtime.sh', 'cache.sh', 'prepare-runtime', 'doctor.py']:
         shutil.copy2(ROOT / 'scripts/templates' / name, root / 'scripts' / name)
+    (root / 'runtime-mode').write_text('bundled\n', encoding='utf-8', newline='\n')
     manifest = {'source_repository':'https://github.com/ITECS-Dallas/GO-MCP',
                 'source_revision':revision, 'source_dirty':bool(run(['git','status','--porcelain'],source)),
                 'go_toolchain':run(['go','version'],source), 'plugin':entry['plugin'], 'version':metadata['version'],
@@ -181,13 +182,14 @@ def main():
         for future in concurrent.futures.as_completed(futures):
             plugin = futures[future]
             record = future.result()
-            record['path'] = str(Path(record['path']).relative_to(ROOT / 'plugins' / plugin))
+            record['path'] = Path(record['path']).relative_to(ROOT / 'plugins' / plugin).as_posix()
             records[plugin].append(record)
             print('Built ' + plugin + '/' + record['path'], flush=True)
     for plugin, binaries in records.items():
         root = ROOT / 'plugins' / plugin
-        shutil.copy2(ROOT / 'scripts/templates/runtime.sh', root / 'scripts/runtime.sh')
-        shutil.copy2(ROOT / 'scripts/templates/doctor.py', root / 'scripts/doctor.py')
+        for name in ['runtime.sh', 'cache.sh', 'prepare-runtime', 'doctor.py']:
+            shutil.copy2(ROOT / 'scripts/templates' / name, root / 'scripts' / name)
+        (root / 'runtime-mode').write_text('bundled\n', encoding='utf-8', newline='\n')
         metadata = json.loads((root / '.codex-plugin/plugin.json').read_text(encoding='utf-8'))
         manifest = {'source_repository': 'https://github.com/ITECS-Dallas/GO-MCP',
                     'source_revision': revision, 'source_dirty': dirty, 'go_toolchain': toolchain,
