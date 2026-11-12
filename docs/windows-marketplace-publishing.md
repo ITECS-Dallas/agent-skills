@@ -39,6 +39,8 @@ Existing users should switch marketplace sources only after the owner publishes 
 
 A source/development package explicitly declares `runtime-mode=bundled`. A thin release explicitly declares `runtime-mode=release` and has no bundled executable fallback. It downloads only a requested platform binary, checks compressed and executable checksums, and atomically caches it under the user's `.codex/itecs-runtime/<plugin>/<version>/`. An unchanged cached version performs no network download or overwrite, including while another host uses it. Failed downloads, wrong checksums and malformed metadata fail closed.
 
+Windows uses curl's `--ssl-revoke-best-effort` for these public, SHA-256-pinned assets. Native Windows 11 testing reproduced `CRYPT_E_NO_REVOCATION_CHECK` against GitHub when CRL checks were unavailable. This explicit Windows policy permits missing/offline revocation information; it retains CA trust, hostname and validity checks, rejection of known revoked certificates, and both pinned content hashes. It does not use `--insecure`, disable revocation entirely, retry with weaker settings, or affect HaloPSA/vendor authentication. macOS keeps its existing curl TLS policy. See [curl's documented option](https://curl.se/docs/manpage.html#--ssl-revoke-best-effort).
+
 Before first use, especially on a slow connection or before going offline, run from the installed plugin directory:
 
 ```powershell

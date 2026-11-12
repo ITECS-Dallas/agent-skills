@@ -73,7 +73,12 @@ itecs_binary() (
   compressed="$(mktemp "$(dirname "$target")/.runtime-gzip.XXXXXX")"
   temporary="$(mktemp "$(dirname "$target")/.runtime-binary.XXXXXX")"
   printf 'ITECS runtime: preparing %s %s (%s)\n' "$package" "$version" "$ITECS_PLATFORM" >&2
+  local tls_options=()
+  # These public assets are SHA-256 pinned. Schannel must still reject invalid
+  # certificates, but unavailable CRL endpoints must not block verified bytes.
+  if [[ "$ITECS_OS" == windows ]]; then tls_options=(--ssl-revoke-best-effort); fi
   curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+    "${tls_options[@]}" \
     --connect-timeout 5 --max-time 15 --max-filesize "$wanted_compressed_bytes" \
     --output "$compressed" "$wanted_url" || fail 'release download failed; check connectivity and run scripts/prepare-runtime before restarting the host'
   [[ "$(itecs_sha256 "$compressed")" == "$wanted_compressed_sha" ]] || fail 'downloaded release checksum mismatch; no executable was installed'
