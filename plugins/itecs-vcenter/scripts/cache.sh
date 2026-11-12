@@ -49,16 +49,19 @@ itecs_binary() (
   fi
   [[ "${ITECS_RUNTIME_OFFLINE:-0}" != 1 ]] || fail 'this offline command requires a prepared runtime; run scripts/prepare-runtime before going offline'
   mkdir -p "$(dirname "$target")"
-  local lock="$target.lock" count=0
+  # EXIT traps in macOS Bash 3.2 run after function-local variables unwind.
+  # These cleanup paths belong to this subshell, not the parent launcher.
+  lock="$target.lock"
+  local count=0
   until mkdir "$lock" 2>/dev/null; do
     if [[ -f "$target" && "$(itecs_sha256 "$target")" == "$wanted_sha" ]]; then
       printf '%s\n' "$target"; exit 0
     fi
     ((count+=1))
-    [[ "$count" -lt 100 ]] || fail "runtime preparation is locked at $lock; check the preparing process before removing a stale lock"
+    [[ "$count" -lt 200 ]] || fail "runtime preparation is locked at $lock; check the preparing process before removing a stale lock"
     sleep 0.1
   done
-  local compressed='' temporary=''
+  compressed='' temporary=''
   cleanup() { rm -f -- "$compressed" "$temporary"; rmdir -- "$lock"; }
   trap cleanup EXIT
   # Another launcher may have published between the initial check and the lock.

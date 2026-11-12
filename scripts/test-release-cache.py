@@ -83,19 +83,18 @@ def main():
                     rows[index] = '\t'.join(fields)
             sealed = '\n'.join(rows) + '\n'
             (package / 'RUNTIME.tsv').write_text(sealed, encoding='utf-8', newline='\n')
-            # Trust this test CA only in a temporary curl wrapper, never in OS trust.
+            # Use curl's process-local config so Git's internal PATH setup cannot
+            # bypass a test wrapper. This also supports Windows Schannel, which
+            # ignores CURL_CA_BUNDLE. Never modify OS trust.
             tools = scratch / 'tools'
             tools.mkdir()
-            quote = lambda value: "'" + str(value).replace("'", "'\\''") + "'"
-            curl = tools / 'curl'
-            curl.write_text('#!/bin/sh\nexec ' + quote(tool('curl')) + ' --cacert ' + quote(cert) + ' "$@"\n', encoding='utf-8', newline='\n')
-            curl.chmod(0o755)
+            (tools / '.curlrc').write_text('cacert = ' + json.dumps(cert.as_posix(), ensure_ascii=False) + '\n', encoding='utf-8', newline='\n')
             config = scratch / 'config.json'
             credential = [sys.executable, '-c', "print('synthetic-release-test')"]
             config.write_text(json.dumps({'servers': [{'id': 'fixture', 'base_url': 'https://127.0.0.1:1/api',
                 'token_url': 'https://127.0.0.1:1/token', 'client_id_command': credential,
                 'client_secret_command': credential, 'scope': 'read:tickets'}]}), encoding='utf-8')
-            environment = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ['PATH'], HALOPSA_MCP_CONFIG=str(config))
+            environment = dict(os.environ, CURL_HOME=str(tools), HALOPSA_MCP_CONFIG=str(config))
             profile_key = 'USERPROFILE' if os.name == 'nt' else 'HOME'
             command = ['git', '-c', ALIAS, 'itecs-launch', str(package / 'scripts/run-halopsa-mcp')]
             expected = sorted(json.loads((package / 'BUILD-MANIFEST.json').read_text())['tools'])
