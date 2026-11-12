@@ -1,6 +1,6 @@
 {
   "name": "itecs-ncentral",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read-only N-central access through the official N-able hosted MCP service.",
   "author": {
     "name": "ITECS-Dallas"

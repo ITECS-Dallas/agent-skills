@@ -1,0 +1,13 @@
+{
+  "servers": [
+    {
+      "id": "primary",
+      "name": "Self-hosted N-central",
+      "base_url": "https://127.0.0.1:1",
+      "jwt_command": [
+        "synthetic-command"
+      ],
+      "timeout_seconds": 30
+    }
+  ]
+}

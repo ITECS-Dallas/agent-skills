@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 TARGETS = ('darwin-arm64', 'darwin-amd64', 'windows-arm64', 'windows-amd64')
@@ -32,7 +33,7 @@ def tool_names(tools_dir):
     for path in sorted(tools_dir.glob('*.go')):
         if path.name.endswith('_test.go'):
             continue
-        text = path.read_text()
+        text = path.read_text(encoding='utf-8')
         names.update(re.findall(r'(?:readOnlyTool|writeTool)\("([\w.]+)"', text))
         names.update(re.findall(r'Name:\s*"([\w.]+)"', text))
     return sorted(names)
@@ -50,7 +51,11 @@ def copy_relay_runtime(source, root):
             shutil.copytree(src, dest, ignore=shutil.ignore_patterns('__pycache__'))
         else:
             shutil.copy2(src, dest)
-    return [{'path':str(path.relative_to(root)), 'sha256':digest(path)}
+    # These runtime resources are text; seal the same bytes on every build OS.
+    for path in worker_dest.rglob('*'):
+        if path.is_file():
+            path.write_bytes(path.read_bytes().replace(b'\r\n', b'\n'))
+    return [{'path':path.relative_to(root).as_posix(), 'sha256':digest(path)}
             for path in sorted(worker_dest.rglob('*')) if path.is_file()]
 
 
@@ -82,7 +87,7 @@ def build_connector(source, entry, jobs):
     subprocess.run(['go', 'test', './...'], cwd=source / module, check=True)
     subprocess.run(['go', 'vet', './...'], cwd=source / module, check=True)
     root = ROOT / 'plugins' / entry['plugin']
-    metadata = json.loads((root / '.codex-plugin/plugin.json').read_text())
+    metadata = json.loads((root / '.codex-plugin/plugin.json').read_text(encoding='utf-8'))
     revision = run(['git', 'rev-parse', 'HEAD'], source)
     names = tool_names(source / module / 'internal/tools')
     records = []
@@ -94,11 +99,12 @@ def build_connector(source, entry, jobs):
             futures.append(pool.submit(build, source, module, './cmd/mcp', dest, target))
         for future in concurrent.futures.as_completed(futures):
             record = future.result()
-            record['path'] = str(Path(record['path']).relative_to(root))
+            record['path'] = Path(record['path']).relative_to(root).as_posix()
             records.append(record)
             print('Built ' + record['path'], flush=True)
-    for name in ['runtime.sh', 'doctor.py']:
+    for name in ['runtime.sh', 'cache.sh', 'prepare-runtime', 'doctor.py']:
         shutil.copy2(ROOT / 'scripts/templates' / name, root / 'scripts' / name)
+    (root / 'runtime-mode').write_text('bundled\n', encoding='utf-8', newline='\n')
     manifest = {'source_repository':'https://github.com/ITECS-Dallas/GO-MCP',
                 'source_revision':revision, 'source_dirty':bool(run(['git','status','--porcelain'],source)),
                 'go_toolchain':run(['go','version'],source), 'plugin':entry['plugin'], 'version':metadata['version'],
@@ -107,13 +113,13 @@ def build_connector(source, entry, jobs):
     runtime_files = package_runtime_files(source, root, entry['plugin'])
     if runtime_files:
         manifest['runtime_files'] = runtime_files
-    (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
+    (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n', encoding='utf-8', newline='\n')
     path = ROOT / 'TOOL-CATALOG.json'
-    catalog = json.loads(path.read_text())
+    catalog = json.loads(path.read_text(encoding='utf-8'))
     catalog['plugins'][entry['plugin']] = names
     catalog.pop('source_revision',None)
-    catalog['source_revisions'] = {name:json.loads((ROOT/'plugins'/name/'BUILD-MANIFEST.json').read_text())['source_revision'] for name in catalog['plugins']}
-    path.write_text(json.dumps(catalog,indent=2)+'\n')
+    catalog['source_revisions'] = {name:json.loads((ROOT/'plugins'/name/'BUILD-MANIFEST.json').read_text(encoding='utf-8'))['source_revision'] for name in catalog['plugins']}
+    path.write_text(json.dumps(catalog,indent=2)+'\n', encoding='utf-8', newline='\n')
 
 
 def main():
@@ -123,13 +129,13 @@ def main():
     parser.add_argument('--plugin', help='Build one connector plugin and preserve other packages')
     args = parser.parse_args()
     source = args.source.resolve()
-    entries = json.loads((ROOT / 'scripts/connectors.json').read_text())
+    entries = json.loads((ROOT / 'scripts/connectors.json').read_text(encoding='utf-8'))
     if args.plugin:
         entry = next((e for e in entries if e['plugin'] == args.plugin), None)
         if entry is None:
             parser.error('unknown connector plugin: ' + args.plugin)
         build_connector(source, entry, args.jobs)
-        subprocess.check_call(['python3', str(ROOT / 'scripts/build-claude-marketplace.py')], cwd=ROOT)
+        subprocess.check_call([sys.executable, str(ROOT / 'scripts/build-claude-marketplace.py')], cwd=ROOT)
         return
     revision = run(['git', 'rev-parse', 'HEAD'], source)
     dirty = bool(run(['git', 'status', '--porcelain'], source))
@@ -151,6 +157,9 @@ def main():
     resources = [{'path': 'scripts/' + n, 'source': 'scripts/' + n} for n in ['billing-audit.sh', 'hosting-audit.sh']]
     resources += [{'path': 'references/' + n, 'source': 'docs/runbooks/' + n} for n in ['monthly-billing-audit.md']]
     resources += [{'path': 'references/source-billing-reconciliation.md', 'source': 'skills/billing-reconciliation/SKILL.md'}]
+    for row in resources:
+        path = audit / row['path']
+        path.write_bytes(path.read_bytes().replace(b'\r\n', b'\n'))
     jobs = []
     catalogs = {}
     for entry in entries:
@@ -176,14 +185,15 @@ def main():
         for future in concurrent.futures.as_completed(futures):
             plugin = futures[future]
             record = future.result()
-            record['path'] = str(Path(record['path']).relative_to(ROOT / 'plugins' / plugin))
+            record['path'] = Path(record['path']).relative_to(ROOT / 'plugins' / plugin).as_posix()
             records[plugin].append(record)
             print('Built ' + plugin + '/' + record['path'], flush=True)
     for plugin, binaries in records.items():
         root = ROOT / 'plugins' / plugin
-        shutil.copy2(ROOT / 'scripts/templates/runtime.sh', root / 'scripts/runtime.sh')
-        shutil.copy2(ROOT / 'scripts/templates/doctor.py', root / 'scripts/doctor.py')
-        metadata = json.loads((root / '.codex-plugin/plugin.json').read_text())
+        for name in ['runtime.sh', 'cache.sh', 'prepare-runtime', 'doctor.py']:
+            shutil.copy2(ROOT / 'scripts/templates' / name, root / 'scripts' / name)
+        (root / 'runtime-mode').write_text('bundled\n', encoding='utf-8', newline='\n')
+        metadata = json.loads((root / '.codex-plugin/plugin.json').read_text(encoding='utf-8'))
         manifest = {'source_repository': 'https://github.com/ITECS-Dallas/GO-MCP',
                     'source_revision': revision, 'source_dirty': dirty, 'go_toolchain': toolchain,
                     'plugin': plugin, 'version': metadata['version'],
@@ -196,11 +206,11 @@ def main():
         runtime_files = package_runtime_files(source, root, plugin)
         if runtime_files:
             manifest['runtime_files'] = runtime_files
-        (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest, indent=2) + '\n')
-    (ROOT / 'TOOL-CATALOG.json').write_text(json.dumps({'source_revision': revision, 'plugins': catalogs}, indent=2) + '\n')
+        (root / 'BUILD-MANIFEST.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8', newline='\n')
+    (ROOT / 'TOOL-CATALOG.json').write_text(json.dumps({'source_revision': revision, 'plugins': catalogs}, indent=2) + '\n', encoding='utf-8', newline='\n')
     print('Built %d binaries from %s' % (len(jobs), revision), flush=True)
     # Claude Code reads its own copy of every plugin; keep it in step.
-    subprocess.check_call(['python3', str(ROOT / 'scripts/build-claude-marketplace.py')], cwd=ROOT)
+    subprocess.check_call([sys.executable, str(ROOT / 'scripts/build-claude-marketplace.py')], cwd=ROOT)
 
 
 if __name__ == '__main__':

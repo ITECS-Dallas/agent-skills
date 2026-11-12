@@ -245,11 +245,10 @@ Run in PowerShell from the installed plugin directory:
 
 ```powershell
 .\scripts\configure-halopsa-mcp-windows.ps1 `
-  -TechnicianName "Exact Technician Name" `
-  -ItecsAccount "ITECS-1PASSWORD-ACCOUNT-SHORTHAND"
+  -TechnicianName "Exact Technician Name"
 ```
 
-The Windows script resolves the installed `op.exe`, validates the exact per-technician Automation Vault item and live OAuth response, and writes `%USERPROFILE%\.codex\halopsa-mcp\config.json` with command references only. If the item is absent, inaccessible, mismatched, over-scoped, or rejected by OAuth, stop for credential restoration/rotation; do not use another technician's identity or a shared fallback.
+The Windows script resolves the managed `op-itecs` wrapper on PATH; use `-OpCommand 'C:\absolute\path\op-itecs.cmd'` for another managed wrapper location. It accepts native executables and `.cmd`, `.bat` or `.ps1` wrappers, invoking scripts through native PowerShell without requiring a source checkout or plugin-cache path in the saved credential commands. It validates the exact per-technician Automation Vault item and live OAuth response, then writes `%USERPROFILE%\.codex\halopsa-mcp\config.json` as UTF-8 without a BOM and with command references only. It never switches to personal `op`, desktop authentication or another account. If the managed wrapper, identity, scope or OAuth fails, the existing config stays intact; restore the approved access before retrying. Installation updates preserve existing configs; use `-Force` only for an intentional replacement.
 
 ## Supported Platforms
 
@@ -262,7 +261,7 @@ Bundled MCP binaries are included for:
 - Windows 11 x64: `windows-amd64.exe`
 - Windows 11 ARM64: `windows-arm64.exe`
 
-The plugin launcher is a Bash script. Windows 11 machines need Git Bash/MSYS/Cygwin Bash available as `bash` on `PATH`; it resolves the default config from `%USERPROFILE%` so PowerShell setup and Git Bash startup use the same file. WSL Bash is not supported for this launcher.
+The plugin launcher uses Git's own `/bin/bash`. Windows 11 machines need Git for Windows available as `git` on PATH; a WSL `bash.exe` earlier on PATH is not selected. It resolves the default config from `%USERPROFILE%`, so PowerShell setup and both hosts use the same file.
 
 Windows preflight:
 
@@ -271,15 +270,18 @@ where.exe bash
 bash -c 'uname -s; uname -m'
 ```
 
-The `uname -s` result should start with `MINGW`, `MSYS` or `CYGWIN`. If it reports `Linux`, `bash` resolves to WSL. Put Git Bash earlier on `PATH` and restart the plugin host. A workstation with the existing Codex Git Bash pin uses the launcher configured outside the versioned plugin cache. Keep that override in place during upgrades and confirm that a fresh session discovers HaloPSA tools through it.
+These bare-shell commands diagnose older installations only. Updated manifests dispatch through Git's own shell and need no plugin-cache edits or PATH reordering. Preserve an existing workstation override until a fresh session has verified the reviewed release; the package does not rewrite host settings.
 
 For an engineering smoke test from the installed plugin directory, run:
 
 ```powershell
 py -3 -X utf8 .\scripts\test-windows.py
+powershell.exe -NoProfile -NonInteractive -File .\scripts\test-configure-halopsa-mcp-windows.ps1
 ```
 
 Use `python -X utf8` if Python is installed without the `py` launcher. Run it from either host’s installed plugin directory. It runs the Windows binary through that host’s launcher, checks all tool names in the package manifest and exercises default and override config paths in a temporary profile with spaces and Unicode. It uses synthetic command-backed credentials and invokes no Halo operations. It does not alter the technician's saved config or prove their live 1Password access. Python is needed for this optional engineering check, not for the Go connector itself.
+
+The PowerShell check uses synthetic managed wrappers and intercepts OAuth locally. It tests setup, generated credential commands, PATH discovery, existing-config protection and failure handling without live 1Password or HaloPSA access. See [the dated validation record](docs/windows11-validation.md) and the review's native CI checks.
 
 If startup reports `/usr/bin/env: 'bash\r': No such file or directory` or `pipefail` as an invalid option, update the plugin and verify the versioned package's launcher uses LF. Both marketplace paths preserve LF from 0.18.1.
 

@@ -1,0 +1,73 @@
+name: Native marketplace packages
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/**'
+      - 'claude/plugins/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - '.gitattributes'
+      - '.github/workflows/halopsa-native.yml'
+  push:
+    paths:
+      - 'plugins/**'
+      - 'claude/plugins/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - '.github/workflows/halopsa-native.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: Packaged HaloPSA (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-15, macos-15-intel, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-go@v5
+        if: runner.os == 'macOS'
+        with:
+          go-version: '1.27.x'
+      - name: Validate marketplace
+        run: node scripts/validate.mjs
+      - name: Verify generated Claude packages
+        run: python -X utf8 scripts/build-claude-marketplace.py --check
+      - name: Codex native binary and launcher
+        run: python -X utf8 plugins/itecs-halopsa/scripts/test-windows.py
+      - name: Claude native binary and launcher
+        run: python -X utf8 claude/plugins/itecs-halopsa/scripts/test-windows.py
+      - name: All stdio connectors with wrong bash first on PATH
+        run: python -X utf8 scripts/test-native-marketplace.py
+      - name: Full package integrity, provenance and legacy regressions
+        if: runner.os == 'macOS'
+        run: python -X utf8 scripts/test-packages.py
+      - name: Build thin catalog and sealed release assets
+        # This is a staging artifact; the production cutover requires review.
+        run: python -X utf8 scripts/build-distribution.py --output "${{ runner.temp }}/thin-distribution" --release-url https://github.com/ITECS-Dallas/agent-skills/releases/download/windows-packaging-2026-11-12
+      - name: Publication boundary regressions
+        run: python -X utf8 scripts/test-distribution-build.py
+      - name: Cold, warm, corrupt, concurrent and offline release runtime
+        run: python -X utf8 scripts/test-release-cache.py --distribution "${{ runner.temp }}/thin-distribution"
+      - name: Native Windows managed-wrapper setup
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: ./plugins/itecs-halopsa/scripts/test-configure-halopsa-mcp-windows.ps1
+      - name: Unix setup and launcher regressions
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash plugins/itecs-halopsa/scripts/test-configure-halopsa-mcp-macos.sh
+          bash plugins/itecs-halopsa/scripts/test-configure-halopsa-mcp-linux.sh
+          bash plugins/itecs-halopsa/scripts/test-run-halopsa-mcp.sh

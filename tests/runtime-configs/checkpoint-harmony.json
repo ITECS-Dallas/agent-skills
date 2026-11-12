@@ -1,0 +1,19 @@
+{
+  "connector_name": "checkpoint-harmony",
+  "servers": [
+    {
+      "id": "itecs-checkpoint-harmony",
+      "name": "ITECS Check Point Harmony",
+      "base_url": "https://127.0.0.1:1",
+      "auth_url": "https://127.0.0.1:1",
+      "client_id_command": [
+        "synthetic-command"
+      ],
+      "access_key_command": [
+        "synthetic-command"
+      ],
+      "timeout_seconds": 30,
+      "max_attempts": 3
+    }
+  ]
+}

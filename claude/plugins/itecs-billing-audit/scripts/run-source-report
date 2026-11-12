@@ -14,6 +14,7 @@ config_env="$(printf '%s_MCP_CONFIG' "$connector" | tr '[:lower:]-' '[:upper:]_'
 itecs_config "$connector" "$config_env"
 extra=()
 case "$connector" in pax8|sophos-central) extra=(-client-mapping "") ;; esac
-exec "$ITECS_PLUGIN_DIR/bin/$ITECS_PLATFORM/$connector-billing-report$ITECS_SUFFIX" \
+binary="$(itecs_binary "bin/$ITECS_PLATFORM/$connector-billing-report$ITECS_SUFFIX")"
+exec "$binary" \
   -config "$ITECS_CONFIG" -month "$(date +%Y-%m)" -out-dir "$PWD/reports" \
   ${extra[@]+"${extra[@]}"} "$@"

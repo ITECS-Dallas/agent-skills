@@ -2,7 +2,21 @@
 # a plugin host starts the Bash wrapper and can surface as `/usr/bin/env: 'bash\r'`.
 *.sh text eol=lf
 scripts/* text eol=lf
+scripts/templates/* text eol=lf
 plugins/*/scripts/* text eol=lf
 claude/plugins/*/scripts/* text eol=lf
 plugins/*/bin/* binary
 *.exe binary
+# Runtime hashes describe the same text bytes on Windows and Unix checkouts.
+plugins/itecs-halopsa/runtime/** text eol=lf
+claude/plugins/itecs-halopsa/runtime/** text eol=lf
+plugins/itecs-billing-audit/references/** text eol=lf
+claude/plugins/itecs-billing-audit/references/** text eol=lf
+# Generated JSON is written with LF and compared byte-for-byte on every OS.
+.claude-plugin/*.json text eol=lf
+claude/plugins/*/.claude-plugin/*.json text eol=lf
+claude/plugins/*/.mcp.json text eol=lf
+plugins/*/runtime-mode text eol=lf
+claude/plugins/*/runtime-mode text eol=lf
+plugins/*/RUNTIME.tsv text eol=lf
+claude/plugins/*/RUNTIME.tsv text eol=lf

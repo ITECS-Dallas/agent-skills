@@ -4,9 +4,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [string]$TechnicianName,
 
-    [Parameter(Mandatory = $true)]
-    [ValidateNotNullOrEmpty()]
-    [string]$ItecsAccount,
+    [string]$OpCommand,
 
     [string]$ConfigPath = (Join-Path $env:USERPROFILE ".codex\halopsa-mcp\config.json"),
 
@@ -31,26 +29,52 @@ if ([string]::IsNullOrWhiteSpace($env:USERPROFILE)) {
 if ($TechnicianName.Length -gt 100 -or $TechnicianName -match '[\r\n\t/\\"]') {
     Stop-Setup "technician name is empty, too long, or contains an unsupported character"
 }
-if ($ItecsAccount -match '[\r\n\t"]') {
-    Stop-Setup "ITECS 1Password account contains an unsupported character"
-}
 if ((Test-Path -LiteralPath $ConfigPath) -and -not $Force) {
     Stop-Setup "config already exists at $ConfigPath; rerun with -Force to replace it"
 }
 
-$OpCommand = Get-Command op -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-if ($null -eq $OpCommand) {
-    Stop-Setup "1Password CLI op.exe is not installed or is not on PATH"
+if ([string]::IsNullOrWhiteSpace($OpCommand)) {
+    $ManagedWrapper = Get-Command op-itecs -CommandType Application,ExternalScript -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($null -eq $ManagedWrapper) {
+        Stop-Setup "op-itecs was not found on PATH; supply -OpCommand with the absolute managed wrapper path"
+    }
+    $OpCommand = $ManagedWrapper.Source
 }
-$OpPath = $OpCommand.Source
+if (-not [IO.Path]::IsPathRooted($OpCommand) -or -not (Test-Path -LiteralPath $OpCommand -PathType Leaf)) {
+    Stop-Setup "-OpCommand must name an existing absolute managed wrapper path"
+}
+$OpPath = (Resolve-Path -LiteralPath $OpCommand).ProviderPath
+$OpExtension = [IO.Path]::GetExtension($OpPath).ToLowerInvariant()
+if ($OpExtension -notin @('.exe', '.cmd', '.bat', '.ps1')) {
+    Stop-Setup "managed wrapper must be an exe, cmd, bat or ps1 file"
+}
+$PowerShellPath = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
 $ItemTitle = "GO-MCP HaloPSA $TechnicianName Read Write"
 $VaultPrefix = "op://Automation Vault/$ItemTitle"
+
+function New-OpReadCommand {
+    param([Parameter(Mandatory = $true)][string]$Field)
+
+    $Reference = "$VaultPrefix/$Field"
+    if ($OpExtension -eq '.exe') {
+        return @($OpPath, 'read', $Reference)
+    }
+    # Go exec runs native executables; PowerShell invokes managed script wrappers.
+    $Invocation = "`$ErrorActionPreference = 'Stop'; & '{0}' 'read' '{1}'; if (`$LASTEXITCODE -ne 0) {{ exit `$LASTEXITCODE }}" -f $OpPath.Replace("'", "''"), $Reference.Replace("'", "''")
+    return @($PowerShellPath, '-NoLogo', '-NoProfile', '-NonInteractive', '-Command', $Invocation)
+}
 
 function Read-OpField {
     param([Parameter(Mandatory = $true)][string]$Field)
 
-    $Value = & $OpPath --account $ItecsAccount read "$VaultPrefix/$Field" 2>$null
-    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($Value)) {
+    $ReadCommand = @(New-OpReadCommand $Field)
+    try {
+        $Value = & $ReadCommand[0] $ReadCommand[1..($ReadCommand.Length - 1)] 2>$null
+    }
+    catch {
+        Stop-Setup "Automation Vault item '$ItemTitle' is missing, inaccessible, or incomplete at field $Field"
+    }
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(($Value -join "`n"))) {
         Stop-Setup "Automation Vault item '$ItemTitle' is missing, inaccessible, or incomplete at field $Field"
     }
     return ($Value -join "`n").TrimEnd([char[]]"`r`n")
@@ -85,7 +109,7 @@ if ($Scopes -contains "read:distributionlists") {
 }
 
 try {
-    $TokenResponse = Invoke-WebRequest -UseBasicParsing -Uri $TokenUrl -Method Post -ContentType "application/x-www-form-urlencoded" -Body @{
+    $TokenResponse = Invoke-WebRequest -UseBasicParsing -TimeoutSec 30 -Uri $TokenUrl -Method Post -ContentType "application/x-www-form-urlencoded" -Body @{
         grant_type    = "client_credentials"
         client_id     = $HaloClientId
         client_secret = $HaloClientSecret
@@ -106,9 +130,9 @@ $Config = [ordered]@{
             name                  = "ITECS HaloPSA"
             base_url              = $BaseUrl
             token_url             = $TokenUrl
-            client_id_command     = @($OpPath, "--account", $ItecsAccount, "read", "$VaultPrefix/HALO_CLIENT_ID")
-            client_secret_command = @($OpPath, "--account", $ItecsAccount, "read", "$VaultPrefix/HALO_CLIENT_SECRET")
-            scope_command         = @($OpPath, "--account", $ItecsAccount, "read", "$VaultPrefix/HALO_SCOPE")
+            client_id_command     = @(New-OpReadCommand 'HALO_CLIENT_ID')
+            client_secret_command = @(New-OpReadCommand 'HALO_CLIENT_SECRET')
+            scope_command         = @(New-OpReadCommand 'HALO_SCOPE')
             timeout_seconds       = 30
             max_attempts          = 3
             default_page_size     = 25

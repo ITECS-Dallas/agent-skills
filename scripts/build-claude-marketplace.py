@@ -29,7 +29,7 @@ MANIFEST_KEYS = ('name', 'version', 'description', 'author', 'homepage', 'reposi
 
 def claude_servers(mcp_file):
     servers = {}
-    for name, cfg in json.loads(mcp_file.read_text())['mcpServers'].items():
+    for name, cfg in json.loads(mcp_file.read_text(encoding='utf-8'))['mcpServers'].items():
         if 'url' in cfg:
             # Codex remote server: url plus bearer_token_env_var. Claude needs
             # an explicit transport type and expands ${VAR} in headers.
@@ -48,11 +48,11 @@ def claude_servers(mcp_file):
 
 
 def generate(out):
-    codex = json.loads((ROOT / '.agents/plugins/marketplace.json').read_text())
+    codex = json.loads((ROOT / '.agents/plugins/marketplace.json').read_text(encoding='utf-8'))
     entries = []
     for item in codex['plugins']:
         src = (ROOT / item['source']['path']).resolve()
-        meta = json.loads((src / '.codex-plugin/plugin.json').read_text())
+        meta = json.loads((src / '.codex-plugin/plugin.json').read_text(encoding='utf-8'))
         dst = out / 'claude/plugins' / item['name']
         dst.mkdir(parents=True)
         for child in sorted(src.iterdir()):
@@ -65,9 +65,9 @@ def generate(out):
                 shutil.copy2(child, dst / child.name)
         (dst / '.claude-plugin').mkdir()
         manifest = {k: meta[k] for k in MANIFEST_KEYS if k in meta}
-        (dst / '.claude-plugin/plugin.json').write_text(json.dumps(manifest, indent=2) + '\n')
+        (dst / '.claude-plugin/plugin.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8', newline='\n')
         if (src / '.mcp.json').exists():
-            (dst / '.mcp.json').write_text(json.dumps(claude_servers(src / '.mcp.json'), indent=2) + '\n')
+            (dst / '.mcp.json').write_text(json.dumps(claude_servers(src / '.mcp.json'), indent=2) + '\n', encoding='utf-8', newline='\n')
         entry = {'name': item['name'], 'source': './claude/plugins/' + item['name'],
                  'description': meta.get('description', ''), 'version': meta.get('version')}
         if item.get('category'):
@@ -80,7 +80,7 @@ def generate(out):
         'plugins': entries,
     }
     (out / '.claude-plugin').mkdir(parents=True, exist_ok=True)
-    (out / '.claude-plugin/marketplace.json').write_text(json.dumps(marketplace, indent=2) + '\n')
+    (out / '.claude-plugin/marketplace.json').write_text(json.dumps(marketplace, indent=2) + '\n', encoding='utf-8', newline='\n')
     return len(entries)
 
 

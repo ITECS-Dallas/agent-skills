@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Native Windows package smoke test with synthetic credentials; no Halo requests."""
+"""Native package smoke on Windows, macOS or Linux; synthetic credentials only."""
 
 import hashlib
 import json
@@ -22,50 +22,46 @@ def run(command, cwd=None):
 
 
 def main():
-    if os.name != "nt":
-        raise SystemExit("Run this check with native Windows Python on the test workstation.")
+    native_os = "windows" if os.name == "nt" else "darwin" if platform.system() == "Darwin" else "linux"
+    profile_variable = "USERPROFILE" if native_os == "windows" else "HOME"
     root = Path(__file__).resolve().parents[1]
     manifest = json.loads((root / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
     server = json.loads((root / ".mcp.json").read_text(encoding="utf-8"))["mcpServers"]["halopsa"]
-    bash = shutil.which(server["command"])
-    if not bash:
-        raise SystemExit("Git Bash is not on PATH. Restart the terminal after installing it.")
-    shell_os = run([bash, "-c", "uname -s"])
-    if not shell_os.startswith(("MINGW", "MSYS", "CYGWIN")):
-        raise SystemExit("The selected bash is not Git Bash/MSYS/Cygwin: " + shell_os)
-    windows_binaries = [row for row in manifest["binaries"] if row["target"].startswith("windows-")]
-    for row in windows_binaries:
+    launcher = server['command'].replace('${CLAUDE_PLUGIN_ROOT}', str(root))
+    if launcher.startswith('./'):
+        launcher = str(root / launcher[2:])
+    for row in manifest["binaries"]:
         if hashlib.sha256((root / row["path"]).read_bytes()).hexdigest() != row["sha256"]:
             raise RuntimeError("Binary hash mismatch: " + row["path"])
-    previous = {key: os.environ.get(key) for key in ("USERPROFILE", "HALOPSA_MCP_CONFIG")}
+    previous = {key: os.environ.get(key) for key in (profile_variable, "HALOPSA_MCP_CONFIG")}
     try:
         with tempfile.TemporaryDirectory(prefix="Atlas Zoë Tech ") as temp:
             scratch = Path(temp)
-            profile = scratch / "Windows profile"
+            profile = scratch / "Native profile"
             config = profile / ".codex/halopsa-mcp/config.json"
             config.parent.mkdir(parents=True)
             # Go executes a native program and arguments, including a spaced Python path.
             credential = [sys.executable, "-c", "print('synthetic-package-test')"]
             config.write_text(json.dumps({"servers": [{
-                "id": "windows-fixture", "name": "Windows fixture",
+                "id": "native-fixture", "name": "Native fixture",
                 "base_url": "https://127.0.0.1:1/api", "token_url": "https://127.0.0.1:1/token",
                 "client_id_command": credential, "client_secret_command": credential,
                 "scope_command": [sys.executable, "-c", "print('read:tickets edit:tickets')"],
             }]}), encoding="utf-8")
-            os.environ["USERPROFILE"] = str(profile)
+            os.environ[profile_variable] = str(profile)
             os.environ.pop("HALOPSA_MCP_CONFIG", None)
             # Match the host's shipped stdio invocation, including an absolute Claude plugin path.
             args = [arg.replace("${CLAUDE_PLUGIN_ROOT}", str(root)) for arg in server["args"]]
             previous_cwd = Path.cwd()
             try:
                 os.chdir(root / server["cwd"] if "cwd" in server else scratch)
-                command = [bash, *args]
+                command = [launcher, *args]
                 version = run(command + ["-version"])
                 if version != "halopsa-mcp " + manifest["version"]:
                     raise RuntimeError("Launcher version mismatch: " + version)
                 expected = sorted(manifest["tools"])
                 if discover(command, 30) != expected:
-                    raise RuntimeError("Default USERPROFILE config discovery mismatch")
+                    raise RuntimeError("Default profile config discovery mismatch")
                 override = scratch / "override config.json"
                 shutil.copy2(config, override)
                 config.unlink()
@@ -80,11 +76,11 @@ def main():
                 os.environ.pop(key, None)
             else:
                 os.environ[key] = value
-    print(json.dumps({"result": "passed", "windows": platform.platform(),
-                      "python_arch": platform.machine(), "bash_platform": shell_os,
+    print(json.dumps({"result": "passed", "platform": platform.platform(),
+                      "python_arch": platform.machine(), "launcher": "native dispatcher",
                       "mcp_host": "codex" if "cwd" in server else "claude",
                       "connector_version": manifest["version"], "tools": len(expected),
-                      "config_cases": ["USERPROFILE", "HALOPSA_MCP_CONFIG"],
+                      "config_cases": [profile_variable, "HALOPSA_MCP_CONFIG"],
                       "live_credentials_tested": False, "live_halo_requests": False}, indent=2))
 
 
