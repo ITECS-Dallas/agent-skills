@@ -11,7 +11,6 @@ on:
       - '.gitattributes'
       - '.github/workflows/halopsa-native.yml'
   push:
-    branches: [main]
     paths:
       - 'plugins/itecs-halopsa/**'
       - 'claude/plugins/itecs-halopsa/**'
