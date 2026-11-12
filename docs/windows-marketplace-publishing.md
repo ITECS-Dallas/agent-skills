@@ -2,6 +2,8 @@
 
 Updated: 2026-11-12. Applies to Codex and Claude Code.
 
+Results and remaining limitations: [2026-11-12 native validation record](validation/windows-marketplace-2026-11-12.md).
+
 All nine stdio connectors dispatch their existing launcher through Git's own shell. On Windows this is Git for Windows, so a System32 WSL `bash.exe` earlier on PATH is never selected. No local plugin-cache edits, PATH changes or new runtime dependency are required. The original working directory, argument boundaries, stdin/stdout and exit status are preserved. Git for Windows remains required on Windows; Unix uses `/bin/bash`.
 
 ## Verified failures and corrections
