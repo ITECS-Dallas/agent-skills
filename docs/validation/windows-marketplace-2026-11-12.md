@@ -2,7 +2,7 @@
 
 Updated: 2026-11-12. Branch: `codex/halopsa-windows11-validation`.
 
-The full release matrix passes Windows, Apple Silicon Mac, Intel Mac and Linux. Windows 11 also passes live read-only HaloPSA calls and an actual Codex 0.18.2-to-0.18.3 upgrade. HaloPSA source PR 26 is merged; marketplace PR 33 is approved for merge after the requester accepted the repository invitation and GitHub confirmed write access. The organization production source switch remains outstanding. N-able hosted MCP has no configured token and is not certified operational.
+The full release matrix passes Windows, Apple Silicon Mac, Intel Mac and Linux. Windows 11 also passes live read-only HaloPSA calls and an actual Codex 0.18.2-to-0.18.3 upgrade. HaloPSA source PR 26 and marketplace PR 33 are merged. The [later production publication and N-able record](marketplace-publication-2026-11-12.md) supersedes the initial publication/authentication limits below: organization runtime assets are published and the token authenticates, while the organization catalog and account-visible fleet data remain outstanding.
 
 ## Fixes established by testing
 
@@ -51,7 +51,7 @@ These are measurements, not network performance guarantees. The old source repos
 
 - No live vendor records were changed. The Mac tests use synthetic HaloPSA credentials; live tenant authentication was tested on Windows only. Windows ARM64 executables are built/hash-checked, not executed on ARM hardware.
 - The local Windows 11 private-CA fixture still rejects its ephemeral CA under Schannel. The full private-CA suite passes native Windows CI, and Windows 11 passes the real public GitHub path. The implementation continues rejecting untrusted certificates; OS trust stores were not changed.
-- N-able: no matching N-able/N-central/GraphQL vault item title was found by the authorized metadata lookup, and `ITECS_NCENTRAL_API_TOKEN` is absent at process, user and machine scope. The requester believes no hosted API token exists. Provision the correct SSO-linked token before live handshake and inventory-coverage validation. The REST connector's JWT is a different credential.
+- N-able initial checkpoint: no matching vault item or host token was available. The requester subsequently created and stored the correct SSO-linked token, and authentication/Claude health checks pass. Its SSO identity currently returns no visible organizations/assets; see the later validation record. The REST connector's JWT is a different credential.
 - GitHub: the approved token authenticates as `dfaria-itecs` with `repo` and `workflow` scopes. The requester accepted the agent-skills repository invitation; GitHub now confirms `push: true`. The prior HTTP 403 was a repository-access issue and did not require broader PAT scopes.
 - The [review catalog](https://github.com/dfaria-itecs/itecs-marketplace-review-20261112/tree/codex/distribution-review) and [immutable validation assets](https://github.com/dfaria-itecs/itecs-marketplace-review-20261112/releases/tag/windows-packaging-validation-2026-11-12) are public validation artifacts, not the organization production marketplace. Organization catalog publication and source migration remain outstanding. [Marketplace PR 33](https://github.com/ITECS-Dallas/agent-skills/pull/33) contains the verified changes.
 - The original workspace's unrelated changes were left untouched. This machine's old HaloPSA `op.cmd` config was replaced with the OAuth-validated native managed-wrapper config after preserving a local backup; no credentials were written into the config.

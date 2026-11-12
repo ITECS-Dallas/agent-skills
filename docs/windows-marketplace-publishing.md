@@ -30,7 +30,10 @@ Only tracked source files enter the catalog, so an ignored local `.env` or scrat
 ```powershell
 git -C C:/staging/itecs-marketplace-release/catalog init -b codex/distribution-review
 git -C C:/staging/itecs-marketplace-release/catalog add .
-Get-Content C:/staging/itecs-marketplace-release/EXECUTABLES.txt | git -C C:/staging/itecs-marketplace-release/catalog update-index --chmod=+x --stdin
+Get-Content C:/staging/itecs-marketplace-release/EXECUTABLES.txt | ForEach-Object {
+  git -C C:/staging/itecs-marketplace-release/catalog update-index --chmod=+x -- $_
+  if ($LASTEXITCODE -ne 0) { throw 'Executable mode restoration failed' }
+}
 ```
 
 Publish `catalog/` to a **new repository with no binary history**. Upload every listed asset to its exact immutable GitHub release URL before announcing the catalog. The repository and assets must be readable without workstation GitHub credentials. Do not reuse a release tag for changed bytes. The new catalog requires a coordinated one-time source switch; the old source repository is retained. Do not force-push or rewrite the existing main branch to evade clone timeouts.
@@ -61,6 +64,8 @@ Billing `mapping-review`, `finalize` and direct reconciliation stay offline: a m
 - Thin catalog: cold/warm execution, compressed and native checksum failures, missing platform metadata, failed downloads, concurrent preparation, and offline refusal.
 - Publication: a plain clone and isolated Codex marketplace add/upgrade against a fresh small repository; production URLs are not considered fixed until that cutover is complete.
 
-The review-only [lightweight catalog](https://github.com/dfaria-itecs/itecs-marketplace-review-20261112/tree/codex/distribution-review) passed actual Codex CLI 0.146.1 commands in an isolated Windows 11 profile: fresh marketplace add in 6.60 seconds, upgrade in 6.78 seconds. The generated catalog is about 1.5 MiB with 72 separately sealed compressed native assets. These are workstation measurements, not a network performance guarantee. Review asset URLs are not published, so this repository is not an operational replacement marketplace.
+The [review catalog](https://github.com/dfaria-itecs/itecs-marketplace-review-20261112/tree/codex/distribution-review) passed actual Codex CLI 0.146.1 commands in an isolated Windows 11 profile: fresh marketplace add in 6.60 seconds, upgrade in 6.78 seconds. The generated catalog is about 1.5 MiB with 72 separately sealed compressed native assets. These are workstation measurements, not a network performance guarantee.
+
+The organization-owned [production runtime assets](https://github.com/ITECS-Dallas/agent-skills/releases/tag/windows-packaging-2026-11-12) are now published. The [staged main catalog](https://github.com/dfaria-itecs/itecs-marketplace-review-20261112/tree/main) points to those exact assets; it remains a staging repository until an organization owner creates `ITECS-Dallas/agent-skills-marketplace` and grants the publishing identity Write access. A source-repository collaborator cannot necessarily create organization repositories. The source repository's binary history must remain intact. See [publication and N-able validation](validation/marketplace-publication-2026-11-12.md).
 
 References: [Git shell aliases](https://git-scm.com/docs/git-config#Documentation/git-config.txt-alias), [Claude MCP environment variables](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcpjson), [N-able authentication](https://developer.n-able.com/gql/docs/mcp), [Codex marketplace configuration](https://developers.openai.com/plugins/build/plugins).
