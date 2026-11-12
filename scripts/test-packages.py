@@ -170,11 +170,17 @@ def main():
 
 
 def test_halopsa_checkout(tmp):
-    """Simulate a Windows Git checkout of both marketplace launchers."""
+    """Simulate a Windows Git checkout of launchers and sealed audit resources."""
     repo = tmp / 'windows-checkout'
     repo.mkdir()
     shutil.copy2(ROOT / '.gitattributes', repo / '.gitattributes')
     launchers = []
+    audit = Path('plugins/itecs-billing-audit')
+    resources = json.loads((ROOT / audit / 'BUILD-MANIFEST.json').read_text())['resources']
+    for row in resources:
+        path = audit / row['path']
+        (repo / path).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / path, repo / path)
     for base in ('plugins', 'claude/plugins'):
         root = Path(base) / 'itecs-halopsa'
         server = json.loads((ROOT / root / '.mcp.json').read_text())['mcpServers']['halopsa']
@@ -195,6 +201,9 @@ def test_halopsa_checkout(tmp):
     checkout = tmp / 'windows-cache'
     result = execute(git + ['checkout-index', '--all', '--prefix=' + checkout.as_posix() + '/'], cwd=repo)
     check(result.returncode == 0, 'Windows checkout fixture: ' + result.stderr)
+    for row in resources:
+        path = checkout / audit / row['path']
+        check(hashlib.sha256(path.read_bytes()).hexdigest() == row['sha256'], 'Windows checkout changed sealed audit resource: ' + row['path'])
     env = dict(os.environ, HALOPSA_MCP_CONFIG=str(tmp / 'missing-halo-config.json'))
     for launcher in launchers:
         path = checkout / launcher

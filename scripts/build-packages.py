@@ -157,6 +157,9 @@ def main():
     resources = [{'path': 'scripts/' + n, 'source': 'scripts/' + n} for n in ['billing-audit.sh', 'hosting-audit.sh']]
     resources += [{'path': 'references/' + n, 'source': 'docs/runbooks/' + n} for n in ['monthly-billing-audit.md']]
     resources += [{'path': 'references/source-billing-reconciliation.md', 'source': 'skills/billing-reconciliation/SKILL.md'}]
+    for row in resources:
+        path = audit / row['path']
+        path.write_bytes(path.read_bytes().replace(b'\r\n', b'\n'))
     jobs = []
     catalogs = {}
     for entry in entries:
