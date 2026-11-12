@@ -39,6 +39,7 @@ itecs_binary() (
     fi
   done < "$ITECS_PLUGIN_DIR/RUNTIME.tsv"
   [[ "$package" =~ ^[a-z][a-z0-9-]+$ && "$version" =~ ^[A-Za-z0-9.+-]+$ && "$found" == 1 ]] || fail "no sealed runtime entry for $relative"
+  [[ "$version" != . && "$version" != .. ]] || fail 'invalid runtime version'
   [[ "$wanted_sha" =~ ^[a-f0-9]{64}$ && "$wanted_compressed_sha" =~ ^[a-f0-9]{64}$ ]] || fail 'invalid runtime checksum'
   [[ "$wanted_bytes" =~ ^[1-9][0-9]*$ && "$wanted_compressed_bytes" =~ ^[1-9][0-9]*$ && "$wanted_url" == https://* ]] || fail 'invalid runtime size or HTTPS URL'
   local target="$ITECS_USER_DIR/.codex/itecs-runtime/$package/$version/$relative"

@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-15, ubuntu-latest]
+        os: [windows-latest, macos-15, macos-15-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -36,6 +36,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - uses: actions/setup-go@v5
+        if: runner.os == 'macOS'
+        with:
+          go-version: '1.27.x'
       - name: Validate marketplace
         run: node scripts/validate.mjs
       - name: Verify generated Claude packages
@@ -46,6 +50,9 @@ jobs:
         run: python -X utf8 claude/plugins/itecs-halopsa/scripts/test-windows.py
       - name: All stdio connectors with wrong bash first on PATH
         run: python -X utf8 scripts/test-native-marketplace.py
+      - name: Full package integrity, provenance and legacy regressions
+        if: runner.os == 'macOS'
+        run: python -X utf8 scripts/test-packages.py
       - name: Build thin catalog and sealed release assets
         # This is a staging artifact; the production cutover requires review.
         run: python -X utf8 scripts/build-distribution.py --output "${{ runner.temp }}/thin-distribution" --release-url https://github.com/ITECS-Dallas/agent-skills/releases/download/windows-packaging-2026-11-12

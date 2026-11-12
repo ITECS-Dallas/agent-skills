@@ -90,7 +90,7 @@ def main():
             # Fake credentials and unreachable loopback endpoints: no live vendor access.
             example = plugin / 'config.example.json'
             if not example.exists():
-                example = SOURCE / 'connectors' / entry['connector'] / 'config.example.json'
+                example = ROOT / 'tests/runtime-configs' / (entry['connector'] + '.json')
             config = json.loads(example.read_text())
             for server in config['servers']:
                 for key, value in list(server.items()):

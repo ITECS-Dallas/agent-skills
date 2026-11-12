@@ -3,13 +3,17 @@ set -euo pipefail
 ITECS_PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 source "$ITECS_PLUGIN_DIR/scripts/runtime.sh"
 itecs_platform
-if [[ "$(cat "$ITECS_PLUGIN_DIR/runtime-mode")" == bundled ]]; then
+mode="$(cat "$ITECS_PLUGIN_DIR/runtime-mode")"
+if [[ "$mode" == bundled ]]; then
   printf 'This source package already contains its binaries.\n'
   exit 0
 fi
+[[ "$mode" == release ]] || { printf 'ITECS runtime: unrecognized runtime-mode\n' >&2; exit 2; }
+prepared=0
 while IFS=$'\t' read -r path sha rest; do
   case "$path" in
-    *"-$ITECS_PLATFORM$ITECS_SUFFIX"|"bin/$ITECS_PLATFORM/"*) itecs_binary "$path" >/dev/null ;;
+    *"-$ITECS_PLATFORM$ITECS_SUFFIX"|"bin/$ITECS_PLATFORM/"*) itecs_binary "$path" >/dev/null; prepared=1 ;;
   esac
 done < "$ITECS_PLUGIN_DIR/RUNTIME.tsv"
+[[ "$prepared" == 1 ]] || { printf 'ITECS runtime: no runtime entries for %s\n' "$ITECS_PLATFORM" >&2; exit 2; }
 printf 'Prepared %s runtime. No vendor credentials or vendor APIs were used.\n' "$ITECS_PLATFORM"

@@ -28,6 +28,7 @@ def main():
         root = Path(temp)
         plugin = root / 'plugin'
         shutil.copytree(PLUGIN / 'scripts', plugin / 'scripts')
+        (plugin / 'runtime-mode').write_text('bundled\n', encoding='utf-8')
         (plugin / 'bin').mkdir()
         commands = root / 'bin with "quotes" and \\ backslash'
         commands.mkdir()

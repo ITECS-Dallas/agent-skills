@@ -148,6 +148,14 @@ def main():
             result = subprocess.run(command + ['-version'], cwd=package, env=profile('missing-target'), capture_output=True, timeout=20)
             assert result.returncode != 0 and b'no sealed runtime entry' in result.stderr
             assert state['requests'] == before
+            result = subprocess.run(['git', '-c', ALIAS, 'itecs-launch', str(package / 'scripts/prepare-runtime')],
+                                    cwd=package, env=profile('missing-prepare'), capture_output=True, timeout=20)
+            assert result.returncode != 0 and b'no runtime entries' in result.stderr
+            invalid_version = sealed.replace(rows[0], rows[0].rsplit('\t', 1)[0] + '\t..', 1)
+            (package / 'RUNTIME.tsv').write_text(invalid_version, encoding='utf-8', newline='\n')
+            result = subprocess.run(command + ['-version'], cwd=package, env=profile('invalid-version'), capture_output=True, timeout=20)
+            assert result.returncode != 0 and b'invalid runtime version' in result.stderr
+            assert state['requests'] == before
             state['fail'] = False
             all_catalog = scratch / 'all-catalog'
             shutil.copytree(args.distribution / 'catalog', all_catalog)
