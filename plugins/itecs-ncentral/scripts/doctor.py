@@ -12,9 +12,9 @@ import threading
 import time
 
 
-def discover(command, timeout, cwd=None, env=None):
+def discover(command, timeout, cwd=None, env=None, stderr=subprocess.DEVNULL):
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                               stderr=subprocess.DEVNULL, text=True, encoding='utf-8', bufsize=1, cwd=cwd, env=env)
+                               stderr=stderr, text=True, encoding='utf-8', bufsize=1, cwd=cwd, env=env)
     messages = queue.Queue()
 
     def read():

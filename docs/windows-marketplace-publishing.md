@@ -51,8 +51,10 @@ Billing `mapping-review`, `finalize` and direct reconciliation stay offline: a m
 ## Review gates
 
 - Native Windows 11: all nine connectors, both host definitions, a wrong `bash` first on PATH, spaces/Unicode, exact tool catalogs, stdin/exit forwarding, and actual Claude CLI health check.
-- macOS/Linux: the same invocation tests, existing setup regressions and generated-copy parity.
+- macOS: all nine connectors with the same invocation tests. Linux: the shipped HaloPSA and N-central REST targets; other connectors do not publish Linux binaries. Both also run existing HaloPSA setup regressions and generated-copy parity.
 - Thin catalog: cold/warm execution, compressed and native checksum failures, missing platform metadata, failed downloads, concurrent preparation, and offline refusal.
 - Publication: a plain clone and isolated Codex marketplace add/upgrade against a fresh small repository; production URLs are not considered fixed until that cutover is complete.
+
+The review-only [lightweight catalog](https://github.com/dfaria-itecs/itecs-marketplace-review-20261112/tree/codex/distribution-review) passed actual Codex CLI 0.146.1 commands in an isolated Windows 11 profile: fresh marketplace add in 6.60 seconds, upgrade in 6.78 seconds. The generated catalog is about 1.5 MiB with 72 separately sealed compressed native assets. These are workstation measurements, not a network performance guarantee. Review asset URLs are not published, so this repository is not an operational replacement marketplace.
 
 References: [Git shell aliases](https://git-scm.com/docs/git-config#Documentation/git-config.txt-alias), [Claude MCP environment variables](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcpjson), [N-able authentication](https://developer.n-able.com/gql/docs/mcp), [Codex marketplace configuration](https://developers.openai.com/plugins/build/plugins).

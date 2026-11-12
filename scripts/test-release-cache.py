@@ -107,7 +107,7 @@ def main():
 
             warm = profile('warm')
             for _ in range(2):
-                assert doctor.discover(command, 40, cwd=package, env=warm) == expected
+                assert doctor.discover(command, 40, cwd=package, env=warm, stderr=sys.stderr) == expected
             assert state['requests'] == 1, state
             cache = Path(warm[profile_key]) / '.codex/itecs-runtime'
             binary = next(p for p in cache.rglob('*') if p.is_file())
@@ -117,7 +117,7 @@ def main():
             assert state['requests'] == 1, 'corrupt cache silently redownloaded'
             cold = profile('concurrent')
             with ThreadPoolExecutor(max_workers=2) as pool:
-                checks = [pool.submit(doctor.discover, command, 40, package, cold) for _ in range(2)]
+                checks = [pool.submit(doctor.discover, command, 40, package, cold, sys.stderr) for _ in range(2)]
                 assert all(check.result() == expected for check in checks)
             assert state['requests'] == 2, 'concurrent preparation downloaded twice'
             offline = profile('offline')
@@ -160,20 +160,31 @@ def main():
             all_env = profile('all-connectors')
             subprocess.run([sys.executable, '-X', 'utf8', str(ROOT / 'scripts/test-native-marketplace.py'),
                             '--catalog', str(all_catalog)], env=all_env, check=True, timeout=180)
-            assert state['requests'] == before + 9, 'each native connector must download once for both hosts'
+            spec = importlib.util.spec_from_file_location('native_test', ROOT / 'scripts/test-native-marketplace.py')
+            native_test = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(native_test)
+            entries = json.loads((ROOT / 'scripts/connectors.json').read_text(encoding='utf-8'))
+            count = sum(native_test.supported(entry, all_catalog) for entry in entries)
+            assert state['requests'] == before + count, 'each shipped native connector must download once for both hosts'
             billing = all_catalog / 'plugins/itecs-billing-audit'
             command_help = ['git', '-c', ALIAS, 'itecs-launch', str(billing / 'scripts/run-source-report'), 'halopsa', '-h']
             help_result = subprocess.run(command_help, cwd=billing, env=all_env, capture_output=True, timeout=30)
-            assert b'-month' in help_result.stdout + help_result.stderr
+            billing_build = json.loads((billing / 'BUILD-MANIFEST.json').read_text(encoding='utf-8'))
+            billing_shipped = any(item['target'] == native_test.native_target() for item in billing_build['binaries'])
+            if billing_shipped:
+                assert b'-month' in help_result.stdout + help_result.stderr
+            else:
+                assert help_result.returncode != 0 and b'no sealed runtime entry' in help_result.stderr
             before_offline = state['requests']
             offline_billing = profile('offline-billing')
             offline_billing['AUDIT_PHASE'] = 'finalize'
             result = subprocess.run(['git', '-c', ALIAS, 'itecs-launch', str(billing / 'scripts/run-billing-audit')],
                                     cwd=billing, env=offline_billing, capture_output=True, timeout=20)
-            assert result.returncode != 0 and b'offline command' in result.stderr
+            expected_error = b'offline command' if billing_shipped else b'no sealed runtime entry'
+            assert result.returncode != 0 and expected_error in result.stderr
             assert state['requests'] == before_offline
             print(json.dumps({'result': 'passed', 'platform': platform.platform(), 'tools': len(expected),
-                'cases': ['cold', 'warm', 'corrupt-cache', 'concurrent', 'offline', 'native-checksum', 'gzip-checksum', 'native-size', 'http-failure', 'missing-target', 'all-nine-connectors', 'billing-help', 'offline-finalization'],
+                'cases': ['cold', 'warm', 'corrupt-cache', 'concurrent', 'offline', 'native-checksum', 'gzip-checksum', 'native-size', 'http-failure', 'missing-target', 'all-shipped-connectors', 'billing-help', 'offline-finalization'],
                 'vendor_calls': False, 'os_trust_modified': False}), flush=True)
         finally:
             server.shutdown()

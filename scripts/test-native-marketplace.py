@@ -14,6 +14,17 @@ sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def native_target():
+    system = {'Windows': 'windows', 'Darwin': 'darwin', 'Linux': 'linux'}[platform.system()]
+    arch = {'AMD64': 'amd64', 'x86_64': 'amd64', 'arm64': 'arm64', 'aarch64': 'arm64'}[platform.machine()]
+    return system + '-' + arch
+
+
+def supported(entry, catalog):
+    build = json.loads((catalog / 'plugins' / entry['plugin'] / 'BUILD-MANIFEST.json').read_text(encoding='utf-8'))
+    return any(binary['target'] == native_target() for binary in build['binaries'])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--configs', type=Path, default=ROOT / 'tests/runtime-configs')
@@ -51,6 +62,9 @@ def main():
         assert forwarded.stdout.splitlines() == [str(nested.resolve()), 'spaces & quotes', "O'Neil", 'literal $HOME', '{"id":1}']
         print('Git dispatch preserves nested working directory, literal argv, stdin/stdout and exit status.', flush=True)
         for entry in entries:
+            if not supported(entry, args.catalog):
+                print(json.dumps({'plugin': entry['plugin'], 'target': native_target(), 'result': 'not shipped'}), flush=True)
+                continue
             config = json.loads((args.configs / (entry['connector'] + '.json')).read_text(encoding='utf-8'))
             for server in config['servers']:
                 for key, value in list(server.items()):
@@ -67,7 +81,7 @@ def main():
                 command = [server['command'], *server['args']]
                 command = [arg.replace('${CLAUDE_PLUGIN_ROOT}', str(root)) for arg in command]
                 expected = sorted(json.loads((root / 'BUILD-MANIFEST.json').read_text(encoding='utf-8'))['tools'])
-                actual = doctor.discover(command, 40, cwd=root, env=env)
+                actual = doctor.discover(command, 40, cwd=root, env=env, stderr=sys.stderr)
                 if actual != expected:
                     raise AssertionError(entry['plugin'] + ': tool catalog mismatch')
                 print(json.dumps({'plugin': entry['plugin'], 'host': 'codex' if base == 'plugins' else 'claude',
