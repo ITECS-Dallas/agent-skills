@@ -9,10 +9,11 @@ fail() { printf 'N-central automatic setup failed: %s\n' "$1" >&2; exit 2; }
 [[ ! -e "$config_path" && ! -L "$config_path" ]] || exit 0
 case "$platform" in
   darwin) wrapper=/opt/homebrew/bin/op-itecs ;;
-  linux|windows) wrapper="$(type -P op-itecs || true)" ;;
+  linux) wrapper="$(type -P op-itecs || true)" ;;
+  windows) wrapper="$(cygpath -u "${PROGRAMFILES:-C:/Program Files}/ITECS/Automation/op-itecs.exe")" ;;
   *) fail "unsupported platform: $platform" ;;
 esac
-[[ -n "$wrapper" && "$wrapper" == /* && -x "$wrapper" ]] || fail 'the approved op-itecs executable must be installed (macOS: /opt/homebrew/bin/op-itecs; Linux/Windows: on PATH). No other credential source will be used.'
+[[ -n "$wrapper" && "$wrapper" == /* && -x "$wrapper" ]] || fail 'the approved op-itecs executable must be installed (macOS: /opt/homebrew/bin/op-itecs; Windows: Program Files/ITECS/Automation/op-itecs.exe; Linux: on PATH). No other credential source will be used.'
 if [[ "$platform" == windows ]]; then
   wrapper="$(cygpath -m "$wrapper")"
 fi
