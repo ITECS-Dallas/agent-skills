@@ -90,7 +90,7 @@ Scopes: linking a contract and logging time need `edit:tickets`. Creating or edi
 
 ## Tool Surface
 
-The bundled MCP server exposes the current GO-MCP HaloPSA tools:
+The MCP server exposes the current GO-MCP HaloPSA tools:
 
 - `halopsa.servers.list`
 - `halopsa.metadata.list`
@@ -252,7 +252,7 @@ The Windows script resolves the managed `op-itecs` wrapper on PATH; use `-OpComm
 
 ## Supported Platforms
 
-Bundled MCP binaries are included for:
+The launcher downloads and verifies the runtime for the following targets:
 
 - macOS Apple Silicon: `darwin-arm64`
 - macOS Intel: `darwin-amd64`
@@ -307,7 +307,7 @@ Run the platform setup above on a fresh machine. Both hosts use the same command
 
 ## Refresh an existing installation
 
-Before updating HaloPSA in Codex on Windows 11, quit Codex Desktop if open and close Codex CLI sessions running HaloPSA. Run the Codex update commands from a separate PowerShell terminal. Windows can lock the bundled connector executable while a session uses it.
+Before updating HaloPSA in Codex on Windows 11, quit Codex Desktop if open and close Codex CLI sessions running HaloPSA. Run the Codex update commands from a separate PowerShell terminal. Windows can lock the connector executable while a session uses it.
 
 Codex:
 
@@ -356,6 +356,6 @@ Rebuild this plugin's binaries only from that connector after its tests pass.
 
 ## Packaged reporting and diagnostics
 
-ITECS Billing Audit provides source Excel/JSON reports and the staged reconciliation commands without Go or a developer checkout. Use its `scripts/run-source-report halopsa -month YYYY-MM -json-only=false -out-dir /absolute/output/path`. Ordinary lookups continue to use this plugin's bundled MCP tools.
+ITECS Billing Audit provides source Excel/JSON reports and the staged reconciliation commands without Go or a developer checkout. Use its `scripts/run-source-report halopsa -month YYYY-MM -json-only=false -out-dir /absolute/output/path`. Ordinary lookups continue to use this plugin's MCP tools.
 
 Run `scripts/doctor` for optional local version, platform and config-presence diagnostics (Python 3). Add `--discover` to list the actual MCP tools; discovery starts the configured server and resolves its credential commands but invokes no vendor operation. Config contents and credential values are not printed. `BUILD-MANIFEST.json` records the source revision, platform binaries and SHA-256 hashes.

@@ -4,7 +4,7 @@
 
 ## Tool Surface
 
-The bundled MCP server exposes the current GO-MCP vCenter tools from `GO-MCP/connectors/vcenter`.
+The MCP server exposes the current GO-MCP vCenter tools from `GO-MCP/connectors/vcenter`.
 
 ## Runtime Configuration
 
@@ -30,7 +30,7 @@ Do not create secret-bearing `.env` files for the standard technician workflow. 
 
 ## Supported Platforms
 
-Bundled MCP binaries are included for:
+The launcher downloads and verifies the runtime for the following targets:
 
 - macOS Apple Silicon: `darwin-arm64`
 - macOS Intel: `darwin-amd64`
@@ -86,6 +86,6 @@ Rebuild this plugin's binaries only from that connector after its tests pass.
 
 ## Packaged reporting and diagnostics
 
-ITECS Billing Audit provides source Excel/JSON reports and the staged reconciliation commands without Go or a developer checkout. Use its `scripts/run-source-report vcenter -month YYYY-MM -json-only=false -out-dir /absolute/output/path`. Ordinary lookups continue to use this plugin's bundled MCP tools.
+ITECS Billing Audit provides source Excel/JSON reports and the staged reconciliation commands without Go or a developer checkout. Use its `scripts/run-source-report vcenter -month YYYY-MM -json-only=false -out-dir /absolute/output/path`. Ordinary lookups continue to use this plugin's MCP tools.
 
 Run `scripts/doctor` for optional local version, platform and config-presence diagnostics (Python 3). Add `--discover` to list the actual MCP tools; discovery starts the configured server and resolves its credential commands but invokes no vendor operation. Config contents and credential values are not printed. `BUILD-MANIFEST.json` records the source revision, platform binaries and SHA-256 hashes.

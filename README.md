@@ -2,7 +2,7 @@
 
 Source-of-truth repository for ITECS reusable agent skills and Codex plugin packaging.
 
-Windows launcher and publishing remediation is documented in [the dated publishing runbook](docs/windows-marketplace-publishing.md). Stdio connectors now use Git's own shell instead of a bare Windows `bash` lookup. The lightweight catalog builder prepares binary-free publication without rewriting this repository's existing history; switching existing users requires the reviewed production cutover described there.
+Windows launcher and publishing remediation is documented in [the dated publishing runbook](docs/windows-marketplace-publishing.md). Stdio connectors now use Git's own shell instead of a bare Windows `bash` lookup. The marketplace tracks plugin files and runtime checksums. It downloads native executables from GitHub release assets and caches them by plugin version. A full clone still includes the binaries in earlier commits and release tags.
 
 This repo serves two related purposes:
 
@@ -11,7 +11,7 @@ This repo serves two related purposes:
 
 ## Get the plugins and keep them updated
 
-This public GitHub repository is the one place the team installs and updates ITECS plugins, skills and connectors from. Connector source stays in the private GO-MCP repo; this repo ships the built packages. Credentials never live here: each connector reads its own Automation Vault configuration on your machine, and updates leave it untouched.
+This public GitHub repository is the one place the team installs and updates ITECS plugins, skills and connectors from. Connector source stays in the private GO-MCP repo. This marketplace points to the matching, checksummed GitHub release assets. Credentials never live here: each connector reads its own Automation Vault configuration on your machine, and updates leave it untouched.
 
 **Add the marketplace once per machine, from GitHub.** Do not add a local folder; a local folder is what made updates confusing.
 
@@ -23,7 +23,7 @@ codex plugin marketplace add ITECS-Dallas/agent-skills
 claude plugin marketplace add ITECS-Dallas/agent-skills
 ```
 
-Then install what you need, for example `codex plugin add itecs-halopsa@itecs-agent-skills` or `claude plugin install itecs-halopsa@itecs-agent-skills`.
+Then install the plugin you need, for example `codex plugin add itecs-halopsa@itecs-agent-skills` or `claude plugin install itecs-halopsa@itecs-agent-skills`. On first use the launcher downloads and verifies the executable for your OS and architecture. For offline use, prepare the runtime first with the installed plugin's `scripts/doctor.py --prepare`.
 
 **Update** whenever a release is announced. Before updating HaloPSA in Codex on Windows 11, quit Codex Desktop if open and close Codex CLI sessions running HaloPSA. Run the Codex update commands from a separate PowerShell terminal, then start a new Codex session. See [HaloPSA’s Windows update troubleshooting](plugins/itecs-halopsa/README.md#refresh-an-existing-installation) if Codex reports a cache backup error.
 
@@ -36,6 +36,8 @@ codex plugin add itecs-halopsa@itecs-agent-skills
 claude plugin marketplace update itecs-agent-skills
 claude plugin update itecs-halopsa@itecs-agent-skills
 ```
+
+When switching from a bundled Claude package to the release-backed package at the same version, refresh the marketplace and reinstall that plugin at its existing scope with `claude plugin uninstall --keep-data <plugin-id>` followed by `claude plugin install <plugin-id>`. Use `--scope` on both commands for a non-default scope.
 
 Confirm the loaded release with `halopsa.servers.list` and `include_status: true`. Update `portable-development-workflow@itecs-agent-skills` with the same host-specific command to load the renamed `halopsa-billing-development` skill.
 
@@ -62,8 +64,8 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 - `plugins/portable-development-workflow/` - Codex plugin for reusable workflow skills and GO-MCP operating guidance.
 - `plugins/portable-development-workflow/skills/` - skill source folders installed into local agent runtimes.
 - `plugins/itecs-halopsa/` - Codex plugin that bundles HaloPSA read tools, ticket/project writes including billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact AI-friendly reads, the sales opportunity workflow (opportunities, prospect clients and contacts, attachments, workflow stages), per-technician macOS/Windows/Linux 1Password setup, and optional client troubleshooting with confirmed-resolution closure.
-- `plugins/itecs-vcenter/` - Codex plugin that bundles the read-only vCenter MCP runtime and its vCenter skill.
-- `plugins/itecs-pax8/` - Codex plugin that bundles the read-only Pax8 MCP runtime and its Pax8 skill.
+- `plugins/itecs-vcenter/` - Codex plugin for the read-only vCenter MCP runtime and its vCenter skill.
+- `plugins/itecs-pax8/` - Codex plugin for the read-only Pax8 MCP runtime and its Pax8 skill.
 - `plugins/itecs-veeam-cloud-connect/`, `plugins/itecs-sophos-central/`, `plugins/itecs-checkpoint-harmony/`, `plugins/itecs-commvault/` - additional installed source connectors for operations and usage evidence.
 - `plugins/itecs-petra-security/` - read-only Petra Security client and license audit for Microsoft 365 ITDR billing.
 - `plugins/itecs-billing-audit/` - self-contained source report and staged reconciliation commands, with no Go/source-checkout requirement.
@@ -80,9 +82,9 @@ Most skills should remain project-neutral. ITECS-specific connector skills belon
 | Install ID | Display Name | Purpose |
 | --- | --- | --- |
 | `portable-development-workflow@itecs-agent-skills` | ITECS Agent Skills | Reusable workflow and connector-operation skills for coding agents. |
-| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | Bundled HaloPSA MCP server and technician workflows on macOS, Windows and Linux, including billing contracts and charge rates, time-entry, customer and asset edits, compact reads, the sales opportunity workflow and optional client troubleshooting. |
-| `itecs-vcenter@itecs-agent-skills` | ITECS vCenter | Bundled read-only vCenter MCP server for VM inventory, tags, hosting allocation, and billing evidence. |
-| `itecs-pax8@itecs-agent-skills` | ITECS Pax8 | Bundled read-only Pax8 MCP server for companies, subscriptions, products, invoices, and billing evidence. |
+| `itecs-halopsa@itecs-agent-skills` | ITECS HaloPSA | HaloPSA MCP server and technician workflows on macOS, Windows and Linux, including billing contracts and charge rates, time-entry, customer and asset edits, compact reads, the sales opportunity workflow and optional client troubleshooting. |
+| `itecs-vcenter@itecs-agent-skills` | ITECS vCenter | Read-only vCenter MCP server for VM inventory, tags, hosting allocation, and billing evidence. |
+| `itecs-pax8@itecs-agent-skills` | ITECS Pax8 | Read-only Pax8 MCP server for companies, subscriptions, products, invoices, and billing evidence. |
 | `itecs-veeam-cloud-connect@itecs-agent-skills` | ITECS Veeam Cloud Connect | Storage, agents, protected computers, restore points and license evidence. |
 | `itecs-sophos-central@itecs-agent-skills` | ITECS Sophos Central | Tenant, monthly usage, license and firewall evidence. |
 | `itecs-checkpoint-harmony@itecs-agent-skills` | ITECS Check Point Harmony | Portal tenant and usage evidence. |
@@ -501,34 +503,28 @@ HaloPSA also includes `service-desk-handoff`, `service-desk-work-log`, `ticket-b
 
 ## Releasing a HaloPSA connector update to the team
 
-Technicians get the connector from this repository, so a release is a pull request here plus one refresh command on each machine.
-
-1. Change and test the connector in GO-MCP (`connectors/halopsa`), then commit it. Bump `Version` in `connectors/halopsa/internal/halopsa/status.go`.
-2. Set the same `version` in `plugins/itecs-halopsa/.codex-plugin/plugin.json`, update the plugin README and the skills for any new tool or behavior, and keep the tool counts in the READMEs accurate.
-3. Build from the committed, clean GO-MCP revision, then validate:
+1. Update and test the connector in GO-MCP. Commit the source and set the matching version in the plugin's `.codex-plugin/plugin.json`.
+2. Build and validate the native files in a development checkout. The build's `bin/` outputs are ignored by Git.
 
 ```bash
 python3 scripts/build-packages.py --plugin itecs-halopsa --source /absolute/path/to/GO-MCP
-node scripts/validate.mjs
 python3 scripts/test-packages.py --plugin itecs-halopsa
+python3 scripts/build-distribution.py --plugin itecs-halopsa --output /absolute/path/to/new-stage --release-url https://github.com/ITECS-Dallas/agent-skills/releases/download/NEW-RELEASE-TAG
 ```
 
-`test-packages.py` checks the binary hashes and embedded source revision, that the host binary's `-version` equals the plugin version, that the actual MCP tools match `TOOL-CATALOG.json`, and that the generated Claude marketplace is current. `build-packages.py` regenerates the Claude marketplace itself; after changing only skills or READMEs, run `python3 scripts/build-claude-marketplace.py`.
+3. Publish the staged release assets to the exact URL above and verify their sizes and SHA-256 values using the staged `RELEASE-ASSETS.json`. Copy `catalog/plugins/itecs-halopsa/RUNTIME.tsv` from the staging output to `plugins/itecs-halopsa/RUNTIME.tsv` in the source checkout.
+4. Regenerate the Claude marketplace and validate the catalog before opening the release pull request.
 
-If a push of a commit that adds or moves already-published binaries (such as a new plugin's copy under `claude/plugins/`) seems stuck, push with `git -c pack.useSparse=false push`. Git's default sparse walk does not recognise binaries GitHub already has at another path and re-uploads them.
+```bash
+python3 scripts/build-claude-marketplace.py
+node scripts/validate.mjs
+python3 scripts/test-public-runtime.py --catalog .
+```
 
-4. Merge to `main`, then tag the release, for example `git tag itecs-halopsa-v0.17.0 && git push origin itecs-halopsa-v0.17.0`, and announce it. Technicians run the update commands in "Get the plugins and keep them updated" and start a new session. Credentials and the 1Password configuration are not touched. A technician (or Atlas) can confirm the result with `halopsa.servers.list` using `include_status: true` and `check_updates: true`.
+Each runtime has its own version and release table. Keep the plugin manifest, build manifest and runtime table in sync. Use a new version and immutable release tag when native bytes change. A single-plugin build preserves the release tables for the other plugins.
 
 ## Maintainer package builds
 
-With Python 3 and the installed Go toolchain:
+Use `python3 scripts/build-packages.py --source /absolute/path/to/GO-MCP` for a full local build. It tests and vets the source, cross-compiles with CGO disabled, and records each binary's source revision, build target, size and SHA-256. Run `python3 scripts/test-packages.py` with those local build outputs to verify their provenance, tool catalogs and launch behavior before publishing. The full distribution build seals the locally built binaries for release and excludes them from the generated marketplace tree. See the [publishing runbook](docs/windows-marketplace-publishing.md).
 
-```bash
-python3 scripts/build-packages.py --source /absolute/path/to/GO-MCP
-node scripts/validate.mjs
-python3 scripts/test-packages.py
-```
-
-The build runs tests and vet in each source module, cross-compiles macOS and Windows ARM64/x64 binaries plus HaloPSA Linux ARM64/x64 binaries with CGO disabled and stable build flags, and writes `BUILD-MANIFEST.json` per package plus `TOOL-CATALOG.json`. It records the source revision, dirty status, Go version, command, target, size and SHA-256. Repeating a build from the same source and Go toolchain produces the same binary bytes. Copied source runbooks and orchestration scripts have their own hashes. Source/config examples and runtime implementations remain owned by GO-MCP; operator wording and installation packaging live here.
-
-Optional `scripts/doctor` in each runtime plugin reports version, platform, config-file presence and missing package files. `--discover` starts the connector and lists its MCP tools without running a vendor query. It may resolve the existing credential commands. This diagnostic is not required to run the plugin. Python 3 is needed only for this optional diagnostic; MCP and report execution use the bundled binaries and Bash.
+The installed `scripts/doctor.py --discover` starts the published connector and lists its MCP tools. It may resolve the existing credential commands and makes no vendor query. Use `--prepare` to download the runtime and verify its checksums without invoking those commands.

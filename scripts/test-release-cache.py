@@ -2,6 +2,7 @@
 """Native thin-package tests against a temporary HTTPS artifact server; no vendor calls."""
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+import hashlib
 import http.server
 import importlib.util
 import json
@@ -31,14 +32,49 @@ def tool(name):
     raise RuntimeError(name + ' is required for the local HTTPS test')
 
 
+def stage_public_distribution(catalog, output):
+    system = {'Windows': 'windows', 'Darwin': 'darwin', 'Linux': 'linux'}[platform.system()]
+    arch = 'arm64' if platform.machine().lower() in {'arm64', 'aarch64'} else 'amd64'
+    target = system + '-' + arch
+    assets = output / 'assets'
+    assets.mkdir(parents=True)
+    for base in ('plugins', 'claude/plugins'):
+        shutil.copytree(catalog / base, output / 'catalog' / base,
+                        ignore=shutil.ignore_patterns('bin', '__pycache__'))
+
+    def download(asset):
+        url, size, sha = asset
+        cache_path = assets / url.rsplit('/', 1)[-1]
+        command = [tool('curl'), '--fail', '--silent', '--show-error', '--location',
+                   '--proto', '=https', '--proto-redir', '=https', '--max-time', '60']
+        if os.name == 'nt':
+            command.append('--ssl-revoke-best-effort')
+        subprocess.run([*command, '--output', str(cache_path), url], check=True, timeout=65)
+        if cache_path.stat().st_size != size or hashlib.sha256(cache_path.read_bytes()).hexdigest() != sha:
+            raise RuntimeError('Released archive differs from the catalog: ' + cache_path.name)
+
+    downloads = []
+    for table in sorted((catalog / 'plugins').glob('*/RUNTIME.tsv')):
+        build = json.loads(table.with_name('BUILD-MANIFEST.json').read_text(encoding='utf-8'))
+        native = {item['path'] for item in build['binaries'] if item['target'] == target}
+        for row in table.read_text(encoding='utf-8').splitlines()[1:]:
+            path, _, sha, _, size, url = row.split('\t')
+            if path in native:
+                downloads.append((url, int(size), sha))
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        list(pool.map(download, downloads))
+    return output
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--distribution', type=Path, required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument('--distribution', type=Path)
+    source.add_argument('--catalog', type=Path, help='Fetch this catalog’s native release assets for the local test server')
     args = parser.parse_args()
     spec = importlib.util.spec_from_file_location('doctor', ROOT / 'scripts/templates/doctor.py')
     doctor = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(doctor)
-    assets = (args.distribution / 'assets').resolve()
     state = {'requests': 0, 'fail': False}
 
     class Handler(http.server.BaseHTTPRequestHandler):
@@ -60,6 +96,8 @@ def main():
 
     with tempfile.TemporaryDirectory(prefix="Release Zoë O'Neil ") as temporary:
         scratch = Path(temporary)
+        distribution = args.distribution or stage_public_distribution(args.catalog, scratch / 'distribution')
+        assets = (distribution / 'assets').resolve()
         cert, key = scratch / 'ca.pem', scratch / 'key.pem'
         ca_config = scratch / 'openssl.cnf'
         ca_config.write_text('[req]\nprompt=no\ndistinguished_name=dn\nx509_extensions=ext\n[dn]\nCN=127.0.0.1\n[ext]\nsubjectAltName=IP:127.0.0.1\nbasicConstraints=critical,CA:TRUE\nkeyUsage=critical,digitalSignature,keyEncipherment,keyCertSign\n', encoding='utf-8')
@@ -74,7 +112,7 @@ def main():
         thread.start()
         try:
             package = scratch / 'package'
-            shutil.copytree(args.distribution / 'catalog/plugins/itecs-halopsa', package)
+            shutil.copytree(distribution / 'catalog/plugins/itecs-halopsa', package)
             rows = (package / 'RUNTIME.tsv').read_text(encoding='utf-8').splitlines()
             for index, row in enumerate(rows):
                 if not row.startswith('@'):
@@ -158,7 +196,7 @@ def main():
             assert state['requests'] == before
             state['fail'] = False
             all_catalog = scratch / 'all-catalog'
-            shutil.copytree(args.distribution / 'catalog', all_catalog)
+            shutil.copytree(distribution / 'catalog', all_catalog)
             for base in ('plugins', 'claude/plugins'):
                 for root in (all_catalog / base).iterdir():
                     if root.is_dir():

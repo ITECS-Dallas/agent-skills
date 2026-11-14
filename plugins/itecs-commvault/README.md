@@ -1,6 +1,6 @@
 # ITECS Commvault
 
-Bundled Commvault MCP tools for macOS Apple Silicon/Intel and Windows ARM64/x64.
+Commvault MCP tools for macOS Apple Silicon/Intel and Windows ARM64/x64.
 
 ## Setup
 

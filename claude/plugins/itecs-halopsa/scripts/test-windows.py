@@ -18,7 +18,7 @@ from doctor import discover
 
 def run(command, cwd=None):
     return subprocess.run(command, cwd=cwd, capture_output=True,
-                          encoding="utf-8", check=True, timeout=20).stdout.strip()
+                          encoding="utf-8", check=True, timeout=40).stdout.strip()
 
 
 def main():
@@ -30,9 +30,11 @@ def main():
     launcher = server['command'].replace('${CLAUDE_PLUGIN_ROOT}', str(root))
     if launcher.startswith('./'):
         launcher = str(root / launcher[2:])
-    for row in manifest["binaries"]:
-        if hashlib.sha256((root / row["path"]).read_bytes()).hexdigest() != row["sha256"]:
-            raise RuntimeError("Binary hash mismatch: " + row["path"])
+    runtime_mode = (root / "runtime-mode").read_text(encoding="utf-8").strip()
+    if runtime_mode == "bundled":
+        for row in manifest["binaries"]:
+            if hashlib.sha256((root / row["path"]).read_bytes()).hexdigest() != row["sha256"]:
+                raise RuntimeError("Binary hash mismatch: " + row["path"])
     previous = {key: os.environ.get(key) for key in (profile_variable, "HALOPSA_MCP_CONFIG")}
     try:
         with tempfile.TemporaryDirectory(prefix="Atlas Zoë Tech ") as temp:

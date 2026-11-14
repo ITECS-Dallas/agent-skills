@@ -46,6 +46,16 @@ def check_connector_version(plugin, manifest, metadata):
           'connector version %r does not match plugin %r' % (result.stdout.strip(), expected))
 
 
+def bundled_test_package(plugin, tmp):
+    """Exercise rebuilt bytes locally before publishing their release assets."""
+    if (plugin / 'runtime-mode').read_text().strip() == 'bundled':
+        return plugin
+    test_package = tmp / 'bundled' / plugin.name
+    shutil.copytree(plugin, test_package, ignore=shutil.ignore_patterns('__pycache__'))
+    (test_package / 'runtime-mode').write_text('bundled\n', encoding='utf-8', newline='\n')
+    return test_package
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--plugin', help='Test one connector plugin without requiring other platforms')
@@ -100,7 +110,8 @@ def main():
                         server[key] = 'https://127.0.0.1:1'
             fixture = tmp / (entry['connector'] + '.json')
             fixture.write_text(json.dumps(config))
-            result = execute(['python3', str(plugin / 'scripts/doctor.py'), '--discover', '--config', str(fixture), '--timeout', '8'])
+            test_package = bundled_test_package(plugin, tmp)
+            result = execute(['python3', str(test_package / 'scripts/doctor.py'), '--discover', '--config', str(fixture), '--timeout', '8'])
             check(result.returncode == 0, entry['plugin'] + ' discovery: ' + result.stdout + result.stderr)
             data = json.loads(result.stdout)
             check(data['tools'] == catalog['plugins'][entry['plugin']], entry['plugin'] + ' tool catalog mismatch')
@@ -121,7 +132,7 @@ def main():
             # Simulate Windows path and binary selection without executing a Windows binary.
             clone = tmp / entry['plugin']
             shutil.copytree(plugin / 'scripts', clone / 'scripts')
-            shutil.copy2(plugin / 'runtime-mode', clone / 'runtime-mode')
+            (clone / 'runtime-mode').write_text('bundled\n', encoding='utf-8', newline='\n')
             (clone / 'bin').mkdir()
             fake_path = clone / 'fake-path'
             fake_path.mkdir()
@@ -214,7 +225,7 @@ def test_halopsa_checkout(tmp):
 
 
 def test_audit(tmp, entries):
-    audit = ROOT / 'plugins/itecs-billing-audit'
+    audit = bundled_test_package(ROOT / 'plugins/itecs-billing-audit', tmp)
     manifest = json.loads((audit / 'BUILD-MANIFEST.json').read_text())
     for record in manifest['binaries'] + manifest['resources']:
         path = audit / record['path']

@@ -9,3 +9,7 @@ tmp/
 dist/
 .serena/
 *.log
+
+# Native build outputs ship as checksummed GitHub release assets.
+/plugins/*/bin/
+/claude/plugins/*/bin/

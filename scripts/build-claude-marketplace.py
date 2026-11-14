@@ -6,8 +6,8 @@ is the source. Claude Code needs a different plugin manifest and an MCP
 config that starts the launcher from ${CLAUDE_PLUGIN_ROOT}, so each plugin is
 copied to claude/plugins/<name> with a .claude-plugin/plugin.json and a
 Claude .mcp.json, and .claude-plugin/marketplace.json lists them. Files are
-real copies because Claude's plugin cache drops symlinks; Git stores the
-identical binaries once, so the copies do not grow the repository history.
+real copies because Claude's plugin cache drops symlinks. Local binary
+builds stay in the Codex plugin directories and are excluded here.
 
   python3 scripts/build-claude-marketplace.py          # regenerate
   python3 scripts/build-claude-marketplace.py --check  # fail if out of date
@@ -23,7 +23,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SKIP = {'.mcp.json'}
+SKIP = {'.mcp.json', 'bin'}
 MANIFEST_KEYS = ('name', 'version', 'description', 'author', 'homepage', 'repository', 'license', 'keywords')
 
 
@@ -85,7 +85,15 @@ def generate(out):
 
 
 def tree(root):
-    return sorted(p.relative_to(root) for p in root.rglob('*') if p.is_file() and p.name != '.DS_Store' and '__pycache__' not in p.parts)
+    files = []
+    for path in root.rglob('*'):
+        relative = path.relative_to(root)
+        parts = relative.parts
+        if len(parts) >= 3 and parts[0] == 'plugins' and parts[2] == 'bin':
+            continue
+        if path.is_file() and path.name != '.DS_Store' and '__pycache__' not in parts:
+            files.append(relative)
+    return sorted(files)
 
 
 def differences(expected, actual):
