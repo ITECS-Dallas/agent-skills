@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -55,6 +56,117 @@ function assertLfOnly(file, label) {
   if (content.includes('\r\n')) {
     errors.push(`${label} must use LF line endings; CRLF breaks Bash shebangs on Windows`);
   }
+}
+
+function readText(file) {
+  try {
+    return fs.readFileSync(file, 'utf8');
+  } catch (error) {
+    errors.push(`cannot read ${path.relative(repoRoot, file)}: ${error.code}`);
+    return null;
+  }
+}
+
+const sha256 = /^[a-f0-9]{64}$/;
+const binaryPath = /^bin\/(?:[a-z0-9][a-z0-9._-]*\/)*[a-z0-9][a-z0-9._-]*$/;
+const releaseAssetPath = /^\/[^/]+\/[^/]+\/releases\/download\/[^/]+\/[^/]+$/;
+
+function validByteCount(value) {
+  return /^[1-9][0-9]*$/.test(value) && Number.isSafeInteger(Number(value));
+}
+
+function validReleaseAssetUrl(value, assetName) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.host === 'github.com' &&
+      !url.username && !url.password && !url.search && !url.hash &&
+      releaseAssetPath.test(url.pathname) && url.pathname.endsWith(`/${assetName}`) &&
+      value === `https://github.com${url.pathname}`;
+  } catch {
+    return false;
+  }
+}
+
+function validateRuntimeRows(file, manifest, build, expectedPaths) {
+  const text = readText(file);
+  if (text === null || !manifest || !build) return text;
+  const label = path.relative(repoRoot, file);
+  if (!text.endsWith('\n') || text.includes('\r')) {
+    errors.push(`${label}: require LF-terminated runtime rows`);
+  }
+  const [header, ...rows] = text.replace(/\n$/, '').split('\n');
+  if (header !== ['@package', manifest.name, manifest.version].join('\t') ||
+      manifest.name !== build.plugin || manifest.version !== build.version) {
+    errors.push(`${label}: package name and version must match both manifests`);
+  }
+
+  const binaries = new Map();
+  const buildBinaries = Array.isArray(build.binaries) ? build.binaries : [];
+  if (buildBinaries.length === 0) {
+    errors.push(`${label}: BUILD-MANIFEST must list runtime binaries`);
+  }
+  for (const binary of buildBinaries) {
+    if (!binary || typeof binary.path !== 'string' || !binaryPath.test(binary.path) || binary.path.includes('..') ||
+        typeof binary.sha256 !== 'string' || !sha256.test(binary.sha256) ||
+        !Number.isSafeInteger(binary.bytes) || binary.bytes <= 0 || binaries.has(binary.path)) {
+      errors.push(`${label}: invalid or duplicate binary in BUILD-MANIFEST: ${binary?.path || '(missing path)'}`);
+      continue;
+    }
+    binaries.set(binary.path, binary);
+  }
+  if (expectedPaths && (binaries.size !== expectedPaths.length ||
+      expectedPaths.some((binary) => !binaries.has(binary)))) {
+    errors.push(`${label}: BUILD-MANIFEST binary paths must match the connector targets`);
+  }
+
+  const seen = new Set();
+  for (const row of rows) {
+    const fields = row.split('\t');
+    const [relative, nativeHash, compressedHash, nativeSize, compressedSize, url] = fields;
+    const binary = binaries.get(relative);
+    if (fields.length !== 6 || !binary || seen.has(relative)) {
+      errors.push(`${label}: unexpected, duplicate or malformed runtime row: ${relative || '(empty)'}`);
+      continue;
+    }
+    seen.add(relative);
+    if (nativeHash !== binary.sha256 || nativeSize !== String(binary.bytes)) {
+      errors.push(`${label}: executable SHA-256 or bytes differ from BUILD-MANIFEST: ${relative}`);
+    }
+    const assetName = `${manifest.name}-${manifest.version}-${relative.replaceAll('/', '-')}.gz`;
+    if (!sha256.test(compressedHash) || !validByteCount(compressedSize) ||
+        !validReleaseAssetUrl(url, assetName)) {
+      errors.push(`${label}: invalid compressed SHA-256, bytes or GitHub release asset URL: ${relative}`);
+    }
+  }
+  for (const relative of binaries.keys()) {
+    if (!seen.has(relative)) errors.push(`${label}: missing runtime row: ${relative}`);
+  }
+  return text;
+}
+
+function validateRuntimeMode(name, expectedPaths) {
+  const codexRoot = path.join(repoRoot, 'plugins', name);
+  const claudeRoot = path.join(repoRoot, 'claude', 'plugins', name);
+  const codexMode = readText(path.join(codexRoot, 'runtime-mode'));
+  const claudeMode = readText(path.join(claudeRoot, 'runtime-mode'));
+  if (codexMode !== 'release\n' && codexMode !== 'bundled\n') {
+    errors.push(`${name}: runtime-mode must be release or bundled with LF termination`);
+  }
+  if (codexMode !== claudeMode) {
+    errors.push(`${name}: Codex and Claude runtime-mode must match`);
+  }
+  if (codexMode !== 'release\n' && claudeMode !== 'release\n') return false;
+
+  const codexManifest = readJson(path.join(codexRoot, '.codex-plugin', 'plugin.json'));
+  const claudeManifest = readJson(path.join(claudeRoot, '.claude-plugin', 'plugin.json'));
+  const codexBuild = readJson(path.join(codexRoot, 'BUILD-MANIFEST.json'));
+  const claudeBuild = readJson(path.join(claudeRoot, 'BUILD-MANIFEST.json'));
+  const codexRows = validateRuntimeRows(path.join(codexRoot, 'RUNTIME.tsv'), codexManifest, codexBuild, expectedPaths);
+  const claudeRows = validateRuntimeRows(path.join(claudeRoot, 'RUNTIME.tsv'), claudeManifest, claudeBuild, expectedPaths);
+  if (codexRows !== claudeRows || JSON.stringify(codexBuild) !== JSON.stringify(claudeBuild)) {
+    errors.push(`${name}: Codex and Claude release runtime records must agree`);
+  }
+  return true;
 }
 
 const plugin = readJson(path.join(pluginRoot, '.codex-plugin', 'plugin.json'));
@@ -132,8 +244,18 @@ const runtimePlugins = connectors.map((entry) => ({
   additionalTargets: entry.additional_targets ?? []
 }));
 
+let releaseMode = validateRuntimeMode('itecs-billing-audit');
 for (const runtimePlugin of runtimePlugins) {
   const runtimePluginRoot = path.join(repoRoot, 'plugins', runtimePlugin.name);
+  const binaryFiles = [
+    `bin/${runtimePlugin.binaryPrefix}-darwin-arm64`,
+    `bin/${runtimePlugin.binaryPrefix}-darwin-amd64`,
+    `bin/${runtimePlugin.binaryPrefix}-windows-arm64.exe`,
+    `bin/${runtimePlugin.binaryPrefix}-windows-amd64.exe`,
+    ...runtimePlugin.additionalTargets.map((target) => `bin/${runtimePlugin.binaryPrefix}-${target}`)
+  ];
+  const runtimeIsReleased = validateRuntimeMode(runtimePlugin.name, binaryFiles);
+  releaseMode ||= runtimeIsReleased;
   const runtimeManifest = readJson(path.join(runtimePluginRoot, '.codex-plugin', 'plugin.json'));
   if (runtimeManifest) {
     if (runtimeManifest.name !== runtimePlugin.name) {
@@ -169,11 +291,7 @@ for (const runtimePlugin of runtimePlugins) {
     'README.md',
     `skills/${runtimePlugin.skillName}/SKILL.md`,
     `scripts/${runtimePlugin.script}`,
-    `bin/${runtimePlugin.binaryPrefix}-darwin-arm64`,
-    `bin/${runtimePlugin.binaryPrefix}-darwin-amd64`,
-    `bin/${runtimePlugin.binaryPrefix}-windows-arm64.exe`,
-    `bin/${runtimePlugin.binaryPrefix}-windows-amd64.exe`,
-    ...runtimePlugin.additionalTargets.map((target) => `bin/${runtimePlugin.binaryPrefix}-${target}`)
+    ...(runtimeIsReleased ? [] : binaryFiles)
   ];
   if (runtimePlugin.name === 'itecs-halopsa') {
     requiredFiles.push(
@@ -247,6 +365,18 @@ for (const runtimePlugin of runtimePlugins) {
     path.join(runtimePluginRoot, 'scripts', runtimePlugin.script),
     `${runtimePlugin.name} launcher scripts/${runtimePlugin.script}`
   );
+}
+
+if (releaseMode) {
+  try {
+    const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: repoRoot, encoding: 'utf8' });
+    const binaries = tracked.split('\0').filter((file) => file.split('/').slice(0, -1).includes('bin'));
+    if (binaries.length > 0) {
+      errors.push(`release mode must not track files in bin/ (${binaries.length} found, including ${binaries[0]})`);
+    }
+  } catch (error) {
+    errors.push(`cannot verify tracked release paths: ${error.message}`);
+  }
 }
 
 // N-central uses the vendor-hosted MCP directly, not a bundled GO-MCP binary.

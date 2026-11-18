@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Emit a binary-free marketplace and immutable, checksummed release assets.
 
-The output belongs in a NEW catalog repository: a plain Git clone still fetches
-this source repository's historical binary blobs even after their deletion.
+A fresh catalog repository avoids the source repository's historical binary
+blobs. A selected release keeps the published runtime rows for other packages.
 """
 import argparse
 import gzip
@@ -21,13 +21,17 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def build(output, release_url):
+def build(output, release_url, plugin=None):
     parsed = urlparse(release_url)
     if parsed.scheme != 'https' or parsed.hostname != 'github.com' or '/releases/download/' not in parsed.path or parsed.query or parsed.fragment or parsed.username or parsed.password:
         raise ValueError('release URL must be an exact HTTPS GitHub release download base')
     output = output.resolve()
     if output == ROOT or output in ROOT.parents or output.exists():
         raise ValueError('output must be a new directory, outside existing source directories')
+    sources = sorted(source for source in (ROOT / 'plugins').iterdir()
+                     if (source / 'BUILD-MANIFEST.json').is_file())
+    if plugin is not None and plugin not in {source.name for source in sources}:
+        raise ValueError('unknown runtime plugin: ' + plugin)
     catalog, assets = output / 'catalog', output / 'assets'
     assets.mkdir(parents=True)
     catalog.mkdir()
@@ -50,42 +54,25 @@ def build(output, release_url):
         shutil.copy2(ROOT / name, catalog / name)
     shutil.copy2(ROOT / 'docs/distribution-README.md', catalog / 'README.md')
     records = []
-    for source in sorted((ROOT / 'plugins').iterdir()):
-        manifest_path = source / 'BUILD-MANIFEST.json'
-        if not manifest_path.is_file():
-            continue
-        manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+    for source in sources:
+        manifest = json.loads((source / 'BUILD-MANIFEST.json').read_text(encoding='utf-8'))
         for resource in manifest.get('runtime_files', []) + manifest.get('resources', []):
             if digest(source / resource['path']) != resource['sha256']:
                 raise ValueError('unsealed runtime resource: ' + str(source / resource['path']))
         identity = json.loads((source / '.codex-plugin/plugin.json').read_text(encoding='utf-8'))
-        rows = ['\t'.join(('@package', identity['name'], identity['version']))]
-        seen = set()
-        for binary in manifest['binaries']:
-            relative = binary['path']
-            if not relative.startswith('bin/') or '\\' in relative or '..' in relative or relative in seen:
-                raise ValueError('invalid or duplicate binary path: ' + relative)
-            seen.add(relative)
-            native = source / relative
-            if digest(native) != binary['sha256'] or native.stat().st_size != binary['bytes']:
-                raise ValueError('unsealed binary: ' + str(native))
-            name = identity['name'] + '-' + identity['version'] + '-' + relative.replace('/', '-') + '.gz'
-            archive = assets / name
-            with archive.open('wb') as stream:
-                with gzip.GzipFile(filename='', mode='wb', fileobj=stream, mtime=0, compresslevel=6) as compressed:
-                    with native.open('rb') as original:
-                        shutil.copyfileobj(original, compressed)
-            row = dict(binary, asset=name, compressed_sha256=digest(archive), compressed_bytes=archive.stat().st_size,
-                       plugin=identity['name'], version=identity['version'])
-            records.append(row)
-            rows.append('\t'.join((relative, binary['sha256'], row['compressed_sha256'], str(binary['bytes']), str(row['compressed_bytes']), release_url.rstrip('/') + '/' + name)))
+        header = '\t'.join(('@package', identity['name'], identity['version']))
+        if plugin is None or plugin == source.name:
+            runtime, sealed = seal_binaries(source, manifest, identity, header, assets, release_url)
+            records.extend(sealed)
+            print(identity['name'] + ': sealed ' + str(len(sealed)) + ' platform assets', flush=True)
+        else:
+            runtime = published_runtime(catalog / 'plugins' / source.name, header)
         for base in ('plugins', 'claude/plugins'):
             target = catalog / base / source.name
             if not target.exists():
                 continue
             (target / 'runtime-mode').write_text('release\n', encoding='utf-8', newline='\n')
-            (target / 'RUNTIME.tsv').write_text('\n'.join(rows) + '\n', encoding='utf-8', newline='\n')
-        print(identity['name'] + ': sealed ' + str(len(seen)) + ' platform assets', flush=True)
+            (target / 'RUNTIME.tsv').write_bytes(runtime)
     (output / 'RELEASE-ASSETS.json').write_text(json.dumps(records, indent=2) + '\n', encoding='utf-8', newline='\n')
     size = sum(p.stat().st_size for p in catalog.rglob('*') if p.is_file())
     summary = {'catalog_bytes': size, 'asset_count': len(records), 'asset_bytes': sum(r['compressed_bytes'] for r in records),
@@ -95,9 +82,48 @@ def build(output, release_url):
     print(json.dumps(summary), flush=True)
 
 
+def seal_binaries(source, manifest, identity, header, assets, release_url):
+    rows = [header]
+    records = []
+    seen = set()
+    for binary in manifest['binaries']:
+        relative = binary['path']
+        if not relative.startswith('bin/') or '\\' in relative or '..' in relative or relative in seen:
+            raise ValueError('invalid or duplicate binary path: ' + relative)
+        seen.add(relative)
+        native = source / relative
+        if not native.is_file():
+            raise ValueError('missing local build; run scripts/build-packages.py for ' + identity['name'] + ': ' + str(native))
+        if digest(native) != binary['sha256'] or native.stat().st_size != binary['bytes']:
+            raise ValueError('unsealed binary: ' + str(native))
+        name = identity['name'] + '-' + identity['version'] + '-' + relative.replace('/', '-') + '.gz'
+        archive = assets / name
+        with archive.open('wb') as stream:
+            with gzip.GzipFile(filename='', mode='wb', fileobj=stream, mtime=0, compresslevel=6) as compressed:
+                with native.open('rb') as original:
+                    shutil.copyfileobj(original, compressed)
+        row = dict(binary, asset=name, compressed_sha256=digest(archive), compressed_bytes=archive.stat().st_size,
+                   plugin=identity['name'], version=identity['version'])
+        records.append(row)
+        rows.append('\t'.join((relative, binary['sha256'], row['compressed_sha256'], str(binary['bytes']), str(row['compressed_bytes']), release_url.rstrip('/') + '/' + name)))
+    return ('\n'.join(rows) + '\n').encode('utf-8'), records
+
+
+def published_runtime(source, header):
+    path = source / 'RUNTIME.tsv'
+    mode = source / 'runtime-mode'
+    if not path.is_file() or not mode.is_file() or mode.read_text(encoding='utf-8').strip() != 'release':
+        raise ValueError('no published runtime to carry forward: ' + source.name)
+    runtime = path.read_bytes()
+    if not runtime.startswith((header + '\n').encode('utf-8')):
+        raise ValueError('published runtime identity does not match plugin: ' + source.name)
+    return runtime
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--release-url', required=True)
+    parser.add_argument('--plugin', help='Seal one runtime plugin and retain published runtimes for all others')
     args = parser.parse_args()
-    build(args.output, args.release_url)
+    build(args.output, args.release_url, args.plugin)

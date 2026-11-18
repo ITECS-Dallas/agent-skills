@@ -1,6 +1,6 @@
 # ITECS Sophos Central
 
-Bundled Sophos Central MCP tools for macOS Apple Silicon/Intel and Windows ARM64/x64.
+Sophos Central MCP tools for macOS Apple Silicon/Intel and Windows ARM64/x64.
 
 ## Setup
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the team packages from GO-MCP using the installed Go toolchain."""
+"""Build local executable inputs and their source manifests from GO-MCP."""
 import argparse
 import concurrent.futures
 import hashlib
@@ -104,7 +104,6 @@ def build_connector(source, entry, jobs):
             print('Built ' + record['path'], flush=True)
     for name in ['runtime.sh', 'cache.sh', 'prepare-runtime', 'doctor.py']:
         shutil.copy2(ROOT / 'scripts/templates' / name, root / 'scripts' / name)
-    (root / 'runtime-mode').write_text('bundled\n', encoding='utf-8', newline='\n')
     manifest = {'source_repository':'https://github.com/ITECS-Dallas/GO-MCP',
                 'source_revision':revision, 'source_dirty':bool(run(['git','status','--porcelain'],source)),
                 'go_toolchain':run(['go','version'],source), 'plugin':entry['plugin'], 'version':metadata['version'],
@@ -192,7 +191,6 @@ def main():
         root = ROOT / 'plugins' / plugin
         for name in ['runtime.sh', 'cache.sh', 'prepare-runtime', 'doctor.py']:
             shutil.copy2(ROOT / 'scripts/templates' / name, root / 'scripts' / name)
-        (root / 'runtime-mode').write_text('bundled\n', encoding='utf-8', newline='\n')
         metadata = json.loads((root / '.codex-plugin/plugin.json').read_text(encoding='utf-8'))
         manifest = {'source_repository': 'https://github.com/ITECS-Dallas/GO-MCP',
                     'source_revision': revision, 'source_dirty': dirty, 'go_toolchain': toolchain,

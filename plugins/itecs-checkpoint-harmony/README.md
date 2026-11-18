@@ -1,6 +1,6 @@
 # ITECS Check Point Harmony
 
-Bundled Check Point Harmony MCP tools for macOS Apple Silicon/Intel and Windows ARM64/x64.
+Check Point Harmony MCP tools for macOS Apple Silicon/Intel and Windows ARM64/x64.
 
 ## Setup
 

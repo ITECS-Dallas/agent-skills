@@ -1,6 +1,6 @@
 # ITECS Veeam Cloud Connect
 
-Bundled Veeam Cloud Connect MCP tools for macOS Apple Silicon/Intel and Windows ARM64/x64.
+Veeam Cloud Connect MCP tools for macOS Apple Silicon/Intel and Windows ARM64/x64.
 
 ## Setup
 

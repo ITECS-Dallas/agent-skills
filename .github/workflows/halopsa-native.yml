@@ -36,10 +36,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - uses: actions/setup-go@v5
-        if: runner.os == 'macOS'
-        with:
-          go-version: '1.27.x'
       - name: Validate marketplace
         run: node scripts/validate.mjs
       - name: Verify generated Claude packages
@@ -48,18 +44,15 @@ jobs:
         run: python -X utf8 plugins/itecs-halopsa/scripts/test-windows.py
       - name: Claude native binary and launcher
         run: python -X utf8 claude/plugins/itecs-halopsa/scripts/test-windows.py
-      - name: All stdio connectors with wrong bash first on PATH
-        run: python -X utf8 scripts/test-native-marketplace.py
-      - name: Full package integrity, provenance and legacy regressions
-        if: runner.os == 'macOS'
-        run: python -X utf8 scripts/test-packages.py
-      - name: Build thin catalog and sealed release assets
-        # This is a staging artifact; the production cutover requires review.
-        run: python -X utf8 scripts/build-distribution.py --output "${{ runner.temp }}/thin-distribution" --release-url https://github.com/ITECS-Dallas/agent-skills/releases/download/windows-packaging-2026-11-12
+      - name: Published binaries and both host launchers with wrong bash first on PATH
+        run: python -X utf8 scripts/test-public-runtime.py --catalog .
       - name: Publication boundary regressions
         run: python -X utf8 scripts/test-distribution-build.py
       - name: Cold, warm, corrupt, concurrent and offline release runtime
-        run: python -X utf8 scripts/test-release-cache.py --distribution "${{ runner.temp }}/thin-distribution"
+        run: python -X utf8 scripts/test-release-cache.py --catalog .
+      - name: N-central automatic setup regression
+        if: runner.os == 'macOS'
+        run: python -X utf8 scripts/test-ncentral-autosetup.py
       - name: Native Windows managed-wrapper setup
         if: runner.os == 'Windows'
         shell: powershell

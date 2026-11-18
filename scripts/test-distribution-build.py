@@ -27,7 +27,7 @@ def main():
             (source / directory).mkdir(parents=True, exist_ok=True)
         for name in ('SECURITY.md', '.gitattributes', 'TOOL-CATALOG.json', 'docs/distribution-README.md'):
             (source / name).write_text('{}\n', encoding='utf-8')
-        (source / '.gitignore').write_text('.env\n', encoding='utf-8')
+        (source / '.gitignore').write_text('.env\n/plugins/*/bin/\n', encoding='utf-8')
         plugin = source / 'plugins/fixture'
         (plugin / '.codex-plugin/plugin.json').write_text(json.dumps({'name': 'fixture', 'version': '1.0.0'}))
         native = plugin / 'bin/native'
@@ -82,7 +82,43 @@ def main():
         else:
             raise AssertionError('unsealed executable accepted')
         assert not (scratch / 'unsealed/DISTRIBUTION.json').exists()
-    print('Distribution boundary tests passed: tracked files only, no binaries in catalog, sealed inputs, deterministic gzip, portable modes, safe HTTPS URLs.')
+        native.write_bytes(payload)
+        untouched = source / 'plugins/untouched'
+        host_copy = source / 'claude/plugins/untouched'
+        for directory in (untouched, host_copy):
+            (directory / '.codex-plugin').mkdir(parents=True)
+            (directory / '.codex-plugin/plugin.json').write_text(json.dumps({'name': 'untouched', 'version': '1.0.0'}))
+            (directory / 'BUILD-MANIFEST.json').write_text((plugin / 'BUILD-MANIFEST.json').read_text())
+            (directory / 'scripts').mkdir()
+            (directory / 'scripts/launch.sh').write_bytes(launcher.read_bytes())
+            (directory / 'runtime-mode').write_text('release\n', encoding='utf-8', newline='\n')
+        published = (target / 'RUNTIME.tsv').read_bytes().replace(b'fixture', b'untouched')
+        (untouched / 'RUNTIME.tsv').write_bytes(published)
+        subprocess.run(['git', 'add', '.'], cwd=source, check=True)
+        scoped = scratch / 'scoped'
+        scope_url = 'https://github.com/example/runtime/releases/download/v2'
+        module.build(scoped, scope_url, 'fixture')
+        summary = json.loads((scoped / 'DISTRIBUTION.json').read_text(encoding='utf-8'))
+        records = json.loads((scoped / 'RELEASE-ASSETS.json').read_text(encoding='utf-8'))
+        assert summary['asset_count'] == 1 and [row['plugin'] for row in records] == ['fixture']
+        assert next((scoped / 'assets').iterdir()).read_bytes() == one.read_bytes()
+        for base in ('plugins', 'claude/plugins'):
+            assert (scoped / 'catalog' / base / 'untouched' / 'RUNTIME.tsv').read_bytes() == published
+        assert scope_url.encode() in (scoped / 'catalog/plugins/fixture/RUNTIME.tsv').read_bytes()
+        assert not list((scoped / 'catalog').rglob('bin'))
+        try:
+            module.build(scratch / 'unknown-plugin', url, 'unknown')
+        except ValueError as error:
+            assert 'unknown runtime plugin' in str(error)
+        else:
+            raise AssertionError('unknown runtime selected')
+        try:
+            module.build(scratch / 'missing-build', url)
+        except ValueError as error:
+            assert 'missing local build' in str(error)
+        else:
+            raise AssertionError('full distribution accepted a missing local executable')
+    print('Distribution boundary tests passed: tracked files only, no binaries in catalog, sealed inputs, deterministic gzip, portable modes, safe HTTPS URLs, and scoped releases carry forward existing runtime rows.')
 
 
 if __name__ == '__main__':
