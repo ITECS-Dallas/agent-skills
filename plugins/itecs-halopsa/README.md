@@ -1,8 +1,14 @@
 # ITECS HaloPSA for Atlas
 
-Version 0.18.2 packages 57 typed tools (27 reads and 30 writes) for macOS, Windows and Linux, including one-time invoice creation, invoice approval and QuickBooks Online sync, tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
+Version 0.18.4 packages 58 typed tools (27 reads and 31 writes) for macOS, Windows and Linux, including one-time invoice creation, invoice approval and QuickBooks Online sync, recurring invoice line edits, tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
 
 See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Start a new Codex or Claude Code session after updating the plugin.
+
+## What changed in 0.18.4
+
+- **Recurring invoice line edits without the browser.** `halopsa.recurring_invoices.update_lines` changes an existing line's quantity, unit price, description, long description or inactive flag by recurring invoice id (negative, for example `-51`) and line id (for example `203`), and `add_lines` appends lines. Only the named lines and changed fields are sent, as HaloPSA's recurring invoice screen does, so other lines and pro-rata entries are left as they are. The preview shows current and new values, pending pro-rata and the active-line total; `confirm: true` writes once and verifies every change and that nothing else changed. Set `inactive: true` to stop a line billing; lines are not deleted. Needs `edit:invoices`.
+
+Existing 1Password-backed settings are reused. Verify `connector_version: 0.18.4` in a new session.
 
 ## What changed in 0.18.2
 
@@ -149,6 +155,7 @@ The MCP server exposes the current GO-MCP HaloPSA tools:
 - `halopsa.invoices.sync_to_accounting`
 - `halopsa.invoices.create`
 - `halopsa.invoices.approve`
+- `halopsa.recurring_invoices.update_lines`
 
 Exact ticket reads accept ITECS references such as `ITECS-0095045`. For a status change, native closure, screenshot upload, or a standalone email to the designated contact, see [ticket actions](skills/halopsa-mcp/references/ticket-actions.md).
 
