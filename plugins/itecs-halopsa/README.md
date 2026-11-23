@@ -1,14 +1,20 @@
 # ITECS HaloPSA for Atlas
 
-Version 0.18.4 packages 58 typed tools (27 reads and 31 writes) for macOS, Windows and Linux, including one-time invoice creation, invoice approval and QuickBooks Online sync, recurring invoice line edits, tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
+Version 0.18.5 packages 58 typed tools (27 reads and 31 writes) for macOS, Windows and Linux, including one-time invoice creation, invoice approval and QuickBooks Online sync, recurring invoice line edits, tenant metadata, the authenticated technician, billing contracts and charge rates, edits of existing time entries, notes, clients, contacts, sites and assets, compact reads for AI sessions, change history, timesheet and asset reads, and the sales opportunity workflow: Project Opportunities, prospect clients and contacts, internal document attachments and opportunity workflow stages. The technician's request authorizes its stated actions, including client-visible, creation, stage and billing changes. All writes use `confirm`; Atlas resolves required facts internally and does not ask for repeated approval. Draft-only requests stay drafts.
 
 See [the runtime workflow](skills/halopsa-mcp/SKILL.md) for current operation behavior and [Linux support-agent setup](docs/linux-support-agent.md) for ChatGPT subscription authentication, packaging and the canonical `/home/itecs/US1` documentation workspace. The optional [client troubleshooting and how-to skill](skills/service-desk-client-troubleshooting/SKILL.md) continues replies on an existing ticket and closes only after the client clearly confirms resolution or intended task completion. Start a new Codex or Claude Code session after updating the plugin.
+
+## What changed in 0.18.5
+
+- **Recurring line edits no longer reprice discounted lines.** HaloPSA recomputes every line priced as a list price less a percentage whenever any line of the recurring invoice is edited, applying the percent to the already discounted price, so 0.18.4 edits raised those prices (for example 118.75 to 119.0625). `halopsa.recurring_invoices.update_lines` now refuses, before writing, any edit after which HaloPSA would change a line's price, and names the `{line_id, unit_price}` entries to add. A unit price set on a discounted line is written as a flat price with no discount, which HaloPSA keeps. An unrequested price change in the readback is reported as a billing error.
+
+Existing 1Password-backed settings are reused. Verify `connector_version: 0.18.5` in a new session.
 
 ## What changed in 0.18.4
 
 - **Recurring invoice line edits without the browser.** `halopsa.recurring_invoices.update_lines` changes an existing line's quantity, unit price, description, long description or inactive flag by recurring invoice id (negative, for example `-51`) and line id (for example `203`), and `add_lines` appends lines. Only the named lines and changed fields are sent, as HaloPSA's recurring invoice screen does, so other lines and pro-rata entries are left as they are. The preview shows current and new values, pending pro-rata and the active-line total; `confirm: true` writes once and verifies every change and that nothing else changed. Set `inactive: true` to stop a line billing; lines are not deleted. Needs `edit:invoices`.
 
-Existing 1Password-backed settings are reused. Verify `connector_version: 0.18.4` in a new session.
+Existing 1Password-backed settings are reused.
 
 ## What changed in 0.18.2
 
